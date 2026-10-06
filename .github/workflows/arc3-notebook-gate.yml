@@ -49,6 +49,13 @@ jobs:
               "explicit compact transition model",
               "assert AION_SENTINEL",
               "prompt += AION_VERIFICATION_ADDENDUM",
+              "ASTRA ARC MEMORY",
+              "ASTRA TARDIGRADE CHECKPOINT",
+              "ASTRA ADVERSARIAL VERIFY2",
+              "ASTRA SEMANTIC FLOW for state graphs",
+              "ASTRA ZERO-WEAK-STATE",
+              "ASTRA PROOF GATE for plan execution",
+              "EXPERIENCE REPLAY",
               "--no-index",
           ]
           missing = [x for x in required if x not in whole]
