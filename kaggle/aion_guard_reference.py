@@ -35,6 +35,7 @@ def aion_frame_signature(frame):
             str(node.get("color", "")),
             str(node.get("hash", "")),
             int(node.get("pixels", 0) or 0),
+            bbox,
             dims,
             len(node.get("children", []) or []),
         ))
