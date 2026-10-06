@@ -65,7 +65,7 @@ jobs:
               "aion_rollback_verified",
               "rollback_on_mismatch",
               "force_probe",
-              "explicit compact transition model",
+              "compact executable transition model",
               "assert AION_SANDBOX_SENTINEL",
               "--no-index",
           ]
