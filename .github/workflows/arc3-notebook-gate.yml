@@ -62,9 +62,32 @@ jobs:
               "def aion_prediction_match(expected, observed):",
               "runtime_globals[\\\"aion_information_gain\\\"]",
               "--no-index",
+              "ASTRA_ARC_TOOLKIT_V1",
+              "astra_semantic_signature",
+              "astra_transition_digest",
+              "astra_counterexamples",
+              "astra_novelty_frontier",
+              "astra_bfs",
           ]
           missing = [x for x in required if x not in whole]
           assert not missing, f"missing required guards: {missing}"
+
+          # Extract and syntax-check the runtime strings that will be patched into Duck.
+          overlay_cell = next(c for c in cells if c.get("id") == "aion-v2-overlay")
+          overlay_source = "".join(overlay_cell.get("source", []))
+          tree = ast.parse(overlay_source)
+          assigned = {}
+          for node in ast.walk(tree):
+              if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+                  try:
+                      assigned[node.targets[0].id] = ast.literal_eval(node.value)
+                  except Exception:
+                      pass
+          addendum = assigned.get("addendum", "")
+          assert "ASTRA ADVERSARIAL VERIFY2" in addendum
+          assert "ASTRA TARDIGRADE CHECKPOINT" in addendum
+          assert "EXPERIENCE REPLAY" in addendum
+          assert "ASTRA ARC TOOLKIT" in addendum
 
           print("ARC3 NOTEBOOK GATE: PASS")
           PY
