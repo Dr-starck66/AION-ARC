@@ -45,8 +45,9 @@ jobs:
               "AFFILIATE_KINSTA_URL",
           ]
           scanned = []
+          self_path = Path(".github/workflows/aion-repo-identity-gate.yml")
           for p in Path(".").rglob("*"):
-              if not p.is_file() or ".git" in p.parts:
+              if not p.is_file() or ".git" in p.parts or p == self_path:
                   continue
               if p.suffix.lower() not in {".py",".md",".yml",".yaml",".json",".toml",".mjs",".js"}:
                   continue
