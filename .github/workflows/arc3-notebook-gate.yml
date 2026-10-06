@@ -17,77 +17,65 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate AION Kaggle notebook
+
+      - name: Unit test AION guard
+        run: python -m unittest -v kaggle/test_aion_guard.py
+
+      - name: Validate AION v2.1 Kaggle notebook
         shell: bash
         run: |
           python - <<'PY'
           import ast, json
           from pathlib import Path
 
-          path = Path("kaggle/AION-ARC-v2.0-duck-retrodict.ipynb")
+          path = Path("kaggle/AION-ARC-v2.1-tardigrade.ipynb")
           nb = json.loads(path.read_text())
           assert nb["nbformat"] == 4
+          assert nb["metadata"]["aion_arc"]["version"] == "2.1"
+          assert nb["metadata"]["aion_arc"]["status"] == "UNVERIFIED"
 
           cells = nb["cells"]
           ids = [c.get("id") for c in cells]
-          assert "aion-v2-overlay" in ids
+          assert "aion-v21-overlay" in ids
           assert "10" in ids
-          assert ids.index("aion-v2-overlay") < ids.index("10"), "overlay must run before benchmark unpickle"
+          assert ids.index("aion-v21-overlay") < ids.index("10"), "overlay must run before benchmark unpickle"
 
-          overlay = next(c for c in cells if c.get("id") == "aion-v2-overlay")
+          overlay = next(c for c in cells if c.get("id") == "aion-v21-overlay")
           source = "".join(overlay.get("source", []))
           ast.parse(source)
 
-          whole = "\n".join("".join(c.get("source", [])) if isinstance(c.get("source"), list) else str(c.get("source", "")) for c in cells)
+          whole = "\n".join(
+              "".join(c.get("source", [])) if isinstance(c.get("source"), list)
+              else str(c.get("source", ""))
+              for c in cells
+          )
+
           required = [
               "jeroencottaar/taaf-kaggle-source-share",
               "driessmit1/arc3-vllm-h100-wheelhouse-v3",
               "driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot",
-              "retrodict first",
-              "Every live action needs a concrete prediction",
-              "abort the remaining plan immediately",
+              "MYTHOS ASTRA Ω",
+              "NO-REPEAT Ω",
+              "TARDIGRADE Ω",
+              "aion_frame_signature",
+              "aion_evidence",
+              "aion_plan_audit",
+              "aion_prediction_mismatch",
+              "aion_plan_aborted",
+              "aion_rollback_verified",
+              "rollback_on_mismatch",
+              "force_probe",
               "explicit compact transition model",
-              "assert AION_SENTINEL",
-              "prompt += AION_VERIFICATION_ADDENDUM",
-              "ASTRA ARC MEMORY",
-              "ASTRA TARDIGRADE CHECKPOINT",
-              "ASTRA ADVERSARIAL VERIFY2",
-              "ASTRA SEMANTIC FLOW for state graphs",
-              "ASTRA ZERO-WEAK-STATE",
-              "ASTRA PROOF GATE for plan execution",
-              "EXPERIENCE REPLAY",
-              "AION SCIENTIFIC LOOP Ω",
-              "def aion_semantic_signature(frame):",
-              "def aion_information_gain(predictions_by_action):",
-              "def aion_prediction_match(expected, observed):",
-              "runtime_globals[\\\"aion_information_gain\\\"]",
+              "assert AION_SANDBOX_SENTINEL",
               "--no-index",
-              "ASTRA_ARC_TOOLKIT_V1",
-              "astra_semantic_signature",
-              "astra_transition_digest",
-              "astra_counterexamples",
-              "astra_novelty_frontier",
-              "astra_bfs",
           ]
           missing = [x for x in required if x not in whole]
-          assert not missing, f"missing required guards: {missing}"
+          assert not missing, f"missing required AION v2.1 guards: {missing}"
 
-          # Extract and syntax-check the runtime strings that will be patched into Duck.
-          overlay_cell = next(c for c in cells if c.get("id") == "aion-v2-overlay")
-          overlay_source = "".join(overlay_cell.get("source", []))
-          tree = ast.parse(overlay_source)
-          assigned = {}
-          for node in ast.walk(tree):
-              if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
-                  try:
-                      assigned[node.targets[0].id] = ast.literal_eval(node.value)
-                  except Exception:
-                      pass
-          addendum = assigned.get("addendum", "")
-          assert "ASTRA ADVERSARIAL VERIFY2" in addendum
-          assert "ASTRA TARDIGRADE CHECKPOINT" in addendum
-          assert "EXPERIENCE REPLAY" in addendum
-          assert "ASTRA ARC TOOLKIT" in addendum
+          # False-PASS hunt: v2.1 must not claim an official Kaggle score.
+          forbidden_claims = ["KAGGLE SCORE: PASS", "hidden score = 100", "official score 100%"]
+          bad = [x for x in forbidden_claims if x.lower() in whole.lower()]
+          assert not bad, f"forbidden unverified score claims: {bad}"
 
-          print("ARC3 NOTEBOOK GATE: PASS")
+          print("ARC3 AION V2.1 NOTEBOOK GATE: PASS")
           PY
