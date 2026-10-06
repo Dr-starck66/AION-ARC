@@ -56,6 +56,11 @@ jobs:
               "ASTRA ZERO-WEAK-STATE",
               "ASTRA PROOF GATE for plan execution",
               "EXPERIENCE REPLAY",
+              "AION SCIENTIFIC LOOP Ω",
+              "def aion_semantic_signature(frame):",
+              "def aion_information_gain(predictions_by_action):",
+              "def aion_prediction_match(expected, observed):",
+              "runtime_globals[\\\"aion_information_gain\\\"]",
               "--no-index",
           ]
           missing = [x for x in required if x not in whole]
