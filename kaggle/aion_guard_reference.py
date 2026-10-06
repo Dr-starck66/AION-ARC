@@ -123,27 +123,45 @@ def aion_prediction_match(expected, observed):
         return all(aion_prediction_match(a, b) for a, b in zip(expected, observed))
     return expected == observed
 
-def aion_information_gain(predictions_by_action):
-    """Rank probes by disagreement among candidate hypotheses."""
+def aion_information_gain(actions_or_predictions, hypotheses=None, state=None, risk=None):
+    """Rank probes by hypothesis disagreement; supports precomputed outcomes or executable hypotheses."""
     import math
-    scores = {}
-    for action_name, outcomes in dict(predictions_by_action or {}).items():
+    if hypotheses is None and isinstance(actions_or_predictions, dict):
+        predictions = dict(actions_or_predictions)
+    else:
+        predictions = {}
+        for action_name in list(actions_or_predictions or []):
+            vals = []
+            for hypothesis in list(hypotheses or []):
+                try:
+                    vals.append(hypothesis.predict(state, action_name))
+                except Exception as exc:
+                    vals.append(("ERROR", type(exc).__name__))
+            predictions[str(action_name)] = vals
+
+    ranked = []
+    for action_name, outcomes in predictions.items():
         vals = list(outcomes or [])
-        if not vals:
-            scores[str(action_name)] = 0.0
-            continue
         counts = {}
         for value in vals:
             key = repr(value)
             counts[key] = counts.get(key, 0) + 1
-        total = float(len(vals))
+        total = float(len(vals) or 1)
         entropy = 0.0
         for count in counts.values():
             p = count / total
             if p > 0:
                 entropy -= p * math.log(p, 2)
-        scores[str(action_name)] = entropy
-    return sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))
+        penalty = float(risk(action_name)) if callable(risk) else 0.0
+        ranked.append({"action": str(action_name), "information_gain": entropy, "risk": penalty, "utility": entropy - penalty})
+    ranked.sort(key=lambda row: (-row["utility"], -row["information_gain"], row["action"]))
+    if hypotheses is None and isinstance(actions_or_predictions, dict):
+        return [(row["action"], row["information_gain"]) for row in ranked]
+    return ranked
+
+def aion_choose_probe(actions, hypotheses, state, risk=None):
+    ranked = aion_information_gain(actions, hypotheses, state, risk=risk)
+    return ranked[0]["action"] if ranked else None
 
 def aion_state_graph(transitions, limit=80):
     """ASTRA SEMANTIC FLOW Ω: compact state/action graph with conflicts and loops."""
