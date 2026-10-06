@@ -75,5 +75,23 @@ class AionGuardTests(unittest.TestCase):
         choice = g.aion_choose_probe(["SAFE","RISKY"], [h1,h2], 0, risk=lambda a: 2.0 if a=="RISKY" else 0.0)
         self.assertEqual(choice, "SAFE")
 
+    def test_compact_memory_learns_success_and_failure(self):
+        a=Frame([node("R","a",1,[[1,1],[1,1],[1,1],[1,1]])])
+        b=Frame([node("R","b",1,[[2,2],[2,2],[2,2],[2,2]])])
+        good=types.SimpleNamespace(action="ACTION1", before_frame=a, after_frame=b, result={"level_completed":True,"reward":1})
+        inert=types.SimpleNamespace(action="ACTION2", before_frame=b, after_frame=b, result={})
+        mem=g.aion_compact_memory([good,inert])
+        self.assertEqual(mem["confirmed_effects"]["ACTION1"], 1)
+        self.assertEqual(mem["inert_actions"]["ACTION2"], 1)
+        self.assertTrue(mem["progress_actions"])
+
+    def test_ablation_profiles_keep_baseline_and_balanced(self):
+        base=g.aion_ablation_profile("duck_baseline")
+        full=g.aion_ablation_profile("balanced")
+        self.assertFalse(base["prediction_gate"])
+        self.assertTrue(full["prediction_gate"])
+        self.assertTrue(full["compact_memory"])
+        self.assertTrue(full["world_model"])
+
 if __name__ == "__main__":
     unittest.main()
