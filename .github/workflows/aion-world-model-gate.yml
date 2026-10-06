@@ -1,0 +1,34 @@
+name: AION World Model Proof Gate
+on:
+  push:
+    branches: [arc3-kaggle-100]
+    paths: ["astra_arc/**","tests/**",".github/workflows/aion-world-model-gate.yml"]
+  pull_request:
+    paths: ["astra_arc/**","tests/**",".github/workflows/aion-world-model-gate.yml"]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install pytest
+      - run: pytest -q tests/test_world_model.py
+      - name: Adversarial proof
+        run: |
+          python - <<'PY'
+          from astra_arc.world_model import *
+          h=Hypothesis("poison",lambda s,a:s)
+          assert not h.retrodict([Transition(0,1,1)])
+          assert h.confidence == Confidence.QUARANTINED
+          n=0
+          def step(a):
+              global n
+              n+=1
+              return n
+          r=execute_verified([1,1,1],[1,999,3],step)
+          assert r["status"]=="QUARANTINED" and n==2
+          print("AION WORLD MODEL PROOF GATE: PASS")
+          PY
