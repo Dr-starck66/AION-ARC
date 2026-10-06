@@ -329,3 +329,32 @@ def aion_efficiency_gate(candidate_action, transitions, hypotheses=None, state=N
         "efficiency": efficiency,
         "information_utility": utility,
     }
+
+
+def aion_bfs_plan(start, actions, predict, goal, key=repr, max_nodes=5000, max_depth=64):
+    """Bounded BFS. Intended only for world models already falsified against recorded history."""
+    from collections import deque
+    if goal(start):
+        return {"status": "FOUND", "plan": [], "expanded": 0}
+    q = deque([(start, [])])
+    seen = {key(start)}
+    expanded = 0
+    while q and expanded < int(max_nodes):
+        state, plan = q.popleft()
+        expanded += 1
+        if len(plan) >= int(max_depth):
+            continue
+        for action in list(actions or []):
+            try:
+                nxt = predict(state, action)
+            except Exception:
+                continue
+            k = key(nxt)
+            if k in seen:
+                continue
+            next_plan = plan + [action]
+            if goal(nxt):
+                return {"status": "FOUND", "plan": next_plan, "expanded": expanded}
+            seen.add(k)
+            q.append((nxt, next_plan))
+    return {"status": "EXHAUSTED" if not q else "BOUNDED", "plan": None, "expanded": expanded}
