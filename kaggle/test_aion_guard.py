@@ -29,6 +29,11 @@ class AionGuardTests(unittest.TestCase):
         b = node("R","obj2",5,[[20,20],[20,22],[21,22],[21,20]])
         self.assertNotEqual(g.aion_frame_signature(Frame([a])), g.aion_frame_signature(Frame([b])))
 
+    def test_object_motion_changes_signature(self):
+        a = node("R","same-shape",4,[[20,20],[20,21],[21,21],[21,20]])
+        b = node("R","same-shape",4,[[20,21],[20,22],[21,22],[21,21]])
+        self.assertNotEqual(g.aion_frame_signature(Frame([a])), g.aion_frame_signature(Frame([b])))
+
     def test_prediction_mismatch_detected(self):
         mm = g.aion_expectation_mismatches({"expect_change": True}, {"board_changed": False}, Frame([]))
         self.assertTrue(mm)
