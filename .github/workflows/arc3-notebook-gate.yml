@@ -1,0 +1,58 @@
+name: ARC3 Kaggle Notebook Gate
+
+on:
+  push:
+    branches: [arc3-kaggle-100]
+  pull_request:
+    paths:
+      - "kaggle/**"
+      - ".github/workflows/arc3-notebook-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate AION Kaggle notebook
+        shell: bash
+        run: |
+          python - <<'PY'
+          import ast, json
+          from pathlib import Path
+
+          path = Path("kaggle/AION-ARC-v2.0-duck-retrodict.ipynb")
+          nb = json.loads(path.read_text())
+          assert nb["nbformat"] == 4
+
+          cells = nb["cells"]
+          ids = [c.get("id") for c in cells]
+          assert "aion-v2-overlay" in ids
+          assert "10" in ids
+          assert ids.index("aion-v2-overlay") < ids.index("10"), "overlay must run before benchmark unpickle"
+
+          overlay = next(c for c in cells if c.get("id") == "aion-v2-overlay")
+          source = "".join(overlay.get("source", []))
+          ast.parse(source)
+
+          whole = "\n".join("".join(c.get("source", [])) if isinstance(c.get("source"), list) else str(c.get("source", "")) for c in cells)
+          required = [
+              "jeroencottaar/taaf-kaggle-source-share",
+              "driessmit1/arc3-vllm-h100-wheelhouse-v3",
+              "driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot",
+              "retrodict first",
+              "Every live action needs a concrete prediction",
+              "abort the remaining plan immediately",
+              "explicit compact transition model",
+              "assert AION_SENTINEL",
+              "prompt += AION_VERIFICATION_ADDENDUM",
+              "--no-index",
+          ]
+          missing = [x for x in required if x not in whole]
+          assert not missing, f"missing required guards: {missing}"
+
+          print("ARC3 NOTEBOOK GATE: PASS")
+          PY
