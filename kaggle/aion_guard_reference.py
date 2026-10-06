@@ -174,3 +174,63 @@ def aion_state_graph(transitions, limit=80):
         "self_loops": self_loops,
         "terminals": terminals,
     }
+
+
+def aion_compact_memory(transitions, limit=120):
+    """ASTRA NO-REPEAT + continual memory: retain causal evidence, contradictions and progress, not raw chatter."""
+    rows = list(transitions or [])[-max(1, int(limit)):]
+    memory = {
+        "confirmed_effects": {},
+        "inert_actions": {},
+        "contradictions": [],
+        "progress_actions": [],
+        "terminal_actions": [],
+    }
+    outcomes = {}
+    for idx, tr in enumerate(rows):
+        action_name = str(getattr(tr, "action", "")).upper()
+        before = aion_frame_signature(getattr(tr, "before_frame", None))
+        after = aion_frame_signature(getattr(tr, "after_frame", None))
+        result = dict(getattr(tr, "result", {}) or {})
+        changed = before != after
+        key = (repr(before), action_name)
+        outcomes.setdefault(key, set()).add(repr(after))
+        if changed:
+            memory["confirmed_effects"][action_name] = memory["confirmed_effects"].get(action_name, 0) + 1
+        else:
+            memory["inert_actions"][action_name] = memory["inert_actions"].get(action_name, 0) + 1
+        if result.get("level_completed") or result.get("reward"):
+            memory["progress_actions"].append((idx, action_name))
+        if result.get("game_over") or result.get("run_complete") or result.get("done"):
+            memory["terminal_actions"].append((idx, action_name))
+    for (_state, action_name), next_states in outcomes.items():
+        if len(next_states) > 1:
+            memory["contradictions"].append({"action": action_name, "distinct_outcomes": len(next_states)})
+    memory["confirmed_effects"] = dict(sorted(memory["confirmed_effects"].items(), key=lambda kv: (-kv[1], kv[0])))
+    memory["inert_actions"] = dict(sorted(memory["inert_actions"].items(), key=lambda kv: (-kv[1], kv[0])))
+    return memory
+
+def aion_ablation_profile(profile="balanced"):
+    """Fail-open experiment profiles: keep the Duck baseline measurable against ASTRA additions."""
+    profiles = {
+        "duck_baseline": {
+            "prediction_gate": False, "rollback": False, "no_repeat": False,
+            "compact_memory": False, "world_model": False,
+        },
+        "guarded": {
+            "prediction_gate": True, "rollback": True, "no_repeat": True,
+            "compact_memory": False, "world_model": False,
+        },
+        "memory": {
+            "prediction_gate": True, "rollback": True, "no_repeat": True,
+            "compact_memory": True, "world_model": False,
+        },
+        "balanced": {
+            "prediction_gate": True, "rollback": True, "no_repeat": True,
+            "compact_memory": True, "world_model": True,
+        },
+    }
+    name = str(profile or "balanced").strip().lower()
+    if name not in profiles:
+        raise ValueError("unknown AION ablation profile: " + name)
+    return dict(profiles[name])
