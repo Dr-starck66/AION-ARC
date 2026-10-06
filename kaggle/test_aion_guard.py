@@ -37,6 +37,24 @@ class AionGuardTests(unittest.TestCase):
         warnings = g.aion_plan_audit([{"action":"RESET"}], ["RESET","ACTION7"])
         self.assertTrue(any("ACTION7" in w for w in warnings))
 
+    def test_information_gain_prefers_disagreement(self):
+        ranked = g.aion_information_gain({"boring":[1,1], "probe":[1,2]})
+        self.assertEqual(ranked[0][0], "probe")
+        self.assertGreater(ranked[0][1], ranked[1][1])
+
+    def test_prediction_match_partial_dict(self):
+        self.assertTrue(g.aion_prediction_match({"x":1}, {"x":1,"y":2}))
+        self.assertFalse(g.aion_prediction_match({"x":2}, {"x":1,"y":2}))
+
+    def test_state_graph_detects_conflict(self):
+        a=Frame([node("R","a",1,[[1,1],[1,1],[1,1],[1,1]])])
+        b=Frame([node("R","b",1,[[2,2],[2,2],[2,2],[2,2]])])
+        c=Frame([node("R","c",1,[[3,3],[3,3],[3,3],[3,3]])])
+        t1=types.SimpleNamespace(action="ACTION1", before_frame=a, after_frame=b, result={})
+        t2=types.SimpleNamespace(action="ACTION1", before_frame=a, after_frame=c, result={})
+        graph=g.aion_state_graph([t1,t2])
+        self.assertTrue(graph["conflicts"])
+
     def test_repeated_inert_probe_warns(self):
         f = Frame([])
         tr = types.SimpleNamespace(action="ACTION5", before_frame=f, after_frame=f, result={"board_changed":False})
