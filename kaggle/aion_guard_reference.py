@@ -109,3 +109,68 @@ def aion_expectation_mismatches(spec, action_result, frame):
         if actual_level != int(spec.get("expect_level")):
             mismatches.append(f"expect_level={int(spec.get('expect_level'))} actual={actual_level}")
     return mismatches
+
+
+def aion_prediction_match(expected, observed):
+    """Recursive partial matcher for falsifiable predictions."""
+    if isinstance(expected, dict):
+        if not isinstance(observed, dict):
+            return False
+        return all(k in observed and aion_prediction_match(v, observed[k]) for k, v in expected.items())
+    if isinstance(expected, (list, tuple)):
+        if not isinstance(observed, (list, tuple)) or len(expected) != len(observed):
+            return False
+        return all(aion_prediction_match(a, b) for a, b in zip(expected, observed))
+    return expected == observed
+
+def aion_information_gain(predictions_by_action):
+    """Rank probes by disagreement among candidate hypotheses."""
+    import math
+    scores = {}
+    for action_name, outcomes in dict(predictions_by_action or {}).items():
+        vals = list(outcomes or [])
+        if not vals:
+            scores[str(action_name)] = 0.0
+            continue
+        counts = {}
+        for value in vals:
+            key = repr(value)
+            counts[key] = counts.get(key, 0) + 1
+        total = float(len(vals))
+        entropy = 0.0
+        for count in counts.values():
+            p = count / total
+            if p > 0:
+                entropy -= p * math.log(p, 2)
+        scores[str(action_name)] = entropy
+    return sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))
+
+def aion_state_graph(transitions, limit=80):
+    """ASTRA SEMANTIC FLOW Ω: compact state/action graph with conflicts and loops."""
+    rows = list(transitions or [])[-max(1, int(limit)):]
+    edges = {}
+    states = set()
+    terminals = []
+    for i, tr in enumerate(rows):
+        before = aion_frame_signature(getattr(tr, "before_frame", None))
+        after = aion_frame_signature(getattr(tr, "after_frame", None))
+        states.add(before)
+        states.add(after)
+        action_name = str(getattr(tr, "action", ""))
+        edges.setdefault((before, action_name), set()).add(after)
+        result = getattr(tr, "result", {}) or {}
+        if any(bool(result.get(k)) for k in ("level_completed", "game_over", "run_complete", "done")):
+            terminals.append((i, action_name))
+    conflicts = [
+        {"action": action, "outcomes": len(outcomes)}
+        for (_before, action), outcomes in edges.items()
+        if len(outcomes) > 1
+    ]
+    self_loops = sum(1 for (before, _action), outcomes in edges.items() if before in outcomes)
+    return {
+        "states": len(states),
+        "edges": len(edges),
+        "conflicts": conflicts,
+        "self_loops": self_loops,
+        "terminals": terminals,
+    }
