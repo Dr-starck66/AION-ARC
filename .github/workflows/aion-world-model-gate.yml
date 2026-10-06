@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
       - run: pip install pytest
-      - run: python -m pytest -q tests/test_world_model.py
+      - run: python -m pytest -q tests/test_world_model.py tests/test_scientific_loop.py
       - name: Adversarial proof
         run: |
           python - <<'PY'
@@ -30,5 +30,13 @@ jobs:
               return n
           r=execute_verified([1,1,1],[1,999,3],step)
           assert r["status"]=="QUARANTINED" and n==2
-          print("AION WORLD MODEL PROOF GATE: PASS")
+          from astra_arc.scientific_loop import Candidate, falsify, choose_probe
+          good=Candidate("good",lambda s,a:s+a)
+          bad=Candidate("bad",lambda s,a:s)
+          alive=falsify([good,bad],[(0,1,1),(1,2,3)])
+          assert [x.name for x in alive]==["good"]
+          p1=Candidate("p1",lambda s,a:s if a=="noop" else s+1)
+          p2=Candidate("p2",lambda s,a:s if a=="noop" else s+2)
+          assert choose_probe(["noop","probe"],[p1,p2],0)=="probe"
+          print("AION WORLD MODEL + SCIENTIFIC LOOP PROOF GATE: PASS")
           PY
