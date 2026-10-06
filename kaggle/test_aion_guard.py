@@ -61,5 +61,19 @@ class AionGuardTests(unittest.TestCase):
         warnings = g.aion_plan_audit([{"action":"ACTION5"}], ["ACTION5"], [tr], {})
         self.assertTrue(any("inert" in w for w in warnings))
 
+    def test_information_gain_prefers_discriminating_probe(self):
+        h1 = types.SimpleNamespace(name="h1", predict=lambda s,a: s if a=="NOOP" else s+1)
+        h2 = types.SimpleNamespace(name="h2", predict=lambda s,a: s if a=="NOOP" else s+2)
+        ranked = g.aion_information_gain(["NOOP","PROBE"], [h1,h2], 0)
+        self.assertEqual(ranked[0]["action"], "PROBE")
+        self.assertGreater(ranked[0]["information_gain"], ranked[1]["information_gain"])
+        self.assertEqual(g.aion_choose_probe(["NOOP","PROBE"], [h1,h2], 0), "PROBE")
+
+    def test_probe_selector_penalizes_risk(self):
+        h1 = types.SimpleNamespace(name="h1", predict=lambda s,a: a)
+        h2 = types.SimpleNamespace(name="h2", predict=lambda s,a: a if a=="SAFE" else "OTHER")
+        choice = g.aion_choose_probe(["SAFE","RISKY"], [h1,h2], 0, risk=lambda a: 2.0 if a=="RISKY" else 0.0)
+        self.assertEqual(choice, "SAFE")
+
 if __name__ == "__main__":
     unittest.main()
