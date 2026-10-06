@@ -75,6 +75,18 @@ class AionGuardTests(unittest.TestCase):
         choice = g.aion_choose_probe(["SAFE","RISKY"], [h1,h2], 0, risk=lambda a: 2.0 if a=="RISKY" else 0.0)
         self.assertEqual(choice, "SAFE")
 
+    def test_bfs_planner_finds_short_plan(self):
+        result = g.aion_bfs_plan(
+            0,
+            [1,2],
+            lambda state, action: state + action,
+            lambda state: state == 5,
+            max_nodes=30,
+            max_depth=5,
+        )
+        self.assertEqual(result["status"], "FOUND")
+        self.assertEqual(sum(result["plan"]), 5)
+
     def test_compact_memory_learns_success_and_failure(self):
         a=Frame([node("R","a",1,[[1,1],[1,1],[1,1],[1,1]])])
         b=Frame([node("R","b",1,[[2,2],[2,2],[2,2],[2,2]])])
