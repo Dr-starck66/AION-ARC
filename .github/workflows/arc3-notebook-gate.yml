@@ -62,6 +62,7 @@ jobs:
               "aion_plan_audit",
               "aion_information_gain",
               "aion_choose_probe",
+              "aion_bfs_plan",
               "aion_prediction_mismatch",
               "aion_plan_aborted",
               "aion_rollback_verified",
