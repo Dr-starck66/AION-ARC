@@ -21,28 +21,29 @@ jobs:
       - name: Unit test AION guard
         run: python -m unittest -v kaggle/test_aion_guard.py
 
-      - name: Validate AION v2.1 Kaggle notebook
+      - name: Validate AION v2.2 Kaggle notebook
         shell: bash
         run: |
           python - <<'PY'
           import ast, json
           from pathlib import Path
 
-          path = Path("kaggle/AION-ARC-v2.1-tardigrade.ipynb")
+          path = Path("kaggle/AION-ARC-v2.2-world-model.ipynb")
           nb = json.loads(path.read_text())
           assert nb["nbformat"] == 4
-          assert nb["metadata"]["aion_arc"]["version"] == "2.1"
+          assert nb["metadata"]["aion_arc"]["version"] == "2.2"
           assert nb["metadata"]["aion_arc"]["status"] == "UNVERIFIED"
 
           cells = nb["cells"]
           ids = [c.get("id") for c in cells]
           assert "aion-v21-overlay" in ids
+          assert "aion-v22-scientific" in ids
           assert "10" in ids
-          assert ids.index("aion-v21-overlay") < ids.index("10"), "overlay must run before benchmark unpickle"
+          assert ids.index("aion-v21-overlay") < ids.index("aion-v22-scientific") < ids.index("10")
 
-          overlay = next(c for c in cells if c.get("id") == "aion-v21-overlay")
-          source = "".join(overlay.get("source", []))
-          ast.parse(source)
+          for cid in ("aion-v21-overlay", "aion-v22-scientific"):
+              cell = next(c for c in cells if c.get("id") == cid)
+              ast.parse("".join(cell.get("source", [])))
 
           whole = "\n".join(
               "".join(c.get("source", [])) if isinstance(c.get("source"), list)
@@ -62,7 +63,9 @@ jobs:
               "aion_plan_audit",
               "aion_information_gain",
               "aion_choose_probe",
-              "aion_bfs_plan",
+              "aion_state_graph",
+              "aion_prediction_match",
+              "expect_gameplay_change",
               "aion_prediction_mismatch",
               "aion_plan_aborted",
               "aion_rollback_verified",
@@ -73,12 +76,11 @@ jobs:
               "--no-index",
           ]
           missing = [x for x in required if x not in whole]
-          assert not missing, f"missing required AION v2.1 guards: {missing}"
+          assert not missing, f"missing required AION v2.2 guards: {missing}"
 
-          # False-PASS hunt: v2.1 must not claim an official Kaggle score.
           forbidden_claims = ["KAGGLE SCORE: PASS", "hidden score = 100", "official score 100%"]
           bad = [x for x in forbidden_claims if x.lower() in whole.lower()]
           assert not bad, f"forbidden unverified score claims: {bad}"
 
-          print("ARC3 AION V2.1 NOTEBOOK GATE: PASS")
+          print("ARC3 AION V2.2 NOTEBOOK GATE: PASS")
           PY
