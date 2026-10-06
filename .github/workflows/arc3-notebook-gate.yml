@@ -60,6 +60,8 @@ jobs:
               "aion_frame_signature",
               "aion_evidence",
               "aion_plan_audit",
+              "aion_information_gain",
+              "aion_choose_probe",
               "aion_prediction_mismatch",
               "aion_plan_aborted",
               "aion_rollback_verified",
