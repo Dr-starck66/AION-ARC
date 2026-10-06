@@ -1,0 +1,64 @@
+name: AION Repository Identity Gate
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  identity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify repository identity
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          required = [
+              Path("astra_arc"),
+              Path("kaggle"),
+              Path("tests"),
+              Path(".github/workflows/arc3-notebook-gate.yml"),
+              Path(".github/workflows/aion-world-model-gate.yml"),
+          ]
+          missing = [str(p) for p in required if not p.exists()]
+          assert not missing, f"AION identity broken; missing: {missing}"
+
+          forbidden_files = [
+              "app-compact.mjs",
+              "app.gz.b64",
+              "bootstrap.mjs",
+              "railway.toml",
+          ]
+          present = [p for p in forbidden_files if Path(p).exists()]
+          assert not present, f"Foreign AFFILHUNT/Railway contamination: {present}"
+
+          forbidden_markers = [
+              "affilhunt-private-omega",
+              "AFFILHUNT PRIVATE",
+              "SCRAPEGRAPH_ENDPOINT",
+              "AFFILIATE_KINSTA_URL",
+          ]
+          scanned = []
+          self_path = Path(".github/workflows/aion-repo-identity-gate.yml")
+          for p in Path(".").rglob("*"):
+              if not p.is_file() or ".git" in p.parts or p == self_path:
+                  continue
+              if p.suffix.lower() not in {".py",".md",".yml",".yaml",".json",".toml",".mjs",".js"}:
+                  continue
+              try:
+                  text = p.read_text(errors="ignore")
+              except Exception:
+                  continue
+              for marker in forbidden_markers:
+                  if marker.lower() in text.lower():
+                      scanned.append((str(p), marker))
+          assert not scanned, f"Foreign project markers detected: {scanned}"
+
+          print("AION REPOSITORY IDENTITY GATE: PASS")
+          PY
