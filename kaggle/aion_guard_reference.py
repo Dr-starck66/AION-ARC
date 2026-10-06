@@ -252,3 +252,80 @@ def aion_ablation_profile(profile="balanced"):
     if name not in profiles:
         raise ValueError("unknown AION ablation profile: " + name)
     return dict(profiles[name])
+
+
+def aion_action_efficiency(transitions, recent_window=12):
+    """ASTRA ACTION-EFFICIENCY Ω: diagnose waste that directly hurts ARC-AGI-3 score."""
+    rows = list(transitions or [])
+    evidence = aion_evidence(rows, limit=max(1, len(rows)))
+    total = len(evidence)
+    inert = sum(1 for row in evidence if not row.get("gameplay_changed") and not row.get("level_completed"))
+    progress = sum(1 for row in evidence if row.get("level_completed") or row.get("reward"))
+    recent = evidence[-max(1, int(recent_window)):]
+    recent_inert = sum(1 for row in recent if not row.get("gameplay_changed") and not row.get("level_completed"))
+    repeated = 0
+    for prev, cur in zip(recent, recent[1:]):
+        if cur.get("action") == prev.get("action") and not cur.get("gameplay_changed"):
+            repeated += 1
+    return {
+        "actions": total,
+        "progress_events": progress,
+        "inert_actions": inert,
+        "inert_rate": (inert / total) if total else 0.0,
+        "recent_inert_rate": (recent_inert / len(recent)) if recent else 0.0,
+        "repeated_inert_pairs": repeated,
+        "needs_model_escalation": bool(len(recent) >= 8 and recent_inert / len(recent) >= 0.5),
+    }
+
+
+def aion_probe_budget(transitions, max_inert=3, window=8):
+    """Fail closed when exploration is burning actions without semantic information."""
+    ev = aion_evidence(transitions or [], limit=max(1, int(window)))
+    inert = [r for r in ev if not r.get("gameplay_changed") and not r.get("level_completed")]
+    return {
+        "remaining": max(0, int(max_inert) - len(inert)),
+        "exhausted": len(inert) >= int(max_inert),
+        "observed_inert": len(inert),
+        "window": len(ev),
+    }
+
+
+def aion_shortest_plan(start, is_goal, expand, max_nodes=5000, max_depth=64):
+    """Shortest-path planner: once a model is verified, stop probing and minimize live actions."""
+    from collections import deque
+    q = deque([(start, [])])
+    seen = {repr(start)}
+    expanded = 0
+    while q and expanded < int(max_nodes):
+        state, plan = q.popleft()
+        expanded += 1
+        if is_goal(state):
+            return {"status": "FOUND", "plan": plan, "actions": len(plan), "expanded": expanded}
+        if len(plan) >= int(max_depth):
+            continue
+        for action_name, nxt in expand(state):
+            key = repr(nxt)
+            if key in seen:
+                continue
+            seen.add(key)
+            q.append((nxt, plan + [action_name]))
+    return {"status": "BOUNDED" if q else "EXHAUSTED", "plan": None, "actions": None, "expanded": expanded}
+
+
+def aion_efficiency_gate(candidate_action, transitions, hypotheses=None, state=None, risk=None):
+    """Choose whether a live probe earns its action cost."""
+    budget = aion_probe_budget(transitions)
+    efficiency = aion_action_efficiency(transitions)
+    if hypotheses:
+        ranked = aion_information_gain([candidate_action], hypotheses, state, risk=risk)
+        utility = ranked[0]["utility"] if ranked else 0.0
+    else:
+        utility = None
+    blocked = bool(budget["exhausted"] and (utility is None or utility <= 0.0))
+    return {
+        "allowed": not blocked,
+        "reason": "probe budget exhausted; build/verify/search world model" if blocked else "allowed",
+        "probe_budget": budget,
+        "efficiency": efficiency,
+        "information_utility": utility,
+    }
