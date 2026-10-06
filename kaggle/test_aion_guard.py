@@ -93,5 +93,30 @@ class AionGuardTests(unittest.TestCase):
         self.assertTrue(full["compact_memory"])
         self.assertTrue(full["world_model"])
 
+    def test_efficiency_governor_detects_action_waste(self):
+        f = Frame([])
+        inert = types.SimpleNamespace(action="ACTION5", before_frame=f, after_frame=f, result={})
+        rows = [inert for _ in range(8)]
+        diag = g.aion_action_efficiency(rows)
+        self.assertTrue(diag["needs_model_escalation"])
+        self.assertEqual(diag["inert_rate"], 1.0)
+        self.assertTrue(g.aion_probe_budget(rows, max_inert=3, window=8)["exhausted"])
+
+    def test_shortest_plan_prefers_minimum_actions(self):
+        graph = {0:[("A",1),("B",2)], 1:[("C",3)], 2:[("D",4)], 4:[("E",3)], 3:[]}
+        out = g.aion_shortest_plan(0, lambda s:s==3, lambda s:graph[s])
+        self.assertEqual(out["status"], "FOUND")
+        self.assertEqual(out["plan"], ["A","C"])
+        self.assertEqual(out["actions"], 2)
+
+    def test_efficiency_gate_blocks_zero_value_probe_after_budget(self):
+        f = Frame([])
+        inert = types.SimpleNamespace(action="ACTION5", before_frame=f, after_frame=f, result={})
+        rows = [inert for _ in range(4)]
+        h1 = types.SimpleNamespace(predict=lambda s,a: 1)
+        h2 = types.SimpleNamespace(predict=lambda s,a: 1)
+        out = g.aion_efficiency_gate("ACTION5", rows, [h1,h2], 0)
+        self.assertFalse(out["allowed"])
+
 if __name__ == "__main__":
     unittest.main()
