@@ -28,5 +28,14 @@
     "official_kaggle_score_required_for_competition_pass": true,
     "official_100_required_for_target_pass": true,
     "temporal_holdout_required_before_autonomous_batch": true
-  }
+  },
+  "package_version": "2.4.1",
+  "candidate_state": "release_candidate",
+  "required_ci": [
+    "ARC3 Kaggle Notebook Gate",
+    "AION Repository Identity Gate",
+    "AION World Model Proof Gate",
+    "AION Submission Readiness Gate",
+    "ASTRA ZERO-COST GUARD Ω"
+  ]
 }
