@@ -36,6 +36,7 @@ def execute_plan_prefix(
     observations = []
     previous_level = None
     seen = set()
+    negative_edges = set()
 
     for index, spec in enumerate(expectations):
         raw = step(spec.action)
@@ -60,6 +61,11 @@ def execute_plan_prefix(
             return PrefixResult("QUARANTINED", index + 1, "unexpected_terminal", observations)
 
         signature = repr((level, state, tuple(sorted(legal))))
+        edge = (repr(observations[-2]) if len(observations) > 1 else "<START>", str(spec.action).upper(), repr(state))
+        if edge in negative_edges:
+            return PrefixResult("QUARANTINED", index + 1, "known_negative_edge", observations)
+        if terminal:
+            negative_edges.add(edge)
         if signature in seen and index + 1 < len(expectations):
             return PrefixResult("QUARANTINED", index + 1, "unexpected_cycle", observations)
         seen.add(signature)
