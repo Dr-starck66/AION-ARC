@@ -28,20 +28,20 @@ jobs:
           import ast, json
           from pathlib import Path
 
-          path = Path("kaggle/AION-ARC-v2.2-world-model.ipynb")
+          path = Path("kaggle/AION-ARC-v2.3-host-guard.ipynb")
           nb = json.loads(path.read_text())
           assert nb["nbformat"] == 4
-          assert nb["metadata"]["aion_arc"]["version"] == "2.2"
+          assert nb["metadata"]["aion_arc"]["version"] == "2.3"
           assert nb["metadata"]["aion_arc"]["status"] == "UNVERIFIED"
 
           cells = nb["cells"]
           ids = [c.get("id") for c in cells]
           assert "aion-v21-overlay" in ids
           assert "aion-v22-scientific" in ids
-          assert "10" in ids
-          assert ids.index("aion-v21-overlay") < ids.index("aion-v22-scientific") < ids.index("10")
+          assert "aion-v23-host-guard" in ids\n          assert "10" in ids
+          assert ids.index("aion-v21-overlay") < ids.index("aion-v22-scientific") < ids.index("aion-v23-host-guard") < ids.index("10")
 
-          for cid in ("aion-v21-overlay", "aion-v22-scientific"):
+          for cid in ("aion-v21-overlay", "aion-v22-scientific", "aion-v22-efficiency", "aion-v22-tournament", "aion-v23-host-guard"):
               cell = next(c for c in cells if c.get("id") == cid)
               ast.parse("".join(cell.get("source", [])))
 
@@ -73,6 +73,12 @@ jobs:
               "force_probe",
               "compact executable transition model",
               "assert AION_SANDBOX_SENTINEL",
+              "aion_host_batch_rejected",
+              "aion_host_seen_signatures",
+              "aion_host_mismatches",
+              "aion_host_rollback_verified",
+              'self._step_env_callback({"actions": [engine_spec]})',
+              'if last_result.get("aion_host_stop")',
               "--no-index",
           ]
           missing = [x for x in required if x not in whole]
@@ -82,5 +88,5 @@ jobs:
           bad = [x for x in forbidden_claims if x.lower() in whole.lower()]
           assert not bad, f"forbidden unverified score claims: {bad}"
 
-          print("ARC3 AION V2.2 NOTEBOOK GATE: PASS")
+          print("ARC3 AION V2.3 HOST-ENFORCED NOTEBOOK GATE: PASS")
           PY
