@@ -41,9 +41,9 @@ jobs:
           assert "aion-v23-host-guard" in ids
           assert "aion-v24-persistent-host-memory" in ids
           assert "10" in ids
-          assert ids.index("aion-v21-overlay") < ids.index("aion-v22-scientific") < ids.index("aion-v23-host-guard") < ids.index("aion-v24-persistent-host-memory") < ids.index("10")
+          required_order = ["aion-v21-overlay", "aion-v22-scientific", "aion-v23-host-enforcement", "aion-v23-host-guard", "aion-v24-persistent-host-memory", "10"]\n          assert all(cid in ids for cid in required_order)\n          assert [ids.index(cid) for cid in required_order] == sorted(ids.index(cid) for cid in required_order)
 
-          for cid in ("aion-v21-overlay", "aion-v22-scientific", "aion-v22-efficiency", "aion-v22-tournament", "aion-v23-host-guard", "aion-v24-persistent-host-memory"):
+          for cid in ("aion-v21-overlay", "aion-v22-scientific", "aion-v22-efficiency", "aion-v22-tournament", "aion-v23-host-enforcement", "aion-v23-host-guard", "aion-v24-persistent-host-memory"):
               cell = next(c for c in cells if c.get("id") == cid)
               ast.parse("".join(cell.get("source", [])))
 
