@@ -16,7 +16,9 @@
     "known-fatal state/action block",
     "host-side level/terminal/repeat-state stop",
     "verified ACTION7 rollback when requested",
-    "temporal holdout generalization gate"
+    "temporal holdout generalization gate",
+    "temporal consistency holdout in Kaggle runtime",
+    "host-side terminal/level/cycle/fatal-edge enforcement"
   ],
   "required_kaggle_inputs": [
     "jeroencottaar/taaf-kaggle-source-share",
@@ -28,7 +30,8 @@
     "official_kaggle_score_required_for_competition_pass": true,
     "official_100_required_for_target_pass": true,
     "temporal_holdout_required_before_autonomous_batch": true,
-    "temporal_holdout_is_structural_not_hidden_score_proof": true
+    "temporal_holdout_is_structural_not_hidden_score_proof": true,
+    "runtime_temporal_consistency_required": true
   },
   "package_version": "2.4.2",
   "candidate_state": "release_candidate",
@@ -38,5 +41,6 @@
     "AION World Model Proof Gate",
     "AION Submission Readiness Gate",
     "ASTRA ZERO-COST GUARD Ω"
-  ]
+  ],
+  "champion_version": "2.5.0"
 }
