@@ -37,3 +37,21 @@ def test_host_guard_stops_cycle_before_remaining_plan():
     def step(a): calls.append(a); return next(vals)
     out=execute_plan_prefix([StepExpectation("A"),StepExpectation("A"),StepExpectation("A")],step,_obs,_legal,_level,_terminal)
     assert out.reason=="unexpected_cycle" and len(calls)==2
+
+
+def test_host_guard_stops_unexpected_level_change():
+    stream=iter([
+        {"state":1,"legal":["A"],"level":1},
+        {"state":2,"legal":["A"],"level":2},
+    ])
+    out=execute_plan_prefix(
+        [StepExpectation("A"),StepExpectation("A")],
+        lambda _a:next(stream),_obs,_legal,_level,_terminal)
+    assert out.reason=="unexpected_level_change" and out.executed==2
+
+def test_host_guard_stops_unexpected_terminal():
+    stream=iter([{"state":1,"legal":["A"],"level":1,"terminal":True}])
+    out=execute_plan_prefix(
+        [StepExpectation("A")],
+        lambda _a:next(stream),_obs,_legal,_level,_terminal)
+    assert out.reason=="unexpected_terminal"
