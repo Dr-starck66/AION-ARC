@@ -22,7 +22,16 @@ jobs:
           import ast, json
           from pathlib import Path
 
-          nb_path = Path("kaggle/AION-ARC-v2.4-persistent-host.ipynb")
+          manifest_path = Path("kaggle/SUBMISSION_MANIFEST.json")
+          assert manifest_path.is_file(), "submission manifest missing"
+          manifest = json.loads(manifest_path.read_text())
+          assert manifest["champion_notebook"] == "kaggle/AION-ARC-v2.4-persistent-host.ipynb"
+          assert manifest["official_hidden_score_status"] == "UNVERIFIED"
+          assert manifest["target_score_percent"] == 100
+          assert manifest["internet_required"] is False
+          assert manifest["external_paid_api_required"] is False
+
+          nb_path = Path(manifest["champion_notebook"])
           assert nb_path.is_file(), "v2.4 notebook missing"
           nb = json.loads(nb_path.read_text())
           assert nb.get("nbformat") == 4
@@ -88,6 +97,11 @@ jobs:
           assert guard.is_file() and tests.is_file()
           ast.parse(guard.read_text())
           ast.parse(tests.read_text())
+          assert set(manifest["required_kaggle_inputs"]) == {
+              "jeroencottaar/taaf-kaggle-source-share",
+              "driessmit1/arc3-vllm-h100-wheelhouse-v3",
+              "driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot",
+          }
           print("AION SUBMISSION READINESS STATIC GATE: PASS")
           PY
       - name: Run AION guard tests
