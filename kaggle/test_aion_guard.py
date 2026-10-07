@@ -135,5 +135,25 @@ class AionGuardTests(unittest.TestCase):
         out = g.aion_efficiency_gate("ACTION5", rows, [h1,h2], 0)
         self.assertFalse(out["allowed"])
 
+    def test_host_stop_on_terminal_transition(self):
+        out = g.aion_host_should_stop("a", "b", "ACTION1", {"game_over": True})
+        self.assertTrue(out["stop"])
+        self.assertIn("terminal_transition", out["reasons"])
+
+    def test_host_stop_on_known_negative_edge(self):
+        edge = (repr("a"), "ACTION2", repr("b"))
+        out = g.aion_host_should_stop("a", "b", "ACTION2", {}, negative_edges={edge})
+        self.assertTrue(out["stop"])
+        self.assertIn("known_negative_edge", out["reasons"])
+
+    def test_host_stop_on_unexpected_cycle(self):
+        out = g.aion_host_should_stop("a", "old", "ACTION3", {}, seen_signatures={"old"})
+        self.assertTrue(out["stop"])
+        self.assertIn("unexpected_state_cycle", out["reasons"])
+
+    def test_host_allows_novel_nonterminal_transition(self):
+        out = g.aion_host_should_stop("a", "b", "ACTION4", {}, seen_signatures={"a"})
+        self.assertFalse(out["stop"])
+
 if __name__ == "__main__":
     unittest.main()
