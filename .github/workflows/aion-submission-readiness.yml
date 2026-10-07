@@ -5,6 +5,8 @@ on:
     branches: [arc3-kaggle-100]
     paths:
       - "kaggle/**"
+      - "astra_arc/**"
+      - "tests/**"
       - ".github/workflows/aion-submission-readiness.yml"
   workflow_dispatch:
 
@@ -94,9 +96,15 @@ jobs:
 
           guard = Path("kaggle/aion_guard_reference.py")
           tests = Path("kaggle/test_aion_guard.py")
+          generalization = Path("astra_arc/generalization.py")
+          generalization_tests = Path("tests/test_generalization.py")
           assert guard.is_file() and tests.is_file()
+          assert generalization.is_file() and generalization_tests.is_file()
           ast.parse(guard.read_text())
           ast.parse(tests.read_text())
+          ast.parse(generalization.read_text())
+          ast.parse(generalization_tests.read_text())
+          assert manifest["proof_policy"].get("temporal_holdout_required_before_autonomous_batch") is True
           assert set(manifest["required_kaggle_inputs"]) == {
               "jeroencottaar/taaf-kaggle-source-share",
               "driessmit1/arc3-vllm-h100-wheelhouse-v3",
