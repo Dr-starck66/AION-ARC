@@ -165,5 +165,20 @@ class AionGuardTests(unittest.TestCase):
         self.assertTrue(out["stop"])
         self.assertIn("level_change", out["reasons"])
 
+    def test_temporal_holdout_accepts_general_model(self):
+        model = types.SimpleNamespace(name="general", predict=lambda s,a: s+a)
+        replay = [(0,1,1),(1,1,2),(2,1,3),(3,1,4)]
+        out = g.aion_temporal_holdout_score(model, replay, holdout=0.5)
+        self.assertTrue(out["passed"])
+        self.assertEqual(out["accuracy"], 1.0)
+
+    def test_temporal_holdout_rejects_overfit_model(self):
+        model = types.SimpleNamespace(name="overfit", predict=lambda s,a: (s+a) if s < 2 else -999)
+        replay = [(0,1,1),(1,1,2),(2,1,3),(3,1,4)]
+        out = g.aion_temporal_holdout_score(model, replay, holdout=0.5)
+        self.assertFalse(out["passed"])
+        gate = g.aion_generalization_gate([model], replay, holdout=0.5)
+        self.assertFalse(gate["autonomous_batch_allowed"])
+
 if __name__ == "__main__":
     unittest.main()
