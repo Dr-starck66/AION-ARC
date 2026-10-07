@@ -47,6 +47,7 @@ jobs:
               "aion-v23-host-enforcement",
               "aion-v23-host-guard",
               "aion-v24-persistent-host-memory",
+              "aion-v25-temporal-consistency",
               "10",
               "14",
           ]
@@ -75,6 +76,8 @@ jobs:
               "aion_action_efficiency",
               "aion_probe_budget",
               "aion_shortest_plan",
+              "aion_temporal_consistency",
+              "aion_temporal_batch_gate",
           ]
           missing = [x for x in required if x not in whole]
           assert not missing, f"missing submission guards: {missing}"
