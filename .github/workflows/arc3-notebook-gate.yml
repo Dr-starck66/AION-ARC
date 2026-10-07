@@ -2,7 +2,7 @@ name: ARC3 Kaggle Notebook Gate
 
 on:
   push:
-    branches: [arc3-kaggle-100]
+    branches: [main, arc3-kaggle-100]
   pull_request:
     paths:
       - "kaggle/**"
