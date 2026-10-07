@@ -21,14 +21,14 @@ jobs:
       - name: Unit test AION guard
         run: python -m unittest -v kaggle/test_aion_guard.py
 
-      - name: Validate AION v2.4 Kaggle notebook
+      - name: Validate AION v2.5 Kaggle notebook
         shell: bash
         run: |
           python - <<'PY'
           import ast, json
           from pathlib import Path
 
-          path = Path("kaggle/AION-ARC-v2.4-persistent-host.ipynb")
+          path = Path("kaggle/AION-ARC-v2.5-generalization.ipynb")
           nb = json.loads(path.read_text())
           assert nb["nbformat"] == 4
           assert str(nb["metadata"]["aion_arc"]["version"]).startswith("2.5")
@@ -95,7 +95,7 @@ jobs:
               "--no-index",
           ]
           missing = [x for x in required if x not in whole]
-          assert not missing, f"missing required AION v2.4 guards: {missing}"
+          assert not missing, f"missing required AION v2.5 guards: {missing}"
 
           forbidden_claims = ["KAGGLE SCORE: PASS", "hidden score = 100", "official score 100%"]
           bad = [x for x in forbidden_claims if x.lower() in whole.lower()]
