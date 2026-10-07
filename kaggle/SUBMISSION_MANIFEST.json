@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "project": "AION-ARC",
+  "competition": "ARC Prize 2026 - ARC-AGI-3",
+  "champion_notebook": "kaggle/AION-ARC-v2.4-persistent-host.ipynb",
+  "target_score_percent": 100,
+  "official_hidden_score_status": "UNVERIFIED",
+  "internet_required": false,
+  "external_paid_api_required": false,
+  "runtime_strategy": [
+    "local 27B Duck reasoner",
+    "ASTRA hypothesis tournament",
+    "retrodiction and prediction gates",
+    "action-efficiency governor",
+    "persistent host semantic-state memory",
+    "known-fatal state/action block",
+    "host-side level/terminal/repeat-state stop",
+    "verified ACTION7 rollback when requested"
+  ],
+  "required_kaggle_inputs": [
+    "jeroencottaar/taaf-kaggle-source-share",
+    "driessmit1/arc3-vllm-h100-wheelhouse-v3",
+    "driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot"
+  ],
+  "proof_policy": {
+    "static_ci_pass_is_not_hidden_score_proof": true,
+    "official_kaggle_score_required_for_competition_pass": true,
+    "official_100_required_for_target_pass": true
+  }
+}
