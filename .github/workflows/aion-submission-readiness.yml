@@ -59,6 +59,7 @@ jobs:
               "self._aion_negative_state_actions",
               "level_change",
               "aion_host_rollback_verified",
+              "or bool(host_mismatches)",
               "aion_tournament",
               "aion_action_efficiency",
               "aion_probe_budget",
