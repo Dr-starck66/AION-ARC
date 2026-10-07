@@ -21,17 +21,17 @@ jobs:
       - name: Unit test AION guard
         run: python -m unittest -v kaggle/test_aion_guard.py
 
-      - name: Validate AION v2.3 Kaggle notebook
+      - name: Validate AION v2.4 Kaggle notebook
         shell: bash
         run: |
           python - <<'PY'
           import ast, json
           from pathlib import Path
 
-          path = Path("kaggle/AION-ARC-v2.3-host-guard.ipynb")
+          path = Path("kaggle/AION-ARC-v2.4-persistent-host.ipynb")
           nb = json.loads(path.read_text())
           assert nb["nbformat"] == 4
-          assert nb["metadata"]["aion_arc"]["version"] == "2.3"
+          assert nb["metadata"]["aion_arc"]["version"] == "2.4"
           assert nb["metadata"]["aion_arc"]["status"] == "UNVERIFIED"
 
           cells = nb["cells"]
@@ -39,10 +39,11 @@ jobs:
           assert "aion-v21-overlay" in ids
           assert "aion-v22-scientific" in ids
           assert "aion-v23-host-guard" in ids
+          assert "aion-v24-persistent-host-memory" in ids
           assert "10" in ids
-          assert ids.index("aion-v21-overlay") < ids.index("aion-v22-scientific") < ids.index("aion-v23-host-guard") < ids.index("10")
+          assert ids.index("aion-v21-overlay") < ids.index("aion-v22-scientific") < ids.index("aion-v23-host-guard") < ids.index("aion-v24-persistent-host-memory") < ids.index("10")
 
-          for cid in ("aion-v21-overlay", "aion-v22-scientific", "aion-v22-efficiency", "aion-v22-tournament", "aion-v23-host-guard"):
+          for cid in ("aion-v21-overlay", "aion-v22-scientific", "aion-v22-efficiency", "aion-v22-tournament", "aion-v23-host-guard", "aion-v24-persistent-host-memory"):
               cell = next(c for c in cells if c.get("id") == cid)
               ast.parse("".join(cell.get("source", [])))
 
@@ -78,16 +79,21 @@ jobs:
               "aion_host_seen_signatures",
               "aion_host_mismatches",
               "aion_host_rollback_verified",
+              "aion_known_negative_edge",
+              "self._aion_negative_state_actions",
+              "known fatal action from this semantic state",
+              "level_changed = (",
+              'aion_host_reason"] = "level_change"',
               'self._step_env_callback({"actions": [engine_spec]})',
               'if last_result.get("aion_host_stop")',
               "--no-index",
           ]
           missing = [x for x in required if x not in whole]
-          assert not missing, f"missing required AION v2.3 guards: {missing}"
+          assert not missing, f"missing required AION v2.4 guards: {missing}"
 
           forbidden_claims = ["KAGGLE SCORE: PASS", "hidden score = 100", "official score 100%"]
           bad = [x for x in forbidden_claims if x.lower() in whole.lower()]
           assert not bad, f"forbidden unverified score claims: {bad}"
 
-          print("ARC3 AION V2.3 HOST-ENFORCED NOTEBOOK GATE: PASS")
+          print("ARC3 AION V2.4 PERSISTENT-HOST NOTEBOOK GATE: PASS")
           PY
