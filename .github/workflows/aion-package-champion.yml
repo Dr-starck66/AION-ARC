@@ -80,7 +80,14 @@ jobs:
           set -euo pipefail
           rm -rf dist
           mkdir -p dist/AION-ARC-v2.5-Kaggle
-          cp kaggle/AION-ARC-v2.4-persistent-host.ipynb dist/AION-ARC-v2.5-Kaggle/AION-ARC-v2.5-Kaggle.ipynb
+          python - <<'PY'
+          import json, shutil
+          from pathlib import Path
+          manifest = json.loads(Path('kaggle/SUBMISSION_MANIFEST.json').read_text())
+          source = Path(manifest['champion_notebook'])
+          assert source.is_file(), source
+          shutil.copy2(source, Path('dist/AION-ARC-v2.5-Kaggle/AION-ARC-v2.5-Kaggle.ipynb'))
+          PY
           cp kaggle/SUBMISSION_MANIFEST.json dist/AION-ARC-v2.5-Kaggle/SUBMISSION_MANIFEST.json
           cp kaggle/aion_guard_reference.py dist/AION-ARC-v2.5-Kaggle/aion_guard_reference.py
           cp kaggle/test_aion_guard.py dist/AION-ARC-v2.5-Kaggle/test_aion_guard.py
