@@ -1,12 +1,12 @@
-# AION-ARC v2.4 — Kaggle ARC-AGI-3
+# AION-ARC v2.5 — Kaggle ARC-AGI-3
 
 **Target:** 100% on the official hidden Kaggle evaluation.  
 **Current status:** UNVERIFIED until Kaggle returns an official score.  
-**Champion notebook:** `kaggle/AION-ARC-v2.4-persistent-host.ipynb`
+**Champion notebook:** `kaggle/AION-ARC-v2.5-generalization.ipynb`
 
-Do not submit v2.0, v2.1, v2.2, or v2.3 by mistake. They are retained only as development history. The canonical package is declared in `kaggle/SUBMISSION_MANIFEST.json`.
+Do not submit v2.0-v2.4 by mistake. They are retained only as development history. The canonical package is declared in `kaggle/SUBMISSION_MANIFEST.json`.
 
-## What v2.4 adds
+## What v2.5 adds
 
 - local/offline Duck 27B reasoning base;
 - evidence-rated hypotheses and retrodiction before live probes;
@@ -19,6 +19,8 @@ Do not submit v2.0, v2.1, v2.2, or v2.3 by mistake. They are retained only as de
 - persistent known-fatal state/action memory;
 - stop on silent level changes even when `level_completed` is missing;
 - verified ACTION7 rollback when explicitly requested;
+- TEMPORAL CONSISTENCY GATE Ω in the Kaggle runtime;
+- ASTRA TEMPORAL HOLDOUT Ω in the world-model proof layer, with memorizer-vs-general-rule adversarial tests;
 - TARDIGRADE / NO-REPEAT / VERIFY² / ZERO-COST guards.
 
 ## Kaggle inputs required
@@ -33,9 +35,9 @@ Internet must remain disabled. No paid external API is required.
 
 ## Proof Gate
 
-Static CI, syntax tests and offline packaging checks can only prove that the submission package is internally coherent. They cannot prove a hidden competition score.
+Static CI, syntax tests, temporal holdout and packaging checks can only prove that the submission package is internally coherent. They cannot prove a hidden competition score.
 
-- GitHub gates passing: packaging evidence.
+- GitHub gates passing: packaging and structural-generalization evidence.
 - Kaggle official score returned: competition evidence.
 - Kaggle official 100%: target PASS.
 
