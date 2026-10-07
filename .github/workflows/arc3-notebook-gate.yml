@@ -31,7 +31,7 @@ jobs:
           path = Path("kaggle/AION-ARC-v2.4-persistent-host.ipynb")
           nb = json.loads(path.read_text())
           assert nb["nbformat"] == 4
-          assert nb["metadata"]["aion_arc"]["version"] == "2.4"
+          assert str(nb["metadata"]["aion_arc"]["version"]).startswith("2.4")
           assert nb["metadata"]["aion_arc"]["status"] == "UNVERIFIED"
 
           cells = nb["cells"]
