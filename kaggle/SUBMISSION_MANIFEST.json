@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": "AION-ARC",
   "competition": "ARC Prize 2026 - ARC-AGI-3",
-  "champion_notebook": "kaggle/AION-ARC-v2.4-persistent-host.ipynb",
+  "champion_notebook": "kaggle/AION-ARC-v2.5-generalization.ipynb",
   "target_score_percent": 100,
   "official_hidden_score_status": "UNVERIFIED",
   "internet_required": false,
@@ -33,7 +33,7 @@
     "temporal_holdout_is_structural_not_hidden_score_proof": true,
     "runtime_temporal_consistency_required": true
   },
-  "package_version": "2.4.2",
+  "package_version": "2.5.0",
   "candidate_state": "release_candidate",
   "required_ci": [
     "ARC3 Kaggle Notebook Gate",
