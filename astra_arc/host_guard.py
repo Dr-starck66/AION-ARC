@@ -72,3 +72,23 @@ def execute_plan_prefix(
         previous_level = level
 
     return PrefixResult("PASS", len(expectations), None, observations)
+
+
+@dataclass
+class ExperienceLedger:
+    """Cross-attempt deterministic memory: do not pay twice for the same proven bad edge."""
+    negative_edges: set[tuple[str,str,str]] = field(default_factory=set)
+    successful_edges: set[tuple[str,str,str]] = field(default_factory=set)
+
+    def edge(self, before: Any, action: Any, after: Any) -> tuple[str,str,str]:
+        return (repr(before), str(action).upper(), repr(after))
+
+    def record(self, before: Any, action: Any, after: Any, success: bool) -> None:
+        edge = self.edge(before, action, after)
+        (self.successful_edges if success else self.negative_edges).add(edge)
+
+    def is_known_negative(self, before: Any, action: Any, after: Any) -> bool:
+        return self.edge(before, action, after) in self.negative_edges
+
+    def summary(self) -> dict[str,int]:
+        return {"negative": len(self.negative_edges), "successful": len(self.successful_edges)}
