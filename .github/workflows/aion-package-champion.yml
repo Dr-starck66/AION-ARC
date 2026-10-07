@@ -1,0 +1,106 @@
+name: AION Champion Package
+
+on:
+  push:
+    branches: [arc3-kaggle-100]
+    paths:
+      - "kaggle/**"
+      - ".github/workflows/aion-package-champion.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prove champion candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest -v kaggle/test_aion_guard.py
+          python - <<'PY'
+          import ast, json
+          from pathlib import Path
+
+          manifest = json.loads(Path("kaggle/SUBMISSION_MANIFEST.json").read_text())
+          assert manifest["champion_version"] == "2.5.0"
+          assert manifest["official_hidden_score_status"] == "UNVERIFIED"
+          assert manifest["target_score_percent"] == 100
+          assert manifest["internet_required"] is False
+          assert manifest["external_paid_api_required"] is False
+
+          nb_path = Path(manifest["champion_notebook"])
+          nb = json.loads(nb_path.read_text())
+          assert str(nb["metadata"]["aion_arc"]["version"]).startswith("2.5")
+          ids = [c.get("id") for c in nb["cells"]]
+          required = [
+              "aion-v21-overlay",
+              "aion-v22-scientific",
+              "aion-v22-efficiency",
+              "aion-v22-tournament",
+              "aion-v25-temporal-consistency",
+              "aion-v23-host-enforcement",
+              "aion-v23-host-guard",
+              "aion-v24-persistent-host-memory",
+          ]
+          assert all(x in ids for x in required), [x for x in required if x not in ids]
+          assert max(ids.index(x) for x in required) < ids.index("10")
+
+          whole = "\n".join(
+              "".join(c.get("source", [])) if isinstance(c.get("source"), list)
+              else str(c.get("source", ""))
+              for c in nb["cells"]
+          )
+          for needle in (
+              "aion_temporal_consistency",
+              "aion_temporal_batch_gate",
+              "aion_host_stop",
+              "aion_host_batch_rejected",
+              "aion_known_negative_edge",
+              "aion_action_efficiency",
+              "aion_tournament",
+              "--no-index",
+          ):
+              assert needle in whole, needle
+
+          for cell in nb["cells"]:
+              if cell.get("cell_type") == "code":
+                  ast.parse("".join(cell.get("source", [])))
+
+          print("AION CHAMPION STATIC PROOF: PASS")
+          PY
+
+      - name: Build reproducible package
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf dist
+          mkdir -p dist/AION-ARC-v2.5-Kaggle
+          cp kaggle/AION-ARC-v2.4-persistent-host.ipynb dist/AION-ARC-v2.5-Kaggle/AION-ARC-v2.5-Kaggle.ipynb
+          cp kaggle/SUBMISSION_MANIFEST.json dist/AION-ARC-v2.5-Kaggle/SUBMISSION_MANIFEST.json
+          cp kaggle/aion_guard_reference.py dist/AION-ARC-v2.5-Kaggle/aion_guard_reference.py
+          cp kaggle/test_aion_guard.py dist/AION-ARC-v2.5-Kaggle/test_aion_guard.py
+          printf '%s\n' "$GITHUB_SHA" > dist/AION-ARC-v2.5-Kaggle/SOURCE_SHA.txt
+          cat > dist/AION-ARC-v2.5-Kaggle/README.txt <<'EOF'
+          AION-ARC v2.5 Kaggle candidate
+          Target: ARC-AGI-3 hidden score 100%.
+          Official hidden score status: UNVERIFIED until Kaggle evaluates a real submission.
+          Required Kaggle inputs are listed in SUBMISSION_MANIFEST.json.
+          Internet and paid external APIs are not required by this candidate.
+          EOF
+          (
+            cd dist/AION-ARC-v2.5-Kaggle
+            sha256sum * > SHA256SUMS.txt
+          )
+
+      - name: Upload champion artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AION-ARC-v2.5-Kaggle-${{ github.sha }}
+          path: dist/AION-ARC-v2.5-Kaggle
+          if-no-files-found: error
+          retention-days: 30
