@@ -2,7 +2,7 @@ name: AION World Model Proof Gate
 on:
   push:
     branches: [arc3-kaggle-100]
-    paths: ["astra_arc/**","tests/**",".github/workflows/aion-world-model-gate.yml"]
+    paths: ["astra_arc/**","tests/**","kaggle/**",".github/workflows/aion-world-model-gate.yml"]
   pull_request:
     paths: ["astra_arc/**","tests/**",".github/workflows/aion-world-model-gate.yml"]
   workflow_dispatch:
