@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
       - run: pip install pytest
-      - run: python -m pytest -q tests/test_world_model.py tests/test_scientific_loop.py tests/test_tournament.py tests/test_host_guard.py
+      - run: python -m pytest -q tests/test_world_model.py tests/test_scientific_loop.py tests/test_tournament.py tests/test_host_guard.py tests/test_generalization.py
       - name: Adversarial proof
         run: |
           python - <<'PY'
@@ -39,10 +39,22 @@ jobs:
           p2=Candidate("p2",lambda s,a:s if a=="noop" else s+2)
           assert choose_probe(["noop","probe"],[p1,p2],0)=="probe"
           from astra_arc.tournament import Model, tournament
+          from astra_arc.generalization import temporal_holdout_gate
+          import types
           t1=Model("t1",lambda s,a:s+1 if a=="go" else s)
           t2=Model("t2",lambda s,a:s+1 if a=="go" else s)
           decision=tournament([t1,t2],[],["go","noop"],0,score=float)
           assert decision["status"]=="CONSENSUS_PLAN" and decision["action"]=="go"
+          replay=[(i,1,i+1) for i in range(8)]
+          train=replay[:6]
+          table={(s,a):after for s,a,after in train}
+          memorizer=types.SimpleNamespace(name="memorizer",predict=lambda s,a:table.get((s,a),-999))
+          general=types.SimpleNamespace(name="general",predict=lambda s,a:s+a)
+          holdout=temporal_holdout_gate([memorizer,general],replay,holdout_fraction=0.25,min_holdout=2)
+          assert holdout["status"]=="PASS"
+          assert holdout["survivor_names"]==["general"]
+          assert "memorizer" in holdout["rejected_names"]
           print("ASTRA HYPOTHESIS TOURNAMENT PROOF: PASS")
+          print("ASTRA TEMPORAL HOLDOUT GENERALIZATION PROOF: PASS")
           print("AION WORLD MODEL + SCIENTIFIC LOOP PROOF GATE: PASS")
           PY
