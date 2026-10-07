@@ -1,4 +1,4 @@
-from astra_arc.host_guard import StepExpectation, execute_plan_prefix
+from astra_arc.host_guard import StepExpectation, execute_plan_prefix, ExperienceLedger
 
 def _obs(x): return x["state"]
 def _legal(x): return x.get("legal", [])
@@ -55,3 +55,12 @@ def test_host_guard_stops_unexpected_terminal():
         [StepExpectation("A")],
         lambda _a:next(stream),_obs,_legal,_level,_terminal)
     assert out.reason=="unexpected_terminal"
+
+
+def test_experience_ledger_learns_success_and_failure():
+    ledger=ExperienceLedger()
+    ledger.record("s0","A","dead",False)
+    ledger.record("s0","B","good",True)
+    assert ledger.is_known_negative("s0","A","dead")
+    assert not ledger.is_known_negative("s0","B","good")
+    assert ledger.summary()=={"negative":1,"successful":1}
