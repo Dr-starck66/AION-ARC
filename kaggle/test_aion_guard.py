@@ -155,5 +155,15 @@ class AionGuardTests(unittest.TestCase):
         out = g.aion_host_should_stop("a", "b", "ACTION4", {}, seen_signatures={"a"})
         self.assertFalse(out["stop"])
 
+    def test_host_stop_on_level_change_even_without_level_completed_flag(self):
+        out = g.aion_host_should_stop(
+            "a",
+            "b",
+            "ACTION1",
+            {"aion_before_level": 2, "aion_after_level": 3, "level_completed": False},
+        )
+        self.assertTrue(out["stop"])
+        self.assertIn("level_change", out["reasons"])
+
 if __name__ == "__main__":
     unittest.main()
