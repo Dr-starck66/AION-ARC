@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from math import ceil
 from typing import Any, Callable, Iterable
 
+GENERALIZATION_GATE_VERSION = "2.5.0"
+
 
 @dataclass(frozen=True)
 class HoldoutScore:
