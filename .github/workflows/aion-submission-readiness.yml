@@ -27,14 +27,14 @@ jobs:
           manifest_path = Path("kaggle/SUBMISSION_MANIFEST.json")
           assert manifest_path.is_file(), "submission manifest missing"
           manifest = json.loads(manifest_path.read_text())
-          assert manifest["champion_notebook"] == "kaggle/AION-ARC-v2.4-persistent-host.ipynb"
+          assert manifest["champion_notebook"] == "kaggle/AION-ARC-v2.5-generalization.ipynb"
           assert manifest["official_hidden_score_status"] == "UNVERIFIED"
           assert manifest["target_score_percent"] == 100
           assert manifest["internet_required"] is False
           assert manifest["external_paid_api_required"] is False
 
           nb_path = Path(manifest["champion_notebook"])
-          assert nb_path.is_file(), "v2.4 notebook missing"
+          assert nb_path.is_file(), "v2.5 notebook missing"
           nb = json.loads(nb_path.read_text())
           assert nb.get("nbformat") == 4
           cells = nb["cells"]
