@@ -34,7 +34,7 @@
     "runtime_temporal_consistency_required": true
   },
   "package_version": "2.5.0",
-  "candidate_state": "release_candidate",
+  "candidate_state": "packaged_candidate",
   "required_ci": [
     "ARC3 Kaggle Notebook Gate",
     "AION Repository Identity Gate",
@@ -42,5 +42,11 @@
     "AION Submission Readiness Gate",
     "ASTRA ZERO-COST GUARD Ω"
   ],
-  "champion_version": "2.5.0"
+  "champion_version": "2.5.0",
+  "package_policy": {
+    "artifact_required": true,
+    "source_sha_embedded": true,
+    "sha256_manifest_required": true,
+    "canonical_notebook_from_manifest": true
+  }
 }
