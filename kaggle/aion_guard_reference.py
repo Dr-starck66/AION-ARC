@@ -378,3 +378,40 @@ def aion_host_should_stop(before_signature, after_signature, action_name, result
     if before_level is not None and after_level is not None and before_level != after_level:
         reasons.append("level_change")
     return {"stop": bool(reasons), "reasons": reasons}
+
+
+def aion_temporal_holdout_score(model, replay, holdout=0.25):
+    """Score a candidate world model on later transitions it was not selected from."""
+    rows = list(replay or [])
+    if not rows:
+        return {"train": 0, "holdout": 0, "accuracy": 0.0, "passed": False}
+    n_holdout = max(1, int(round(len(rows) * float(holdout))))
+    split = max(0, len(rows) - n_holdout)
+    test_rows = rows[split:]
+    matched = 0
+    checked = 0
+    for item in test_rows:
+        if isinstance(item, dict):
+            state, action_name, observed = item.get("state"), item.get("action"), item.get("next_state")
+        else:
+            state, action_name, observed = item
+        checked += 1
+        try:
+            predicted = model.predict(state, action_name)
+        except Exception:
+            continue
+        if aion_prediction_match(predicted, observed):
+            matched += 1
+    accuracy = matched / checked if checked else 0.0
+    return {"train": split, "holdout": checked, "accuracy": accuracy, "passed": bool(checked and accuracy == 1.0)}
+
+
+def aion_generalization_gate(models, replay, holdout=0.25):
+    """Fail closed: only models with perfect temporal holdout may drive an autonomous batch."""
+    results = []
+    for model in list(models or []):
+        score = aion_temporal_holdout_score(model, replay, holdout=holdout)
+        results.append({"name": str(getattr(model, "name", type(model).__name__)), "model": model, **score})
+    results.sort(key=lambda row: (-row["accuracy"], row["name"]))
+    survivors = [row for row in results if row["passed"]]
+    return {"survivors": survivors, "results": results, "autonomous_batch_allowed": bool(survivors)}
