@@ -38,7 +38,8 @@ jobs:
           ids = [c.get("id") for c in cells]
           assert "aion-v21-overlay" in ids
           assert "aion-v22-scientific" in ids
-          assert "aion-v23-host-guard" in ids\n          assert "10" in ids
+          assert "aion-v23-host-guard" in ids
+          assert "10" in ids
           assert ids.index("aion-v21-overlay") < ids.index("aion-v22-scientific") < ids.index("aion-v23-host-guard") < ids.index("10")
 
           for cid in ("aion-v21-overlay", "aion-v22-scientific", "aion-v22-efficiency", "aion-v22-tournament", "aion-v23-host-guard"):
