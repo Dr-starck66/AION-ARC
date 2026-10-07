@@ -359,3 +359,22 @@ def aion_bfs_plan(start, actions, predict, goal, key=repr, max_nodes=5000, max_d
             seen.add(k)
             q.append((nxt, next_plan))
     return {"status": "EXHAUSTED" if not q else "BOUNDED", "plan": None, "expanded": expanded}
+
+
+def aion_host_should_stop(before_signature, after_signature, action_name, result, seen_signatures=None, negative_edges=None):
+    """Host-side fail-closed decision. Pure function so CI can prove it independently of the LLM."""
+    result = dict(result or {})
+    seen = set(seen_signatures or [])
+    bad_edges = set(negative_edges or [])
+    reasons = []
+    if any(bool(result.get(k)) for k in ("run_complete", "game_over", "level_completed", "done")):
+        reasons.append("terminal_transition")
+    if before_signature is not None and after_signature is not None and after_signature in seen and after_signature != before_signature:
+        reasons.append("unexpected_state_cycle")
+    if (repr(before_signature), str(action_name).upper(), repr(after_signature)) in bad_edges:
+        reasons.append("known_negative_edge")
+    before_level = result.get("aion_before_level")
+    after_level = result.get("aion_after_level")
+    if before_level is not None and after_level is not None and before_level != after_level:
+        reasons.append("level_change")
+    return {"stop": bool(reasons), "reasons": reasons}
