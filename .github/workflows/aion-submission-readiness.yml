@@ -1,0 +1,93 @@
+name: AION Submission Readiness Gate
+
+on:
+  push:
+    branches: [arc3-kaggle-100]
+    paths:
+      - "kaggle/**"
+      - ".github/workflows/aion-submission-readiness.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  submission-ready:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Kaggle submission package
+        run: |
+          python - <<'PY'
+          import ast, json
+          from pathlib import Path
+
+          nb_path = Path("kaggle/AION-ARC-v2.4-persistent-host.ipynb")
+          assert nb_path.is_file(), "v2.4 notebook missing"
+          nb = json.loads(nb_path.read_text())
+          assert nb.get("nbformat") == 4
+          cells = nb["cells"]
+          ids = [c.get("id") for c in cells]
+          required_ids = [
+              "aion-v21-overlay",
+              "aion-v22-scientific",
+              "aion-v22-efficiency",
+              "aion-v22-tournament",
+              "aion-v23-host-enforcement",
+              "aion-v23-host-guard",
+              "aion-v24-persistent-host-memory",
+              "10",
+              "14",
+          ]
+          missing_ids = [x for x in required_ids if x not in ids]
+          assert not missing_ids, f"missing cells: {missing_ids}"
+          assert max(ids.index(x) for x in required_ids[:-2]) < ids.index("10"), "all runtime patches must precede benchmark unpickle"
+
+          whole = "\n".join(
+              "".join(c.get("source", [])) if isinstance(c.get("source"), list) else str(c.get("source", ""))
+              for c in cells
+          )
+          required = [
+              "jeroencottaar/taaf-kaggle-source-share",
+              "driessmit1/arc3-vllm-h100-wheelhouse-v3",
+              "driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot",
+              "--no-index",
+              "AION_HOST_ENFORCEMENT_V23",
+              "aion_host_batch_rejected",
+              "aion_host_mismatches",
+              "aion_known_negative_edge",
+              "self._aion_negative_state_actions",
+              "level_change",
+              "aion_host_rollback_verified",
+              "aion_tournament",
+              "aion_action_efficiency",
+              "aion_probe_budget",
+              "aion_shortest_plan",
+          ]
+          missing = [x for x in required if x not in whole]
+          assert not missing, f"missing submission guards: {missing}"
+
+          for cell in cells:
+              if cell.get("cell_type") == "code":
+                  src = "".join(cell.get("source", []))
+                  ast.parse(src)
+
+          forbidden = [
+              "api.openai.com",
+              "ANTHROPIC_API_KEY",
+              "OPENAI_API_KEY",
+              "requests.get('http",
+              'requests.get("http',
+          ]
+          bad = [x for x in forbidden if x in whole]
+          assert not bad, f"network/API dependency detected: {bad}"
+
+          guard = Path("kaggle/aion_guard_reference.py")
+          tests = Path("kaggle/test_aion_guard.py")
+          assert guard.is_file() and tests.is_file()
+          ast.parse(guard.read_text())
+          ast.parse(tests.read_text())
+          print("AION SUBMISSION READINESS STATIC GATE: PASS")
+          PY
+      - name: Run AION guard tests
+        run: python -m unittest -v kaggle/test_aion_guard.py
