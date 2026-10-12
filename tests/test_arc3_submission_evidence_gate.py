@@ -52,10 +52,24 @@ class SubmissionEvidenceGateTests(unittest.TestCase):
         file.write_text(json.dumps(notebook))
         self.assertEqual(audit(self.root)["status"], "FAIL")
 
-    def test_accidental_license_does_not_automatically_pass_rights(self):
+    def test_wrong_license_is_fail(self):
         (self.root / "LICENSE").write_text("Apache License, Version 2.0")
         checks = {x["check"]: x["status"] for x in audit(self.root)["checks"]}
-        self.assertEqual(checks["project_license"], "UNVERIFIED")
+        self.assertEqual(checks["project_license"], "FAIL")
+
+    def test_authorized_mit_zero_scope_is_pass_but_external_rights_unverified(self):
+        for rel in ("LICENSE", "THIRD_PARTY_NOTICES.md"):
+            shutil.copy2(ROOT / rel, self.root / rel)
+        report = audit(self.root)
+        checks = {x["check"]: x["status"] for x in report["checks"]}
+        self.assertEqual(checks["project_license"], "PASS")
+        self.assertEqual(checks["third_party_rights"], "UNVERIFIED")
+        self.assertEqual(report["status"], "PARTIAL")
+
+    def test_missing_scoping_notice_blocks_license(self):
+        shutil.copy2(ROOT / "LICENSE", self.root / "LICENSE")
+        checks = {x["check"]: x["status"] for x in audit(self.root)["checks"]}
+        self.assertEqual(checks["project_license"], "FAIL")
 
     def test_missing_upstream_notices_is_fail(self):
         (self.root / "docs/UPSTREAM-ATTRIBUTION-AND-LICENSE.md").unlink()
