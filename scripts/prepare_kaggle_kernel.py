@@ -16,7 +16,9 @@ COMPETITION = "arc-prize-2026-arc-agi-3"
 CANDIDATE = "kaggle/AION-ARC-v2.6-recovery.ipynb"
 
 def build(username: str, variant: str, output: Path, root: Path = ROOT) -> dict:
-    if not isinstance(username, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{1,64}", username):
+    if (not isinstance(username, str)
+        or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{1,64}", username)
+        or username.upper().startswith("KGAT_")):
         raise ValueError("Pass your public Kaggle USERNAME (not a token or password)")
     if variant not in {"champion", "challenger"}:
         raise ValueError("variant must be champion or challenger")
@@ -77,9 +79,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--username", required=True, help="PUBLIC Kaggle username, never API token")
     parser.add_argument("--variant", choices=["champion", "challenger"], default="champion")
-    parser.add_argument("--out", type=Path, default=ROOT / "dist/kaggle/champion")
+    parser.add_argument("--out", type=Path, default=None)
     args = parser.parse_args()
-    print(json.dumps(build(args.username, args.variant, args.out), indent=2))
+    output = args.out if args.out else ROOT / "dist" / "kaggle" / args.variant
+    print(json.dumps(build(args.username, args.variant, output), indent=2))
 
 if __name__ == "__main__":
     main()
