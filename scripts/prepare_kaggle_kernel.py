@@ -49,18 +49,18 @@ def build(username: str, variant: str, output: Path, root: Path = ROOT) -> dict:
         "Tufa Labs" not in scope):
         raise ValueError("missing accurate MIT-0/Apache-2.0 or third-party scope notices")
     notice = (
-        "# AION-ARC LICENSES — embedded offline, not a blanket license grant\\n\\n"
-        "AION originally authored additions: **MIT-0**, authorized by the rights holder.\\n\\n"
+        "# AION-ARC LICENSES — embedded offline, not a blanket license grant\n\n"
+        "AION originally authored additions: **MIT-0**, authorized by the rights holder.\n\n"
         "Tufa Labs base notebook: **Apache-2.0** as displayed on the public Kaggle notebook; "
-        "the separately attached Tufa source bundle has **UNVERIFIED** license scope.\\n\\n"
-        "Model card \\u2018vrfai/Qwen3.6-27B-FP8\\u2019: Apache-2.0 declared; Kaggle archive rights "
-        "and wheelhouse dependency licenses require verification.\\n\\n"
+        "the separately attached Tufa source bundle has **UNVERIFIED** license scope.\n\n"
+        "Model card \u2018vrfai/Qwen3.6-27B-FP8\u2019: Apache-2.0 declared; Kaggle archive rights "
+        "and wheelhouse dependency licenses require verification.\n\n"
         "Original Tufa notebook: https://www.kaggle.com/code/jeroencottaar/"
-        "tufa-labs-duck-harness-june-30-milestone-winner\\n\\n"
-        "AION scope: https://github.com/Dr-starck66/AION-ARC/blob/main/THIRD_PARTY_NOTICES.md\\n\\n"
-        "## MIT No Attribution (original AION additions only)\\n\\n"
-        + mit_zero + "\\n\\n"
-        "## Apache License 2.0 (upstream public notebook; not automatically attached source)\\n\\n"
+        "tufa-labs-duck-harness-june-30-milestone-winner\n\n"
+        "AION scope: https://github.com/Dr-starck66/AION-ARC/blob/main/THIRD_PARTY_NOTICES.md\n\n"
+        "## MIT No Attribution (original AION additions only)\n\n"
+        + mit_zero + "\n\n"
+        "## Apache License 2.0 (upstream public notebook; not automatically attached source)\n\n"
         + apache_two
     )
     if any(c.get("id") == "aion-license-notice" for c in nb.get("cells", [])):
@@ -74,7 +74,7 @@ def build(username: str, variant: str, output: Path, root: Path = ROOT) -> dict:
     if (output / "kernel-metadata.json").exists() or (output / "submission.ipynb").exists():
         raise FileExistsError("refusing to overwrite an existing Kaggle kernel package")
     submission_path = output / "submission.ipynb"
-    submission_path.write_text(json.dumps(nb, ensure_ascii=False, indent=1) + "\\n", encoding="utf-8")
+    submission_path.write_text(json.dumps(nb, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     metadata = {
         "id": f"{username}/aion-arc3-{variant}-2026",
         "title": f"AION ARC-AGI-3 {variant} {version}",
