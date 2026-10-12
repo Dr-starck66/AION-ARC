@@ -19,6 +19,16 @@ class KaggleKernelPackageTests(unittest.TestCase):
         self.assertEqual(report["status"], "PACKAGE_ONLY_NOT_SUBMITTED")
         self.assertEqual(report["version"], "2.5.0")
         self.assertEqual(report["official_score"], "UNVERIFIED")
+        self.assertTrue(report["legal_notices_embedded"])
+        self.assertEqual(report["upstream_bundle_license"], "UNVERIFIED")
+        notebook = json.loads((self.output / "submission.ipynb").read_text())
+        notices = [c for c in notebook["cells"] if c.get("id") == "aion-license-notice"]
+        self.assertEqual(len(notices), 1)
+        words = "".join(notices[0]["source"])
+        self.assertIn("MIT No Attribution", words)
+        self.assertIn("END OF TERMS AND CONDITIONS", words)
+        self.assertIn("UNVERIFIED", words)
+        self.assertIn("Tufa Labs", words)
         meta = json.loads((self.output / "kernel-metadata.json").read_text())
         self.assertTrue(meta["is_private"])
         self.assertFalse(meta["enable_internet"])
@@ -40,6 +50,27 @@ class KaggleKernelPackageTests(unittest.TestCase):
             with self.subTest(bad=bad), self.assertRaises(ValueError):
                 build(bad, "champion", self.output)
         self.assertFalse(self.output.exists())
+
+    def test_first_real_code_cell_and_original_order_preserved(self):
+        build("aion_public", "champion", self.output)
+        baseline = json.loads((ROOT / "kaggle/AION-ARC-v2.5-generalization.ipynb").read_text())
+        packaged = json.loads((self.output / "submission.ipynb").read_text())
+        base_codes = [c.get("id") for c in baseline["cells"] if c.get("cell_type") == "code"]
+        package_codes = [c.get("id") for c in packaged["cells"] if c.get("cell_type") == "code"]
+        self.assertEqual(base_codes, package_codes)
+
+    def test_missing_apache_license_does_not_fake_ready_package(self):
+        import shutil
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for path in ("LICENSE", "THIRD_PARTY_NOTICES.md",
+                         "kaggle/SUBMISSION_MANIFEST.json", "kaggle/AION-ARC-v2.5-generalization.ipynb"):
+                dst = root / path
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(ROOT / path, dst)
+            with self.assertRaises(FileNotFoundError):
+                build("aion_public", "champion", self.output, root=root)
+            self.assertFalse((self.output / "submission.ipynb").exists())
 
     def test_refuses_overwriting_a_package(self):
         build("aion_public", "champion", self.output)
