@@ -36,7 +36,7 @@ class KaggleKernelPackageTests(unittest.TestCase):
         self.assertIn("aion-v26-recovery-policy", [x.get("id") for x in notebook["cells"]])
 
     def test_secret_instead_of_username_is_rejected(self):
-        for bad in ("", "token/secret", "kaggle_key:foo", "../escape", "x" * 100, "KAGGLE_USERNAME=abc"):
+        for bad in ("", "token/secret", "kaggle_key:foo", "../escape", "x" * 100, "KAGGLE_USERNAME=abc", "KGAT_abcdefghijklmnopqrstuvwxyz012345"):
             with self.subTest(bad=bad), self.assertRaises(ValueError):
                 build(bad, "champion", self.output)
         self.assertFalse(self.output.exists())
