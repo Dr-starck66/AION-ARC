@@ -43,7 +43,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Block prize readiness on missing root license and missing proofs
-        run: python scripts/arc3_submission_evidence_gate.py --output reports/aion-arc3-evidence.json
+        run: python scripts/arc3_submission_evidence_gate.py --strict --output reports/aion-arc3-evidence.json
       - name: Preserve dated eligibility report even on FAIL
         if: always()
         uses: actions/upload-artifact@v4
