@@ -82,9 +82,11 @@ def audit(root: Path = ROOT) -> dict:
     # would incorrectly claim control over all third-party portions.
     license_files = ("LICENSE", "LICENSE.md", "LICENSE.txt", "COPYING")
     if not any((root / item).is_file() for item in license_files):
-        add("project_license", "UNVERIFIED", "No root license; owner must approve explicit licensing scope")
+        add("project_license", "FAIL",
+            "Missing root LICENSE: competition requires an explicit permissive license for submitter-authored methods/code (CC0 or MIT-0). Owner authorization needed; do not automatically license third-party material.")
     else:
-        add("project_license", "UNVERIFIED", "Root license found; still need verify owner and upstream rights")
+        add("project_license", "UNVERIFIED",
+            "Root license file present, but scope, contributor authority, and bundled third-party rights require independent verification")
 
     notice = root / "docs" / "UPSTREAM-ATTRIBUTION-AND-LICENSE.md"
     add("upstream_attribution", "PASS" if notice.is_file() else "FAIL",
