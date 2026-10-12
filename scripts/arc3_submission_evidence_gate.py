@@ -109,7 +109,7 @@ def audit(root: Path = ROOT) -> dict:
     if apache_path.is_file():
         apache_text = apache_path.read_text(encoding="utf-8")
         apache_valid = (
-            apache_text.startswith("Apache License\\nVersion 2.0, January 2004")
+            apache_text.startswith("Apache License\nVersion 2.0, January 2004")
             and "END OF TERMS AND CONDITIONS" in apache_text
             and len(apache_text) >= 10000
         )
