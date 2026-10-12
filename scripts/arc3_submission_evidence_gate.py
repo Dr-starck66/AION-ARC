@@ -105,6 +105,19 @@ def audit(root: Path = ROOT) -> dict:
         add("project_license", "PASS" if valid else "FAIL",
             "MIT-0 and explicitly scoped original-code rights recorded; not a third-party rights grant"
             if valid else "MIT-0 text or third-party license exclusions missing/invalid")
+    apache_path = root / "THIRD_PARTY_LICENSES" / "Apache-2.0.txt"
+    if apache_path.is_file():
+        apache_text = apache_path.read_text(encoding="utf-8")
+        apache_valid = (
+            apache_text.startswith("Apache License\\nVersion 2.0, January 2004")
+            and "END OF TERMS AND CONDITIONS" in apache_text
+            and len(apache_text) >= 10000
+        )
+        add("apache_license_notice", "PASS" if apache_valid else "FAIL",
+            "Canonical Apache-2.0 text included for attribution (not a Tufa source-bundle grant)"
+            if apache_valid else "Apache-2.0 license text invalid")
+    else:
+        add("apache_license_notice", "FAIL", "Apache-2.0 attribution license text missing")
     add("third_party_rights", "UNVERIFIED",
         "Bundled Tufa source, Qwen model weights, wheels and independent license/NOTICE terms not fully verified")
 
