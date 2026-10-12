@@ -1,0 +1,89 @@
+name: AION v2.6 Recovery Adversarial Gate
+
+on:
+  push:
+    branches: [arc3-v26-recovery-experiment]
+  pull_request:
+    branches: [arc3-kaggle-100]
+    paths:
+      - "kaggle/AION-ARC-v2.6-recovery.ipynb"
+      - "kaggle/test_aion_v26_recovery.py"
+      - ".github/workflows/aion-v26-recovery.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recovery-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Exercise actual notebook patch against simulated host source
+        run: python -m unittest discover -s kaggle -p test_aion_v26_recovery.py -v
+      - name: Preserve existing AION guard test suite
+        run: python -m unittest discover -s kaggle -p test_aion_guard.py -v
+      - name: Prove paired champion evaluation refuses false-PASS
+        run: python -m unittest discover -s tests -p test_compare_arc3_runs.py -v
+      - name: Prove release audit rejects missing license and false score
+        run: python -m unittest discover -s tests -p test_arc3_submission_evidence_gate.py -v
+      - name: Verify private offline Kaggle package creation
+        run: |
+          python -m unittest discover -s tests -p test_prepare_kaggle_kernel.py -v
+          python scripts/prepare_kaggle_kernel.py --username aion_ci_example --variant champion --out dist/kaggle/ci-champion
+          python scripts/prepare_kaggle_kernel.py --username aion_ci_example --variant challenger --out dist/kaggle/ci-challenger
+      - name: Generate reproducible SHA256 manifests
+        run: |
+          (cd dist/kaggle/ci-champion && sha256sum submission.ipynb kernel-metadata.json > SHA256SUMS.txt)
+          (cd dist/kaggle/ci-challenger && sha256sum submission.ipynb kernel-metadata.json > SHA256SUMS.txt)
+      - name: Upload both offline Kaggle candidates (NOT submitted)
+        uses: actions/upload-artifact@v4
+        with:
+          name: aion-arc3-kaggle-candidates-${{ github.sha }}
+          path: |
+            dist/kaggle/ci-champion/
+            dist/kaggle/ci-challenger/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Test fail-closed upstream license evidence probe
+        run: python -m unittest discover -s tests -p test_arc3_upstream_license_audit.py -v
+  upstream-license-evidence:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run public upstream legal evidence audit
+        run: |
+          python scripts/arc3_upstream_license_audit.py --output reports/aion-arc3-upstream-licenses.json
+      - name: Archive evidence even if remote metadata unavailable
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aion-arc3-upstream-licenses-${{ github.sha }}
+          path: reports/aion-arc3-upstream-licenses.json
+          if-no-files-found: warn
+          retention-days: 30
+  prize-eligibility-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Block prize readiness on missing root license and missing proofs
+        run: python scripts/arc3_submission_evidence_gate.py --strict --output reports/aion-arc3-evidence.json
+      - name: Preserve dated eligibility report even on FAIL
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aion-prize-eligibility-${{ github.sha }}
+          path: reports/aion-arc3-evidence.json
+          if-no-files-found: warn
+          retention-days: 30
