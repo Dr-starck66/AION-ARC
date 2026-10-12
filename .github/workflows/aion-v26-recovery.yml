@@ -32,6 +32,11 @@ jobs:
         run: |
           python -m unittest discover -s tests -p test_arc3_submission_evidence_gate.py -v
           python scripts/arc3_submission_evidence_gate.py --output reports/aion-arc3-evidence.json
+      - name: Verify private offline Kaggle package creation
+        run: |
+          python -m unittest discover -s tests -p test_prepare_kaggle_kernel.py -v
+          python scripts/prepare_kaggle_kernel.py --username aion_ci_example --variant champion --out dist/kaggle/ci-champion
+          python scripts/prepare_kaggle_kernel.py --username aion_ci_example --variant challenger --out dist/kaggle/ci-challenger
       - name: Archive dated release evidence
         if: always()
         uses: actions/upload-artifact@v4
