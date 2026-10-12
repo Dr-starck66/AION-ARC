@@ -22,9 +22,9 @@ class SubmissionEvidenceGateTests(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    def test_healthy_static_content_is_partial_not_competition_pass(self):
+    def test_unlicensed_static_content_is_fail_not_competition_pass(self):
         result = audit(self.root)
-        self.assertEqual(result["status"], "PARTIAL", result)
+        self.assertEqual(result["status"], "FAIL", result)
         statuses = {c["check"]: c["status"] for c in result["checks"]}
         self.assertEqual(statuses["manifest"], "PASS")
         self.assertEqual(statuses["challenger_notebook"], "PASS")
@@ -32,7 +32,7 @@ class SubmissionEvidenceGateTests(unittest.TestCase):
         self.assertEqual(statuses["official_kaggle_submission"], "UNVERIFIED")
         self.assertEqual(statuses["gpu_runtime"], "UNVERIFIED")
         self.assertEqual(statuses["paired_real_gameplay"], "UNVERIFIED")
-        self.assertEqual(statuses["project_license"], "UNVERIFIED")
+        self.assertEqual(statuses["project_license"], "FAIL")
 
     def test_missing_manifest_is_fail(self):
         (self.root / "kaggle/SUBMISSION_MANIFEST.json").unlink()
