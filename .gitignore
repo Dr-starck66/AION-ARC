@@ -15,3 +15,6 @@ __pycache__/
 /kaggle/working/
 /run-artifacts/
 /reports/private/
+
+# Generated Kaggle packaging (never commit dataset copies or private metadata)
+/dist/
