@@ -28,3 +28,15 @@ jobs:
         run: python -m unittest discover -s kaggle -p test_aion_guard.py -v
       - name: Prove paired champion evaluation refuses false-PASS
         run: python -m unittest discover -s tests -p test_compare_arc3_runs.py -v
+      - name: Audit release status without falsely asserting Kaggle score
+        run: |
+          python -m unittest discover -s tests -p test_arc3_submission_evidence_gate.py -v
+          python scripts/arc3_submission_evidence_gate.py --output reports/aion-arc3-evidence.json
+      - name: Archive dated release evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aion-arc3-release-gate-${{ github.sha }}
+          path: reports/aion-arc3-evidence.json
+          if-no-files-found: warn
+          retention-days: 30
