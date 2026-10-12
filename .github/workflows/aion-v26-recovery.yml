@@ -28,20 +28,27 @@ jobs:
         run: python -m unittest discover -s kaggle -p test_aion_guard.py -v
       - name: Prove paired champion evaluation refuses false-PASS
         run: python -m unittest discover -s tests -p test_compare_arc3_runs.py -v
-      - name: Audit release status without falsely asserting Kaggle score
-        run: |
-          python -m unittest discover -s tests -p test_arc3_submission_evidence_gate.py -v
-          python scripts/arc3_submission_evidence_gate.py --output reports/aion-arc3-evidence.json
+      - name: Prove release audit rejects missing license and false score
+        run: python -m unittest discover -s tests -p test_arc3_submission_evidence_gate.py -v
       - name: Verify private offline Kaggle package creation
         run: |
           python -m unittest discover -s tests -p test_prepare_kaggle_kernel.py -v
           python scripts/prepare_kaggle_kernel.py --username aion_ci_example --variant champion --out dist/kaggle/ci-champion
           python scripts/prepare_kaggle_kernel.py --username aion_ci_example --variant challenger --out dist/kaggle/ci-challenger
-      - name: Archive dated release evidence
+  prize-eligibility-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Block prize readiness on missing root license and missing proofs
+        run: python scripts/arc3_submission_evidence_gate.py --output reports/aion-arc3-evidence.json
+      - name: Preserve dated eligibility report even on FAIL
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: aion-arc3-release-gate-${{ github.sha }}
+          name: aion-prize-eligibility-${{ github.sha }}
           path: reports/aion-arc3-evidence.json
           if-no-files-found: warn
           retention-days: 30
