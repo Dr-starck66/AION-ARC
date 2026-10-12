@@ -1,0 +1,28 @@
+name: AION v2.6 Recovery Adversarial Gate
+
+on:
+  push:
+    branches: [arc3-v26-recovery-experiment]
+  pull_request:
+    branches: [arc3-kaggle-100]
+    paths:
+      - "kaggle/AION-ARC-v2.6-recovery.ipynb"
+      - "kaggle/test_aion_v26_recovery.py"
+      - ".github/workflows/aion-v26-recovery.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recovery-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Exercise actual notebook patch against simulated host source
+        run: python -m unittest discover -s kaggle -p test_aion_v26_recovery.py -v
+      - name: Preserve existing AION guard test suite
+        run: python -m unittest discover -s kaggle -p test_aion_guard.py -v
