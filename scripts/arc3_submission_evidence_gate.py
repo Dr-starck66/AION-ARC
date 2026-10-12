@@ -78,15 +78,35 @@ def audit(root: Path = ROOT) -> dict:
         add("meaningful_challenger_delta", "PASS" if good else "FAIL",
             "Changed code cell IDs: " + ", ".join(changes[:20]))
 
-    # This repo includes upstream Duck/Kaggle notebook content; adding a generic license
-    # would incorrectly claim control over all third-party portions.
-    license_files = ("LICENSE", "LICENSE.md", "LICENSE.txt", "COPYING")
-    if not any((root / item).is_file() for item in license_files):
+    # Only the submitter-owned original code is licensed under MIT-0.
+    # A valid root license does NOT prove that third-party bundled code is usable.
+    license_path = root / "LICENSE"
+    scope_path = root / "THIRD_PARTY_NOTICES.md"
+    if not license_path.is_file():
         add("project_license", "FAIL",
-            "Missing root LICENSE: competition requires an explicit permissive license for submitter-authored methods/code (CC0 or MIT-0). Owner authorization needed; do not automatically license third-party material.")
+            "Missing root MIT-0 license for submitter-authored code")
+    elif not scope_path.is_file():
+        add("project_license", "FAIL",
+            "Missing third-party scope notice; root license may wrongly suggest ownership of upstream")
     else:
-        add("project_license", "UNVERIFIED",
-            "Root license file present, but scope, contributor authority, and bundled third-party rights require independent verification")
+        license_text = license_path.read_text(encoding="utf-8")
+        scope_text = scope_path.read_text(encoding="utf-8")
+        valid = all(x in license_text for x in (
+            "MIT No Attribution",
+            "Copyright 2026 AION-ARC contributors",
+            "Permission is hereby granted, free of charge",
+            'THE SOFTWARE IS PROVIDED "AS IS"',
+        )) and all(x in scope_text for x in (
+            "original contributions: MIT-0",
+            "only",
+            "Tufa Labs",
+            "Qwen3.6",
+        ))
+        add("project_license", "PASS" if valid else "FAIL",
+            "MIT-0 and explicitly scoped original-code rights recorded; not a third-party rights grant"
+            if valid else "MIT-0 text or third-party license exclusions missing/invalid")
+    add("third_party_rights", "UNVERIFIED",
+        "Bundled Tufa source, Qwen model weights, wheels and independent license/NOTICE terms not fully verified")
 
     notice = root / "docs" / "UPSTREAM-ATTRIBUTION-AND-LICENSE.md"
     add("upstream_attribution", "PASS" if notice.is_file() else "FAIL",
