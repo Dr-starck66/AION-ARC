@@ -1,25 +1,26 @@
-# AION ARC-AGI-3 — upstream attribution & licensing audit (2026-10-12)
+# AION ARC-AGI-3 — upstream attribution & licensing audit (updated 2026-10-12)
 
-**Status: UNVERIFIED for final prize eligibility.** This document records attribution and unresolved rights; it is not itself a license grant.
+**Original AION contributions: MIT-0 published, authorized. Full prize-eligibility rights: UNVERIFIED.** Publication of our own license does not grant rights over any third-party assets.
 
 ## Upstream materials and known public evidence
 
 | Component | Provenance | Public license evidence | Status |
 |---|---|---|---|
-| Tufa Labs "Duck" notebook/harness template | Jeroen Cottaar, Harold Bessis, Isaiah Pressman, Andries Smit, Michal Tešnar, Stefano Viel; Tufa Labs, https://www.kaggle.com/code/jeroencottaar/taaf-duck-harness-kaggle-share | Kaggle notebook explicitly identifies Apache 2.0; https://www.kaggle.com/code/jeroencottaar/tufa-labs-duck-harness-june-30-milestone-winner | Apache-2.0 stated for that notebook; retain attribution and license notice |
-| Tufa Labs Duck source bundle attached from Kaggle | `jeroencottaar/taaf-kaggle-source-share`; project GitHub https://github.com/Tufalabs/duck-harness | Upstream GitHub root has no detected LICENSE (checked 2026-10-12); notebook license does not automatically prove each external bundle is covered | **UNVERIFIED**: check bundled file headers/LICENSE/NOTICE |
-| Offline vLLM wheelhouse | `driessmit1/arc3-vllm-h100-wheelhouse-v3` | Multiple bundled packages have independent licenses | **UNVERIFIED**: inventory wheel metadata |
-| Qwen3.6 27B FP8 weights | `driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot` | Exact dataset/weights terms not audited | **UNVERIFIED**: read license in pinned snapshot |
-| AION `astra_arc/**`, `scripts/**`, `tests/**` and added notebook overlays | AION-ARC repo https://github.com/Dr-starck66/AION-ARC | Owner-approved original-code license not yet present | **UNVERIFIED**: obtain owner's express license and contribution ownership confirmation |
+| AION original code/methods | Project's own `astra_arc/`, AION-created tests, utilities and notebook *additions* only to extent independently authored | Owner authorized MIT-0 on 2026-10-12; [LICENSE](../LICENSE) and [THIRD_PARTY_NOTICES](../THIRD_PARTY_NOTICES.md) exist on three active branches | **PASS for licensed original contributions only** |
+| Tufa Labs Duck notebook/harness template | Harold Bessis, Jeroen Cottaar, Isaiah Pressman, Andries Smit, Michal Tešnar, Stefano Viel; upstream https://github.com/Tufalabs/duck-harness | Kaggle notebook has Apache-2.0 indication; inspect exact Tufa notebook and bundle; do not infer all bundled files licensed | **PARTIAL / UNVERIFIED exact scope** |
+| Tufa Labs source dataset | `jeroencottaar/taaf-kaggle-source-share` | Upstream GitHub root lacked a root LICENSE at the time checked; notebook license not automatic coverage of all attached code | **UNVERIFIED** |
+| Offline vLLM wheels | `driessmit1/arc3-vllm-h100-wheelhouse-v3` | Separate upstream wheel licenses | **UNVERIFIED** |
+| Qwen3.6 27B FP8 weights | `driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot` | Model weights and dataset snapshot terms must be checked individually | **UNVERIFIED** |
+| ARC Prize offline SDK and runtime wheels | Official competition inputs | Independently licensed runtime; need package license inventory | **UNVERIFIED** |
 
-## Necessary before claiming license PASS
+## Required before claiming prize eligibility PASS
 
-1. Identify and preserve all copyright, Apache-2.0 and NOTICE texts from notebook/bundled Tufa code.
-2. Inventory all code copied into AION notebooks vs original AION patches and verify allowed adaptation/distribution.
-3. Have code owner explicitly authorize the license choice for **only their own contributions**, and add exact license files and SPDX notices. Do not purport to relicense Tufa, wheelhouse, or model weights.
-4. Verify license compatibility with ARC Prize's current open-source/reproducibility requirements and official Kaggle rules.
-5. Store dated proof of Kaggle consent, actual submission and official score outside source code where appropriate. NEVER commit Kaggle tokens or password material.
+1. Inspect Tufa source dataset for LICENSE, NOTICE, per-file copyright headers and redistribution scope. Record exact origin/versions.
+2. Verify requirements for bundling the notebook and distributing solver source; preserve every required third-party notice.
+3. Inspect precise vLLM, Qwen model and ARC SDK license metadata, and ensure lawful publication of the final solution/methods.
+4. Check compatibility with Kaggle's and ARC Prize's current rules, public reproducibility and no-Internet restrictions.
+5. Obtain an official Kaggle submission result; **no source code or CI log alone proves eligibility or score**.
 
-Official rules: https://arcprize.org/competitions/2026/arc-agi-3 and https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-3/overview
+Reference: https://arcprize.org/competitions/2026 and https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-3/overview
 
-This branch is an experiment and must never be merged based on CI alone. Prize status remains PARTIAL / UNVERIFIED.
+Prize status: **PARTIAL / UNVERIFIED**, not PASS.
