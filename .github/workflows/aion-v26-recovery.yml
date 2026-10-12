@@ -35,6 +35,19 @@ jobs:
           python -m unittest discover -s tests -p test_prepare_kaggle_kernel.py -v
           python scripts/prepare_kaggle_kernel.py --username aion_ci_example --variant champion --out dist/kaggle/ci-champion
           python scripts/prepare_kaggle_kernel.py --username aion_ci_example --variant challenger --out dist/kaggle/ci-challenger
+      - name: Generate reproducible SHA256 manifests
+        run: |
+          (cd dist/kaggle/ci-champion && sha256sum submission.ipynb kernel-metadata.json > SHA256SUMS.txt)
+          (cd dist/kaggle/ci-challenger && sha256sum submission.ipynb kernel-metadata.json > SHA256SUMS.txt)
+      - name: Upload both offline Kaggle candidates (NOT submitted)
+        uses: actions/upload-artifact@v4
+        with:
+          name: aion-arc3-kaggle-candidates-${{ github.sha }}
+          path: |
+            dist/kaggle/ci-champion/
+            dist/kaggle/ci-challenger/
+          if-no-files-found: error
+          retention-days: 30
       - name: Test fail-closed upstream license evidence probe
         run: python -m unittest discover -s tests -p test_arc3_upstream_license_audit.py -v
   upstream-license-evidence:
