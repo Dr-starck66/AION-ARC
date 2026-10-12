@@ -1,0 +1,17 @@
+# Private Kaggle credentials: NEVER COMMIT
+.kaggle/
+kaggle.json
+**/kaggle.json
+**/access_token
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+__pycache__/
+.pytest_cache/
+*.py[cod]
+# Competition run outputs can be large or contain private credentials
+/kaggle/working/
+/run-artifacts/
+/reports/private/
