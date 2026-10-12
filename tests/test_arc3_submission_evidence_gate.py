@@ -14,7 +14,8 @@ class SubmissionEvidenceGateTests(unittest.TestCase):
         for rel in ("kaggle/SUBMISSION_MANIFEST.json",
                     "kaggle/AION-ARC-v2.5-generalization.ipynb",
                     "kaggle/AION-ARC-v2.6-recovery.ipynb",
-                    "docs/UPSTREAM-ATTRIBUTION-AND-LICENSE.md"):
+                    "docs/UPSTREAM-ATTRIBUTION-AND-LICENSE.md",
+                    "THIRD_PARTY_LICENSES/Apache-2.0.txt"):
             destination = self.root / rel
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / rel, destination)
@@ -70,6 +71,19 @@ class SubmissionEvidenceGateTests(unittest.TestCase):
         shutil.copy2(ROOT / "LICENSE", self.root / "LICENSE")
         checks = {x["check"]: x["status"] for x in audit(self.root)["checks"]}
         self.assertEqual(checks["project_license"], "FAIL")
+
+    def test_missing_apache_license_text_is_fail(self):
+        (self.root / "THIRD_PARTY_LICENSES/Apache-2.0.txt").unlink()
+        checks = {x["check"]: x["status"] for x in audit(self.root)["checks"]}
+        self.assertEqual(checks["apache_license_notice"], "FAIL")
+        self.assertEqual(audit(self.root)["status"], "FAIL")
+
+    def test_canonical_apache_notice_does_not_authorize_tufa_bundle(self):
+        for rel in ("LICENSE", "THIRD_PARTY_NOTICES.md"):
+            shutil.copy2(ROOT / rel, self.root / rel)
+        checks = {x["check"]: x["status"] for x in audit(self.root)["checks"]}
+        self.assertEqual(checks["apache_license_notice"], "PASS")
+        self.assertEqual(checks["third_party_rights"], "UNVERIFIED")
 
     def test_missing_upstream_notices_is_fail(self):
         (self.root / "docs/UPSTREAM-ATTRIBUTION-AND-LICENSE.md").unlink()
