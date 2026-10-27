@@ -36,13 +36,27 @@ def load_run(raw: dict) -> dict:
         result[key] = game
     return result
 
-def compare(champion: dict, candidate: dict, min_games: int = 5) -> dict:
+# Promotion coverage is fixed to the preregistered public-game protocol.
+# Never accept a short/single-seed batch by overriding optional parameters.
+REQUIRED_UNIQUE_GAMES = 25
+REQUIRED_SEEDS_PER_GAME = 2
+
+
+def compare(champion: dict, candidate: dict) -> dict:
     ref = load_run(champion)
     challenger = load_run(candidate)
     if ref.keys() != challenger.keys():
         raise ValueError("not paired: identical games and seeds required")
     keys = sorted(ref)
     n = len(keys)
+    game_to_seeds = {}
+    for game_id, seed in keys:
+        game_to_seeds.setdefault(game_id, set()).add(seed)
+    unique_games = len(game_to_seeds)
+    min_seeds_per_game = min(map(len, game_to_seeds.values()))
+    level_regressions = sum(
+        challenger[k]["levels_completed"] < ref[k]["levels_completed"] for k in keys
+    )
     deltas = [challenger[k]["score_percent"] - ref[k]["score_percent"] for k in keys]
     mean_delta = sum(deltas) / n
     base_mean = sum(ref[k]["score_percent"] for k in keys) / n
@@ -51,9 +65,10 @@ def compare(champion: dict, candidate: dict, min_games: int = 5) -> dict:
     challenger_actions = sum(challenger[k]["actions"] for k in keys)
     base_time = sum(ref[k]["runtime_seconds"] for k in keys)
     challenger_time = sum(challenger[k]["runtime_seconds"] for k in keys)
-    if n < min_games:
-        status = "INSUFFICIENT_GAMES"
-    elif mean_delta < 0 or min(deltas) < -2.0:
+    if (unique_games < REQUIRED_UNIQUE_GAMES
+            or min_seeds_per_game < REQUIRED_SEEDS_PER_GAME):
+        status = "INSUFFICIENT_GAME_COVERAGE"
+    elif level_regressions or mean_delta < 0 or min(deltas) < -2.0:
         status = "REGRESSION"
     elif mean_delta > 0:
         status = "PROMISING_REQUIRES_OFFICIAL_VALIDATION"
@@ -62,6 +77,12 @@ def compare(champion: dict, candidate: dict, min_games: int = 5) -> dict:
     return {
         "status": status,
         "proof_level": "SELF_REPORTED_LOCAL_GAME_DATA_NOT_OFFICIAL_KAGGLE",
+        "paired_runs": n,
+        "unique_games": unique_games,
+        "minimum_seeds_per_game": min_seeds_per_game,
+        "required_unique_games": REQUIRED_UNIQUE_GAMES,
+        "required_seeds_per_game": REQUIRED_SEEDS_PER_GAME,
+        "level_regressions": level_regressions,
         "paired_games": n,
         "champion_mean_percent": round(base_mean, 5),
         "candidate_mean_percent": round(challenger_mean, 5),
