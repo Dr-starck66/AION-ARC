@@ -65,7 +65,7 @@ class ComparisonTests(unittest.TestCase):
 
     def test_duplicate_game_seed_rejected(self):
         b = sample(5)
-        b["games"][1]["game_id"] = "g0"
+        b["games"][1]["seed"] = 7  # same (g0, 7) pair as the first record
         with self.assertRaises(ValueError):
             compare(sample(5), b)
 
