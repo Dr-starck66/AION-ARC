@@ -3,9 +3,9 @@ from scripts.compare_arc3_runs import compare
 
 def sample(score):
     return {"engine": "arc3_official_local", "games": [
-        {"game_id": "g"+str(i), "seed": 7, "score_percent": score,
+        {"game_id": "g"+str(i), "seed": seed, "score_percent": score,
          "levels_completed": 2, "actions": 20, "runtime_seconds": 1.5}
-        for i in range(5)
+        for i in range(25) for seed in (7, 8)
     ]}
 
 class ComparisonTests(unittest.TestCase):
@@ -23,7 +23,31 @@ class ComparisonTests(unittest.TestCase):
     def test_small_sample_insufficient(self):
         a, b = sample(5), sample(7)
         a["games"], b["games"] = a["games"][:2], b["games"][:2]
-        self.assertEqual(compare(a, b)["status"], "INSUFFICIENT_GAMES")
+        self.assertEqual(compare(a, b)["status"], "INSUFFICIENT_GAME_COVERAGE")
+
+    def test_five_game_two_seed_sample_is_not_sufficient(self):
+        a, b = sample(5), sample(7)
+        a["games"], b["games"] = a["games"][:10], b["games"][:10]
+        out = compare(a, b)
+        self.assertEqual(out["status"], "INSUFFICIENT_GAME_COVERAGE")
+        self.assertEqual(out["unique_games"], 5)
+        self.assertEqual(out["minimum_seeds_per_game"], 2)
+
+    def test_twenty_five_games_only_one_seed_not_sufficient(self):
+        a, b = sample(5), sample(7)
+        a["games"] = [game for game in a["games"] if game["seed"] == 7]
+        b["games"] = [game for game in b["games"] if game["seed"] == 7]
+        out = compare(a, b)
+        self.assertEqual(out["status"], "INSUFFICIENT_GAME_COVERAGE")
+        self.assertEqual(out["unique_games"], 25)
+        self.assertEqual(out["minimum_seeds_per_game"], 1)
+
+    def test_level_completion_regression_blocks_score_gain(self):
+        a, b = sample(5), sample(7)
+        b["games"][0]["levels_completed"] = 1
+        out = compare(a, b)
+        self.assertEqual(out["status"], "REGRESSION")
+        self.assertEqual(out["level_regressions"], 1)
 
     def test_unpaired_rejected(self):
         b = sample(7)
