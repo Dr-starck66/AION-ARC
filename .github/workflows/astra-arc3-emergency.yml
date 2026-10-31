@@ -37,7 +37,8 @@ jobs:
           else
             echo "available=false" >> "$GITHUB_OUTPUT"
             echo "::warning::ASTRA_KAGGLE_AUTH_MISSING: Kaggle browser login is not a GitHub Actions API credential."
-            echo "ASTRA_KAGGLE_SUBMISSION: UNVERIFIED, no action sent to Kaggle"
+            echo "ASTRA_KAGGLE_SUBMISSION: FAIL_AUTH_MISSING, no action sent to Kaggle"
+            exit 1
           fi
 
       - name: Checkout repository
