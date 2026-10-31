@@ -1,0 +1,59 @@
+{
+  "project": "ASTRA AION-ARC Omega",
+  "competition": "arc-prize-2026-arc-agi-3",
+  "observed_at_utc": "2026-10-31",
+  "official_submission": {
+    "id": 57848621,
+    "notebook": "drstarck/notebook2700e63354",
+    "version": 6,
+    "status": "complete",
+    "public_score": 0.07,
+    "private_score": null,
+    "source": "authenticated Kaggle v1 competitions/submissions/list endpoint",
+    "proof": "PASS"
+  },
+  "leaderboard_reference": {
+    "as_of": "2026-10-31 11:58 EDT",
+    "leader_name": "Yi-Chia Chen @ Fields Model",
+    "public_score": 75.56,
+    "reference": "https://arc.markbarney.net/arc-leaderboards",
+    "verification": "source snapshot"
+  },
+  "challenger_v27": {
+    "builder": "scripts/build_arc3_gpu_challenger.py",
+    "tests": "tests/test_arc3_v27_builder.py",
+    "unit_tests": {
+      "passed": 4,
+      "failed": 0
+    },
+    "notebook_build": {
+      "cells": 18,
+      "bytes": 93039,
+      "status": "PASS-local"
+    },
+    "parquet_preflight": {
+      "bytes": 2632,
+      "shape": [
+        1,
+        4
+      ],
+      "schema": [
+        "row_id",
+        "game_id",
+        "end_of_game",
+        "score"
+      ],
+      "status": "PASS-local"
+    },
+    "async_runtime_proof": "PASS-local",
+    "kaggle_gpu_run": "UNVERIFIED",
+    "official_score": "UNVERIFIED",
+    "competition_submission": "NOT_SUBMITTED"
+  },
+  "notes": [
+    "The 0.07 score is out of 100, not 7 percent.",
+    "Preflight file is a placeholder; it does not demonstrate actual game solutions.",
+    "Original official submission must remain unchanged until a better contender has a real Kaggle score."
+  ],
+  "next_gate": "Deploy and execute GPU challenger on Kaggle, observe real game evidence, then compare and submit only if valid."
+}
