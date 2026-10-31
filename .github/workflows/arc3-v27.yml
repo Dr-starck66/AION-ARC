@@ -1,0 +1,23 @@
+name: ASTRA AION v2.7 GPU build
+on:
+  push:
+    branches: [astra/arc3-emergency-20261031]
+    paths:
+      - .github/workflows/arc3-v27.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  notebook:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -p test_arc3_v27_builder.py -v
+      - run: python scripts/build_arc3_gpu_challenger.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ASTRA-AION-ARC-v27-GPU-Kaggle-notebook
+          path: kaggle/ASTRA-AION-ARC-v2.7-GPU-CHALLENGER.ipynb
