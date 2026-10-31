@@ -38,21 +38,17 @@ jobs:
             echo "available=false" >> "$GITHUB_OUTPUT"
             echo "::warning::ASTRA_KAGGLE_AUTH_MISSING: Kaggle browser login is not a GitHub Actions API credential."
             echo "ASTRA_KAGGLE_SUBMISSION: FAIL_AUTH_MISSING, no action sent to Kaggle"
-            exit 1
           fi
 
       - name: Checkout repository
-        if: steps.auth.outputs.available == 'true'
         uses: actions/checkout@v4
 
       - name: Set up free Python runner
-        if: steps.auth.outputs.available == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
       - name: Assemble official ARC-AGI-3 starter baseline (CPU; no extra datasets)
-        if: steps.auth.outputs.available == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -90,6 +86,22 @@ jobs:
           assert any('KAGGLE_IS_COMPETITION_RERUN' in str(c.get('source')) for c in nb['cells'])
           print('ASTRA_ARC3_BASELINE_PACKAGE: PASS')
           PY
+
+      - name: Archive reproducible starter notebook (static proof, not a Kaggle submission)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ASTRA-ARC3-official-starter-baseline
+          path: |
+            /tmp/arc3-starter/notebooks/submission.ipynb
+            /tmp/arc3-starter/notebooks/kernel-metadata.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Fail closed if Kaggle API authorization is absent
+        if: steps.auth.outputs.available != 'true'
+        run: |
+          echo "::error::ASTRA_KAGGLE_AUTH_MISSING: package checked, official Kaggle submission not possible from GitHub."
+          exit 1
 
       - name: Configure CLI using only existing private credentials
         if: steps.auth.outputs.available == 'true'
