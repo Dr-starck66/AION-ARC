@@ -1,0 +1,156 @@
+name: ASTRA ARC3 Emergency Kaggle Baseline
+on:
+  push:
+    branches:
+      - astra/arc3-emergency-20261031
+    paths:
+      - .github/workflows/astra-arc3-emergency.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: astra-arc3-emergency-once
+  cancel-in-progress: false
+
+jobs:
+  kaggle-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+      KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+      KAGGLE_JSON: ${{ secrets.KAGGLE_JSON }}
+      COMPETITION: arc-prize-2026-arc-agi-3
+      KERNEL: drstarck/astra-arc3-emergency-baseline-2026
+    steps:
+      - name: Check availability of pre-existing Kaggle authorization without leaking tokens
+        id: auth
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "$KAGGLE_API_TOKEN" ]] || [[ -n "$KAGGLE_USERNAME" && -n "$KAGGLE_KEY" ]] || [[ -n "$KAGGLE_JSON" ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "ASTRA_KAGGLE_AUTH_PRESENT: PASS"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::ASTRA_KAGGLE_AUTH_MISSING: Kaggle browser login is not a GitHub Actions API credential."
+            echo "ASTRA_KAGGLE_SUBMISSION: UNVERIFIED, no action sent to Kaggle"
+          fi
+
+      - name: Checkout repository
+        if: steps.auth.outputs.available == 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up free Python runner
+        if: steps.auth.outputs.available == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Assemble official ARC-AGI-3 starter baseline (CPU; no extra datasets)
+        if: steps.auth.outputs.available == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --quiet --depth 1 https://github.com/arcprize/ARC-AGI-3-Kaggle-Starter.git /tmp/arc3-starter
+          cd /tmp/arc3-starter
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          build = Path("scripts/build_notebook.py")
+          source = build.read_text()
+          assert 'ACCELERATOR = "t4"' in source
+          build.write_text(source.replace('ACCELERATOR = "t4"', 'ACCELERATOR = "cpu"', 1))
+          metadata = Path("notebooks/kernel-metadata.json")
+          obj = json.loads(metadata.read_text())
+          obj['id'] = 'drstarck/astra-arc3-emergency-baseline-2026'
+          obj['title'] = 'ASTRA ARC3 emergency official starter (baseline)'
+          obj['is_private'] = True
+          obj['enable_gpu'] = False
+          obj['enable_internet'] = False
+          obj['competition_sources'] = ['arc-prize-2026-arc-agi-3']
+          obj['dataset_sources'] = []
+          metadata.write_text(json.dumps(obj, indent=2) + '\n')
+          PY
+          python scripts/build_notebook.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          nb = json.loads(Path("notebooks/submission.ipynb").read_text())
+          meta = json.loads(Path("notebooks/kernel-metadata.json").read_text())
+          assert meta['enable_internet'] is False
+          assert meta['enable_gpu'] is False
+          assert meta['is_private'] is True
+          assert meta['competition_sources'] == ['arc-prize-2026-arc-agi-3']
+          assert any('submission.parquet' in str(c.get('source')) for c in nb['cells'])
+          assert any('KAGGLE_IS_COMPETITION_RERUN' in str(c.get('source')) for c in nb['cells'])
+          print('ASTRA_ARC3_BASELINE_PACKAGE: PASS')
+          PY
+
+      - name: Configure CLI using only existing private credentials
+        if: steps.auth.outputs.available == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --quiet 'kaggle>=2.2.0'
+          if [[ -n "$KAGGLE_JSON" && -z "$KAGGLE_API_TOKEN" ]]; then
+            mkdir -p "$HOME/.kaggle"
+            printf '%s' "$KAGGLE_JSON" > "$HOME/.kaggle/kaggle.json"
+            chmod 600 "$HOME/.kaggle/kaggle.json"
+          fi
+          echo "ASTRA_KAGGLE_CLI: READY (credentials never printed)"
+
+      - name: Push private official starter kernel and start Kaggle run
+        if: steps.auth.outputs.available == 'true'
+        shell: bash
+        working-directory: /tmp/arc3-starter
+        run: |
+          set -euo pipefail
+          kaggle kernels push -p notebooks
+          echo "ASTRA_ARC3_KERNEL_PUSH: REQUEST_SENT"
+          echo "Kernel: $KERNEL"
+
+      - name: Await successful notebook version
+        if: steps.auth.outputs.available == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          success=false
+          for attempt in $(seq 1 45); do
+            result=$(kaggle kernels status "$KERNEL" 2>&1) || { echo "$result"; exit 1; }
+            echo "Poll $attempt: $result"
+            if printf '%s' "$result" | grep -Eiq 'complete|succeeded'; then
+              success=true
+              break
+            fi
+            if printf '%s' "$result" | grep -Eiq 'error|failed|cancelled'; then
+              echo "::error::ASTRA_ARC3_KERNEL_FAILED"
+              exit 1
+            fi
+            sleep 15
+          done
+          if [[ "$success" != true ]]; then
+            echo "::error::ASTRA_ARC3_KERNEL_COMPLETION_UNVERIFIED"
+            exit 1
+          fi
+          echo "ASTRA_ARC3_KERNEL_COMPLETED: PASS"
+
+      - name: Official code competition submission (single attempt)
+        if: steps.auth.outputs.available == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          kaggle competitions submit "$COMPETITION" -k "$KERNEL" -f submission.parquet -m "ASTRA ARC3 emergency official starter baseline"
+          echo "ASTRA_OFFICIAL_KAGGLE_SUBMISSION_REQUEST: SENT"
+          echo "Verify numeric submission ref and score in Kaggle submissions."
+
+      - name: Audit recorded submissions
+        if: steps.auth.outputs.available == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          kaggle competitions submissions "$COMPETITION" || true
+          echo "ASTRA_AUDIT: submission request sent; scoring requires Kaggle confirmation."
