@@ -1,0 +1,82 @@
+name: ASTRA ARC3 Parquet Artifact Gate
+on:
+  push:
+    branches:
+      - astra/arc3-emergency-20261031
+    paths:
+      - kaggle/ASTRA-ARC3-EMERGENCY-submission-parquet-v2.ipynb
+      - .github/workflows/astra-arc3-parquet-gate.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-parquet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install local Parquet test dependencies
+        run: |
+          python -m pip install --quiet pandas pyarrow
+
+      - name: Verify both cells compile and real Parquet is generated in non-rerun mode
+        shell: bash
+        run: |
+          python - <<'PY'
+          import ast, json, os, tempfile
+          from pathlib import Path
+          import pandas as pd
+
+          file = Path('kaggle/ASTRA-ARC3-EMERGENCY-submission-parquet-v2.ipynb')
+          nb = json.loads(file.read_text())
+          assert nb['nbformat'] == 4
+          assert nb['metadata']['kaggle']['isInternetEnabled'] is False
+          assert nb['metadata']['kaggle']['isGpuEnabled'] is False
+          cs = [c for c in nb['cells'] if c['cell_type'] == 'code']
+          assert len(cs) == 2
+          embedded = []
+          for c in cs:
+              source = ''.join(c['source'])
+              node = ast.parse(source).body[-1]
+              assert isinstance(node, ast.Expr)
+              outer = node.value
+              assert isinstance(outer, ast.Call) and isinstance(outer.func, ast.Name) and outer.func.id == 'exec'
+              inner = outer.args[0]
+              assert isinstance(inner, ast.Call) and isinstance(inner.func, ast.Name) and inner.func.id == 'compile'
+              arg = inner.args[0]
+              assert isinstance(arg, ast.Constant) and isinstance(arg.value, str)
+              compile(arg.value, 'kaggle-embedded-source', 'exec')
+              embedded.append(arg.value)
+          print('ASTRA_COMPILED_BOTH_CELLS: PASS')
+          assert 'to_parquet' in embedded[0]
+          assert 'KAGGLE_IS_COMPETITION_RERUN' in embedded[0]
+          assert 'http://gateway:8001/api/games' in embedded[1]
+          assert 'MyAgent' in embedded[1]
+          assert 'main.py' in embedded[1]
+
+          os.environ.pop('KAGGLE_IS_COMPETITION_RERUN', None)
+          with tempfile.TemporaryDirectory() as tmp:
+              expected = '/kaggle/working/submission.parquet'
+              output = Path(tmp) / 'submission.parquet'
+              stage = embedded[0].replace(expected, str(output))
+              assert stage != embedded[0]
+              values = {}
+              exec(compile(stage, 'kaggle-commit-stage', 'exec'), values)
+              assert values['TRUE_RERUN'] is False
+              exec(compile(embedded[1], 'kaggle-rerun-gated-stage', 'exec'), values)
+              assert output.is_file() and output.stat().st_size > 0
+              dataframe = pd.read_parquet(output)
+              assert list(dataframe.columns) == ['row_id', 'game_id', 'end_of_game', 'score']
+              assert dataframe.shape == (1, 4)
+              assert dataframe.iloc[0]['row_id'] == '1_0'
+              assert bool(dataframe.iloc[0]['end_of_game']) is True
+              print('ASTRA_ARC3_REAL_PARQUET_GENERATION: PASS', output.stat().st_size)
+              print('ASTRA_ARC3_SUBMISSION_TO_KAGGLE: UNVERIFIED (local commit-stage test only)')
+          PY
