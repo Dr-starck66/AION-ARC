@@ -36,7 +36,7 @@ class RealGameBuilderTests(unittest.TestCase):
 
     def test_gpu_specific_and_internet_off(self):
         cfg = builder.build()["metadata"]["kaggle"]
-        self.assertEqual(cfg["accelerator"], "nvidiaRtx6000")
+        self.assertEqual(cfg["accelerator"], "nvidiaRtxPro6000")
         self.assertFalse(cfg["isInternetEnabled"])
         self.assertIn("KAGGLE_GPU_TYPE", builder.BOOTSTRAP)
 

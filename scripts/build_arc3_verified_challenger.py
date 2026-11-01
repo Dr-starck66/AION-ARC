@@ -25,8 +25,11 @@ import os
 import platform
 import random
 import subprocess
+import sys
 from pathlib import Path
 
+if sys.version_info[:2] != (3, 12):
+    raise RuntimeError("Offline vLLM wheels require Python 3.12; copy the public Tufa notebook and pin its original environment")
 TRUE_RERUN = os.environ.get("KAGGLE_IS_COMPETITION_RERUN", "").strip().lower() in ("1", "true")
 ASTRA_PROFILE = os.environ.get("ASTRA_PROFILE", "recovery").strip().lower()
 if ASTRA_PROFILE not in ("upstream", "recovery"):
@@ -277,7 +280,7 @@ def build(profile="recovery") -> dict:
     metadata = {
         "kernelspec": original["metadata"]["kernelspec"],
         "language_info": {"name": "python"},
-        "kaggle": {"accelerator": "nvidiaRtx6000", "isInternetEnabled": False, "isGpuEnabled": True,
+        "kaggle": {"accelerator": "nvidiaRtxPro6000", "isInternetEnabled": False, "isGpuEnabled": True,
                    "language": "python", "sourceType": "notebook"},
         "astra": {"version": "2.8-experimental", "profile": profile, "kaggle_execution": "UNVERIFIED",
                   "official_score": "UNVERIFIED", "preserved_submission": 57848621},

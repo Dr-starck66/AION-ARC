@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "patch_applied_to": "Tufalabs/duck-harness@7652836056c59e044f093e3c13ed7438c814169e",
+  "python_files_compiled": 34,
+  "embedded_bootstrap": "PASS",
+  "scope": "CPU integration only; Kaggle gameplay UNVERIFIED"
+}

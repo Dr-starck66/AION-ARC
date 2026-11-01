@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-01",
+  "authentication": "PASS",
+  "kaggle_username": "drstarck",
+  "original_notebook": "https://www.kaggle.com/code/drstarck/notebook2700e63354",
+  "original_version": 6,
+  "original_public_score": 0.07,
+  "candidate_editor": "https://www.kaggle.com/code/drstarck/astra-aion-arc3-v2-8-pinned-recovery/edit",
+  "required_inputs_observed": 4,
+  "import_file_bytes": 111187,
+  "import_status": "PASS",
+  "gpu_execution": "PARTIAL",
+  "new_submission_id": null,
+  "first_run": {
+    "scriptVersionId": 364606055,
+    "status": "FAIL",
+    "duration_s": 12.1,
+    "python": "3.13.15",
+    "error": "No matching distribution found for aiohttp==3.13.5",
+    "url": "https://www.kaggle.com/code/drstarck/astra-aion-arc3-v2-8-recovery?scriptVersionId=364606055"
+  },
+  "corrected_run": {
+    "scriptVersionId": 364607203,
+    "status": "RUNNING",
+    "python": "3.12.13",
+    "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "gpu_memory_mib": 97887,
+    "environment_date": "2026-05-26",
+    "url": "https://www.kaggle.com/code/drstarck/astra-aion-arc3-v2-8-pinned-recovery?scriptVersionId=364607203",
+    "uploaded_sha256": "8bffb250cbe39d5c69bf6272b5d7af7965af5be4c30ccefd1e91716e59fbdf0c",
+    "setup_progress": "vLLM wheelhouse installed successfully; model loading"
+  },
+  "milestone2_run": {
+    "scriptVersionId": 364609200,
+    "status": "RUNNING",
+    "url": "https://www.kaggle.com/code/drstarck/astra-aion-arc3-v2-9-milestone2?scriptVersionId=364609200",
+    "python": "3.12.13",
+    "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "uploaded_sha256": "c1859797875d83074dd3b02b75e5334f037aac9d651a27d99d7884d9e9e1980d",
+    "setup_progress": "harness patch applied; SGLang offline installed; model loading",
+    "games": [
+      "ls20",
+      "vc33"
+    ],
+    "gameplay_budget_s": 1800,
+    "official_score": "UNVERIFIED"
+  },
+  "last_verified_utc": "2026-11-01T16:46:27.998597+00:00"
+}

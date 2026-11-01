@@ -1,0 +1,1236 @@
+Rendered Kaggle log table export; trailing whitespace trimmed.
+Time
+
+#
+
+Log Message
+
+4.9s	1	0.00s - Debugger warning: It seems that frozen modules are being used, which may
+
+4.9s	2	0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+
+4.9s	3	0.00s - to python to disable frozen modules.
+
+4.9s	4	0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+
+5.3s	5	0.00s - Debugger warning: It seems that frozen modules are being used, which may
+
+5.3s	6	0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+
+5.3s	7	0.00s - to python to disable frozen modules.
+
+5.3s	8	0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+
+6.0s	9	ASTRA_V28_RUNTIME {"mode": "REAL_PUBLIC_GAMES", "profile": "recovery", "gpu": ["NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887"], "python": "3.13.15", "official_score": "UNVERIFIED", "preserved_submission": 57848621}
+
+6.0s	10	taaf.kaggle: TRUE_SUBMISSION=False
+
+7.4s	11	taaf.kaggle: source bundle = /kaggle/input/datasets/jeroencottaar/taaf-kaggle-source-share
+
+7.4s	12	taaf.kaggle: input paths = {"driessmit1/arc3-vllm-h100-wheelhouse-v3": "/kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3", "driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot": "/kaggle/input/datasets/driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot", "jeroencottaar/taaf-kaggle-source-share": "/kaggle/input/datasets/jeroencottaar/taaf-kaggle-source-share"}
+
+7.6s	13	taaf.kaggle: wrote /usr/local/lib/python3.13/dist-packages/taaf_kaggle_sources.pth (3 source roots)
+
+7.7s	14	taaf.kaggle: setup command: "$PYTHON" - <<'PYSETUP'
+
+7.7s	15	import json
+
+7.7s	16	import os
+
+7.7s	17	import shutil
+
+7.7s	18	import subprocess
+
+7.7s	19	import sys
+
+7.7s	20	import time
+
+7.7s	21	import urllib.request
+
+7.7s	22	from pathlib import Path
+
+7.7s	23
+
+7.7s	24	WHEELHOUSE_OWNER = 'driessmit1'
+
+7.7s	25	WHEELHOUSE_SLUG = 'arc3-vllm-h100-wheelhouse-v3'
+
+7.7s	26	MODEL_OWNER = 'driessmit1'
+
+7.7s	27	MODEL_SLUG = 'vrfai-qwen3-6-27b-fp8-hf-snapshot'
+
+7.7s	28	SERVED_MODEL_NAME = 'vrfai/Qwen3.6-27B-FP8'
+
+7.7s	29	VLLM_HOST = '127.0.0.1'
+
+7.7s	30	VLLM_PORT = 1234
+
+7.7s	31	VLLM_BASE_URL = f'http://{VLLM_HOST}:{VLLM_PORT}/v1'
+
+7.7s	32	VLLM_MAX_MODEL_LEN = 65536
+
+7.7s	33	ANALYZER_CONTEXT_WINDOW = 32768
+
+7.7s	34	VLLM_TENSOR_PARALLEL_SIZE = 1
+
+7.7s	35	WORKING_DIR = Path(os.environ['TAAF_KAGGLE_WORKING_DIR'])
+
+7.7s	36	SITE_PACKAGES = WORKING_DIR / 'vllm-site-packages'
+
+7.7s	37	VLLM_SERVER_LOG = WORKING_DIR / 'vllm-openai-server.log'
+
+7.7s	38	VLLM_SERVER_PID = WORKING_DIR / 'vllm-openai-server.pid'
+
+7.7s	39	INSTALL_STAMP = SITE_PACKAGES / f'.{WHEELHOUSE_SLUG}'
+
+7.7s	40	STAMP_TEXT = 'vllm==0.19.0 torch==2.10.0 flashinfer==0.6.6\n'
+
+7.7s	41
+
+7.7s	42	GPU_NAME_PATTERNS = {'rtx-pro-6000': ('rtx pro 6000',), 'h100': ('h100',), 'l4': ('l4',)}
+
+7.7s	43
+
+7.7s	44
+
+7.7s	45	def taaf_kaggle_input_paths() -> dict[str, Path]:
+
+7.7s	46	    raw = os.getenv('TAAF_KAGGLE_INPUT_PATHS', '').strip()
+
+7.7s	47	    if not raw:
+
+7.7s	48	        return {}
+
+7.7s	49	    data = json.loads(raw)
+
+7.7s	50	    if not isinstance(data, dict):
+
+7.7s	51	        raise RuntimeError('TAAF_KAGGLE_INPUT_PATHS must contain a JSON object.')
+
+7.7s	52	    return {str(ref): Path(str(path)) for ref, path in data.items()}
+
+7.7s	53
+
+7.7s	54
+
+7.7s	55	def resolve_kaggle_dataset_path(owner: str, slug: str) -> Path:
+
+7.7s	56	    mapped = taaf_kaggle_input_paths().get(f'{owner}/{slug}')
+
+7.7s	57	    if mapped is not None:
+
+7.7s	58	        return mapped
+
+7.7s	59	    for dataset_path in (Path('/kaggle/input') / slug, Path('/kaggle/input/datasets') / owner / slug):
+
+7.7s	60	        if dataset_path.exists():
+
+7.7s	61	            return dataset_path
+
+7.7s	62	    return Path('/kaggle/input') / slug
+
+7.7s	63
+
+7.7s	64
+
+7.7s	65	WHEELHOUSE = resolve_kaggle_dataset_path(WHEELHOUSE_OWNER, WHEELHOUSE_SLUG)
+
+7.7s	66	MODEL_PATH = resolve_kaggle_dataset_path(MODEL_OWNER, MODEL_SLUG)
+
+7.7s	67
+
+7.7s	68
+
+7.7s	69	def assert_expected_cuda_gpu() -> None:
+
+7.7s	70	    if not Path('/kaggle/input').exists():
+
+7.7s	71	        return
+
+7.7s	72	    assert shutil.which('nvidia-smi'), 'CUDA GPU check failed: nvidia-smi is not available.'
+
+7.7s	73	    result = subprocess.run(['nvidia-smi', '--query-gpu=name', '--format=csv,noheader'], capture_output=True, text=True)
+
+7.7s	74	    assert result.returncode == 0, f'nvidia-smi failed: {result.stderr.strip()}'
+
+7.7s	75	    gpu_names = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+
+7.7s	76	    assert gpu_names, 'nvidia-smi did not report any CUDA GPUs.'
+
+7.7s	77	    expected_gpu_type = os.getenv('KAGGLE_GPU_TYPE', 'rtx-pro-6000').strip().lower()
+
+7.7s	78	    expected_count = os.getenv('KAGGLE_GPU_COUNT', '1')
+
+7.7s	79	    if expected_count.isdigit():
+
+7.7s	80	        assert len(gpu_names) == int(expected_count), f'Expected {expected_count} CUDA GPU(s), found {gpu_names}'
+
+7.7s	81	    patterns = GPU_NAME_PATTERNS.get(expected_gpu_type, (expected_gpu_type.replace('-', ' '),))
+
+7.7s	82	    mismatched = [name for name in gpu_names if not any(pattern in name.lower() for pattern in patterns)]
+
+7.7s	83	    assert not mismatched, f'Expected GPU type {expected_gpu_type!r}, found {gpu_names}'
+
+7.7s	84	    print(f'CUDA GPU check passed for {expected_gpu_type} x{expected_count}: {gpu_names}', flush=True)
+
+7.7s	85
+
+7.7s	86
+
+7.7s	87	def vllm_env() -> dict[str, str]:
+
+7.7s	88	    env = os.environ.copy()
+
+7.7s	89	    existing = env.get('PYTHONPATH', '')
+
+7.7s	90	    env['PYTHONPATH'] = str(SITE_PACKAGES) if not existing else f'{SITE_PACKAGES}{os.pathsep}{existing}'
+
+7.7s	91	    env.update(
+
+7.7s	92	        {
+
+7.7s	93	            'USE_TF': '0',
+
+7.7s	94	            'TRANSFORMERS_NO_TF': '1',
+
+7.7s	95	            'TRANSFORMERS_NO_TORCHVISION': '1',
+
+7.7s	96	            'VLLM_NO_USAGE_STATS': '1',
+
+7.7s	97	        }
+
+7.7s	98	    )
+
+7.7s	99	    return env
+
+7.7s	100
+
+7.7s	101
+
+7.7s	102	def cached_install_is_usable() -> bool:
+
+7.7s	103	    if not INSTALL_STAMP.exists() or INSTALL_STAMP.read_text(encoding='utf-8') != STAMP_TEXT:
+
+7.7s	104	        return False
+
+7.7s	105	    result = subprocess.run(
+
+7.7s	106	        [sys.executable, '-c', "import vllm, torch; print(f'Cached vLLM {vllm.__version__}, torch {torch.__version__}')"],
+
+7.7s	107	        env=vllm_env(),
+
+7.7s	108	        text=True,
+
+7.7s	109	    )
+
+7.7s	110	    return result.returncode == 0
+
+7.7s	111
+
+7.7s	112
+
+7.7s	113	def install_vllm_wheelhouse() -> None:
+
+7.7s	114	    requirements = WHEELHOUSE / 'requirements.lock'
+
+7.7s	115	    if not requirements.exists():
+
+7.7s	116	        raise FileNotFoundError(f'Missing wheelhouse lock file: {requirements}')
+
+7.7s	117	    if cached_install_is_usable():
+
+7.7s	118	        print(f'Using cached vLLM target install at {SITE_PACKAGES}', flush=True)
+
+7.7s	119	        return
+
+7.7s	120	    shutil.rmtree(SITE_PACKAGES, ignore_errors=True)
+
+7.7s	121	    SITE_PACKAGES.mkdir(parents=True, exist_ok=True)
+
+7.7s	122	    cmd = [
+
+7.7s	123	        sys.executable,
+
+7.7s	124	        '-m',
+
+7.7s	125	        'pip',
+
+7.7s	126	        'install',
+
+7.7s	127	        '--no-index',
+
+7.7s	128	        '--find-links',
+
+7.7s	129	        str(WHEELHOUSE),
+
+7.7s	130	        '--requirement',
+
+7.7s	131	        str(requirements),
+
+7.7s	132	        '--target',
+
+7.7s	133	        str(SITE_PACKAGES),
+
+7.7s	134	        '--upgrade',
+
+7.7s	135	        '--ignore-installed',
+
+7.7s	136	        '--only-binary',
+
+7.7s	137	        ':all:',
+
+7.7s	138	        '--no-compile',
+
+7.7s	139	        '--disable-pip-version-check',
+
+7.7s	140	        '--no-warn-conflicts',
+
+7.7s	141	    ]
+
+7.7s	142	    print('Installing vLLM wheelhouse into', SITE_PACKAGES, flush=True)
+
+7.7s	143	    subprocess.run(cmd, check=True)
+
+7.7s	144	    INSTALL_STAMP.write_text(STAMP_TEXT, encoding='utf-8')
+
+7.7s	145
+
+7.7s	146
+
+7.7s	147	def request_json(url: str, payload: dict | None = None, timeout: int = 30) -> dict:
+
+7.7s	148	    data = None if payload is None else json.dumps(payload).encode('utf-8')
+
+7.7s	149	    request = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
+
+7.7s	150	    with urllib.request.urlopen(request, timeout=timeout) as response:
+
+7.7s	151	        return json.loads(response.read().decode('utf-8'))
+
+7.7s	152
+
+7.7s	153
+
+7.7s	154	def tail_server_log(lines: int = 80) -> str:
+
+7.7s	155	    if not VLLM_SERVER_LOG.exists():
+
+7.7s	156	        return ''
+
+7.7s	157	    return '\n'.join(VLLM_SERVER_LOG.read_text(encoding='utf-8', errors='replace').splitlines()[-lines:])
+
+7.7s	158
+
+7.7s	159
+
+7.7s	160	def wait_for_vllm_server(timeout_seconds: int = 900) -> None:
+
+7.7s	161	    deadline = time.monotonic() + timeout_seconds
+
+7.7s	162	    url = f'{VLLM_BASE_URL}/models'
+
+7.7s	163	    while time.monotonic() < deadline:
+
+7.7s	164	        if VLLM_SERVER_PID.exists():
+
+7.7s	165	            try:
+
+7.7s	166	                os.kill(int(VLLM_SERVER_PID.read_text().strip()), 0)
+
+7.7s	167	            except OSError as exc:
+
+7.7s	168	                raise RuntimeError(f'vLLM server process is not alive: {exc}\n{tail_server_log()}') from exc
+
+7.7s	169	        try:
+
+7.7s	170	            models = request_json(url, timeout=5)
+
+7.7s	171	            print('vLLM server ready:', models, flush=True)
+
+7.7s	172	            return
+
+7.7s	173	        except Exception:
+
+7.7s	174	            time.sleep(5)
+
+7.7s	175	    raise TimeoutError(f'Timed out waiting for vLLM server at {url}.\nLast server log lines:\n{tail_server_log()}')
+
+7.7s	176
+
+7.7s	177
+
+7.7s	178	def start_vllm_server() -> None:
+
+7.7s	179	    install_vllm_wheelhouse()
+
+7.7s	180	    VLLM_SERVER_LOG.parent.mkdir(parents=True, exist_ok=True)
+
+7.7s	181	    VLLM_SERVER_PID.unlink(missing_ok=True)
+
+7.7s	182	    log_handle = VLLM_SERVER_LOG.open('w', encoding='utf-8')
+
+7.7s	183	    cmd = [
+
+7.7s	184	        sys.executable,
+
+7.7s	185	        '-m',
+
+7.7s	186	        'vllm.entrypoints.openai.api_server',
+
+7.7s	187	        '--model',
+
+7.7s	188	        str(MODEL_PATH),
+
+7.7s	189	        '--served-model-name',
+
+7.7s	190	        SERVED_MODEL_NAME,
+
+7.7s	191	        '--host',
+
+7.7s	192	        VLLM_HOST,
+
+7.7s	193	        '--port',
+
+7.7s	194	        str(VLLM_PORT),
+
+7.7s	195	        '--tensor-parallel-size',
+
+7.7s	196	        str(VLLM_TENSOR_PARALLEL_SIZE),
+
+7.7s	197	        '--enable-auto-tool-choice',
+
+7.7s	198	        '--tool-call-parser',
+
+7.7s	199	        'qwen3_coder',
+
+7.7s	200	        '--generation-config',
+
+7.7s	201	        'vllm',
+
+7.7s	202	        '--enable-prefix-caching',
+
+7.7s	203	        '--default-chat-template-kwargs',
+
+7.7s	204	        '{"preserve_thinking": true}',
+
+7.7s	205	        '--reasoning-parser',
+
+7.7s	206	        'qwen3',
+
+7.7s	207	        '--max-model-len',
+
+7.7s	208	        str(VLLM_MAX_MODEL_LEN),
+
+7.7s	209	    ]
+
+7.7s	210	    print('Starting vLLM OpenAI server:', ' '.join(cmd), flush=True)
+
+7.7s	211	    process = subprocess.Popen(cmd, env=vllm_env(), stdout=log_handle, stderr=subprocess.STDOUT, text=True)
+
+7.7s	212	    VLLM_SERVER_PID.write_text(str(process.pid), encoding='utf-8')
+
+7.7s	213	    wait_for_vllm_server()
+
+7.7s	214
+
+7.7s	215
+
+7.7s	216	def run_vllm_api_smoke_test() -> None:
+
+7.7s	217	    payload = {
+
+7.7s	218	        'model': SERVED_MODEL_NAME,
+
+7.7s	219	        'messages': [{'role': 'user', 'content': 'Answer in one short sentence: what is 2 + 2?'}],
+
+7.7s	220	        'temperature': 0.0,
+
+7.7s	221	        'max_tokens': 96,
+
+7.7s	222	        'chat_template_kwargs': {'enable_thinking': False},
+
+7.7s	223	    }
+
+7.7s	224	    response = request_json(f'{VLLM_BASE_URL}/chat/completions', payload=payload, timeout=120)
+
+7.7s	225	    generated = response['choices'][0]['message'].get('content', '').strip()
+
+7.7s	226	    print('\n' + '=' * 88, flush=True)
+
+7.7s	227	    print('VLLM OPENAI SERVER QWEN SMOKE TEST REAL MODEL OUTPUT', flush=True)
+
+7.7s	228	    print('Generated:', generated, flush=True)
+
+7.7s	229	    print('=' * 88 + '\n', flush=True)
+
+7.7s	230
+
+7.7s	231
+
+7.7s	232	print(f'vLLM wheelhouse path: {WHEELHOUSE}', flush=True)
+
+7.7s	233	print(f'Qwen model path: {MODEL_PATH}', flush=True)
+
+7.7s	234	assert_expected_cuda_gpu()
+
+7.7s	235	missing = [str(path) for path in (WHEELHOUSE, MODEL_PATH) if not path.exists()]
+
+7.7s	236	if missing:
+
+7.7s	237	    raise FileNotFoundError('Missing attached dataset path(s): ' + ', '.join(missing))
+
+7.7s	238	start_vllm_server()
+
+7.7s	239	run_vllm_api_smoke_test()
+
+7.7s	240	setup_env = {
+
+7.7s	241	    'USE_TF': '0',
+
+7.7s	242	    'TRANSFORMERS_NO_TF': '1',
+
+7.7s	243	    'TRANSFORMERS_NO_TORCHVISION': '1',
+
+7.7s	244	    'VLLM_NO_USAGE_STATS': '1',
+
+7.7s	245	    'PYTHONPATH': str(SITE_PACKAGES) + os.pathsep + os.environ.get('PYTHONPATH', ''),
+
+7.7s	246	    'LOCAL_ANALYZER_BASE_URL': VLLM_BASE_URL,
+
+7.7s	247	    'OPENAI_BASE_URL': VLLM_BASE_URL,
+
+7.7s	248	    'LOCAL_ANALYZER_PROVIDER': 'vllm',
+
+7.7s	249	    'OPENAI_PROVIDER': 'vllm',
+
+7.7s	250	    'LOCAL_ANALYZER_MODEL_ID': SERVED_MODEL_NAME,
+
+7.7s	251	    'INFERENCE_ANALYZER_MODEL': SERVED_MODEL_NAME,
+
+7.7s	252	    'LOCAL_ANALYZER_APP_NAME': 'ARC3 Agent Harness',
+
+7.7s	253	    'LOCAL_ANALYZER_CONTEXT_WINDOW': str(ANALYZER_CONTEXT_WINDOW),
+
+7.7s	254	    'LOCAL_ANALYZER_MAX_OUTPUT': '0',
+
+7.7s	255	    'LOCAL_ANALYZER_TOOL_STEPS': '0',
+
+7.7s	256	    'LOCAL_ANALYZER_TOOL_TIMEOUT': '30',
+
+7.7s	257	    'LOCAL_ANALYZER_TOOL_OUTPUT_TOKENS': '1024',
+
+7.7s	258	    'LOCAL_ANALYZER_YIELD_SECONDS': '60',
+
+7.7s	259	    'LOCAL_ANALYZER_TEMPERATURE': '0.6',
+
+7.7s	260	    'LOCAL_ANALYZER_TOP_P': '0.95',
+
+7.7s	261	    'LOCAL_ANALYZER_TOP_K': '20',
+
+7.7s	262	    'LOCAL_ANALYZER_ENABLE_THINKING': 'true',
+
+7.7s	263	    'MULTIMODAL_CONTEXT': 'current_grid',
+
+7.7s	264	    'MULTIMODAL_UPSCALE': '4',
+
+7.7s	265	}
+
+7.7s	266	setup_env_path = Path(os.environ['TAAF_KAGGLE_SETUP_ENV'])
+
+7.7s	267	existing_setup_env = {}
+
+7.7s	268	if setup_env_path.exists():
+
+7.7s	269	    existing_setup_env = json.loads(setup_env_path.read_text(encoding='utf-8'))
+
+7.7s	270	    if not isinstance(existing_setup_env, dict):
+
+7.7s	271	        raise RuntimeError('TAAF_KAGGLE_SETUP_ENV must contain a JSON object.')
+
+7.7s	272	existing_setup_env.update(setup_env)
+
+7.7s	273	setup_env_path.write_text(json.dumps(existing_setup_env, indent=2), encoding='utf-8')
+
+7.7s	274
+
+7.7s	275	PYSETUP
+
+7.8s	276	vLLM wheelhouse path: /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3
+
+7.8s	277	Qwen model path: /kaggle/input/datasets/driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot
+
+7.8s	278	CUDA GPU check passed for rtx-pro-6000 x1: ['NVIDIA RTX PRO 6000 Blackwell Server Edition']
+
+7.8s	279	Installing vLLM wheelhouse into /kaggle/working/vllm-site-packages
+
+7.9s	280	vLLM wheelhouse path: /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3
+
+7.9s	281	Qwen model path: /kaggle/input/datasets/driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot
+
+7.9s	282	CUDA GPU check passed for rtx-pro-6000 x1: ['NVIDIA RTX PRO 6000 Blackwell Server Edition']
+
+7.9s	283	Installing vLLM wheelhouse into /kaggle/working/vllm-site-packages
+
+8.1s	284	Looking in links: /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3
+
+8.1s	285	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/aiohappyeyeballs-2.6.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 1))
+
+8.1s	286	ERROR: Could not find a version that satisfies the requirement aiohttp==3.13.5 (from versions: none)
+
+8.1s	287	ERROR: No matching distribution found for aiohttp==3.13.5
+
+8.2s	288	Traceback (most recent call last):
+
+8.2s	289	  File "<stdin>", line 224, in <module>
+
+8.2s	290	  File "<stdin>", line 165, in start_vllm_server
+
+8.2s	291	  File "<stdin>", line 129, in install_vllm_wheelhouse
+
+8.2s	292	  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+
+8.2s	293	    raise CalledProcessError(retcode, process.args,
+
+8.2s	294	                             output=stdout, stderr=stderr)
+
+8.2s	295	subprocess.CalledProcessError: Command '['/usr/bin/python3', '-m', 'pip', 'install', '--no-index', '--find-links', '/kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3', '--requirement', '/kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock', '--target', '/kaggle/working/vllm-site-packages', '--upgrade', '--ignore-installed', '--only-binary', ':all:', '--no-compile', '--disable-pip-version-check', '--no-warn-conflicts']' returned non-zero exit status 1.
+
+8.3s	296	Looking in links: /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3
+
+8.3s	297	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/aiohappyeyeballs-2.6.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 1))
+
+8.3s	298	ERROR: Could not find a version that satisfies the requirement aiohttp==3.13.5 (from versions: none)
+
+8.3s	299	ERROR: No matching distribution found for aiohttp==3.13.5
+
+8.3s	300	Traceback (most recent call last):
+
+8.3s	301	  File "<stdin>", line 224, in <module>
+
+8.3s	302	  File "<stdin>", line 165, in start_vllm_server
+
+8.3s	303	  File "<stdin>", line 129, in install_vllm_wheelhouse
+
+8.3s	304	  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+
+8.3s	305	    raise CalledProcessError(retcode, process.args,
+
+8.3s	306	                             output=stdout, stderr=stderr)
+
+8.3s	307	subprocess.CalledProcessError: Command '['/usr/bin/python3', '-m', 'pip', 'install', '--no-index', '--find-links', '/kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3', '--requirement', '/kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock', '--target', '/kaggle/working/vllm-site-packages', '--upgrade', '--ignore-installed', '--only-binary', ':all:', '--no-compile', '--disable-pip-version-check', '--no-warn-conflicts']' returned non-zero exit status 1.
+
+8.3s	308
+
+8.3s	309	ERROR: Could not find a version that satisfies the requirement aiohttp==3.13.5 (from versions: none)
+
+8.3s	310	ERROR: No matching distribution found for aiohttp==3.13.5
+
+8.3s	311	Traceback (most recent call last):
+
+8.3s	312	  File "<stdin>", line 224, in <module>
+
+8.3s	313	  File "<stdin>", line 165, in start_vllm_server
+
+8.3s	314	  File "<stdin>", line 129, in install_vllm_wheelhouse
+
+8.3s	315	  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+
+8.3s	316	    raise CalledProcessError(retcode, process.args,
+
+8.3s	317	                             output=stdout, stderr=stderr)
+
+8.3s	318	subprocess.CalledProcessError: Command '['/usr/bin/python3', '-m', 'pip', 'install', '--no-index', '--find-links', '/kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3', '--requirement', '/kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock', '--target', '/kaggle/working/vllm-site-packages', '--upgrade', '--ignore-installed', '--only-binary', ':all:', '--no-compile', '--disable-pip-version-check', '--no-warn-conflicts']' returned non-zero exit status 1.
+
+8.6s	319	Traceback (most recent call last):
+
+8.6s	320	  File "<string>", line 1, in <module>
+
+8.6s	321	    import sys;import papermill as pm;pm.execute_notebook("__notebook__.ipynb","__notebook__.ipynb",progress_bar=False,log_output=True,stdout_file=sys.stdout,stderr_file=sys.stderr,allow_errors=False,timeout=43200)
+
+8.6s	322	                                      ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+8.6s	323	  File "/usr/local/lib/python3.13/dist-packages/papermill/execute.py", line 131, in execute_notebook
+
+8.6s	324	    raise_for_execution_errors(nb, output_path)
+
+8.6s	325	    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+
+8.6s	326	  File "/usr/local/lib/python3.13/dist-packages/papermill/execute.py", line 251, in raise_for_execution_errors
+
+8.6s	327	    raise error
+
+8.6s	328	papermill.exceptions.PapermillExecutionError:
+
+8.6s	329	---------------------------------------------------------------------------
+
+8.6s	330	Exception encountered at "In [5]":
+
+8.6s	331	---------------------------------------------------------------------------
+
+8.6s	332	CalledProcessError                        Traceback (most recent call last)
+
+8.6s	333	/tmp/ipykernel_65/3544936759.py in <cell line: 0>()
+
+8.6s	334	----> 1 exec(compile("# Each bundled repo exposes its importable tree at <repo>/src or <repo>.\ndef _source_path_entries(bundle_dir: Path) -> list:\n    entries = []\n    for repo in sorted((bundle_dir / \"src\").iterdir(), reverse=True):\n        for candidate in (repo / \"src\", repo):\n            if candidate.is_dir():\n                entries.append(candidate)\n    return entries\n\n\n# Environment handed to each setup command (paths + any keys it has persisted).\ndef _command_env() -> dict:\n    env = os.environ.copy()\n    # \"$PYTHON\" in a command resolves to this notebook's interpreter.\n    env[\"PYTHON\"] = sys.executable\n    # Absolute path to the mounted source bundle.\n    env[\"TAAF_KAGGLE_BUNDLE_DIR\"] = str(BUNDLE_DIR)\n    # The writable /kaggle/working directory.\n    env[\"TAAF_KAGGLE_WORKING_DIR\"] = str(WORKING_DIR)\n    # A command writes a JSON object here to persist env keys to later commands + the run.\n    env[\"TAAF_KAGGLE_SETUP_ENV\"] = str(SETUP_ENV_PATH)\n    env.update({str(k): str(v) for k, v in json.loads(SETUP_ENV_PATH.read_text()).items()})\n    return env\n\n\n# Make the bundled repos importable here (sys.path) and in child processes (.pth).\nsource_entries = _source_path_entries(BUNDLE_DIR)\nfor entry in source_entries:\n    sys.path.insert(0, str(entry))\npth_path = Path(sysconfig.get_paths()[\"purelib\"]) / \"taaf_kaggle_sources.pth\"\npth_path.write_text(\"\".join(f\"{entry}\\n\" for entry in source_entries))\nprint(f\"taaf.kaggle: wrote {pth_path} ({len(source_entries)} source roots)\")\n\n# Solver setup commands (wheels, vLLM server startup, ...) run before the benchmark loads.\nenv = _command_env()\nfor command in json.loads((BUNDLE_DIR / \"setup_commands.json\").read_text()):\n    print(f\"taaf.kaggle: setup command: {command}\", flush=True)\n    subprocess.run(command, shell=True, check=True, cwd=WORKING_DIR, env=env)\n    # Re-read in case the command persisted new env keys.\n    env = _command_env()\n    os.environ.update(env)\n\n# Honour any PYTHONPATH a setup command exported.\nfor entry in reversed([e for e in os.environ.get(\"PYTHONPATH\", \"\").split(os.pathsep) if e]):\n    if entry not in sys.path:\n        sys.path.insert(0, entry)", 'astra-v28-original-8', "exec"), globals())
+
+8.6s	335
+
+8.6s	336	astra-v28-original-8 in <module>
+
+8.6s	337
+
+8.6s	338	/usr/lib/python3.13/subprocess.py in run(input, capture_output, timeout, check, *popenargs, **kwargs)
+
+8.6s	339	    575         retcode = process.poll()
+
+8.6s	340	    576         if check and retcode:
+
+8.6s	341	--> 577             raise CalledProcessError(retcode, process.args,
+
+8.6s	342	    578                                      output=stdout, stderr=stderr)
+
+8.6s	343	    579     return CompletedProcess(process.args, retcode, stdout, stderr)
+
+8.6s	344
+
+8.6s	345	CalledProcessError: Command '"$PYTHON" - <<'PYSETUP'
+
+8.6s	346	import json
+
+8.6s	347	import os
+
+8.6s	348	import shutil
+
+8.6s	349	import subprocess
+
+8.6s	350	import sys
+
+8.6s	351	import time
+
+8.6s	352	import urllib.request
+
+8.6s	353	from pathlib import Path
+
+8.6s	354
+
+8.6s	355	WHEELHOUSE_OWNER = 'driessmit1'
+
+8.6s	356	WHEELHOUSE_SLUG = 'arc3-vllm-h100-wheelhouse-v3'
+
+8.6s	357	MODEL_OWNER = 'driessmit1'
+
+8.6s	358	MODEL_SLUG = 'vrfai-qwen3-6-27b-fp8-hf-snapshot'
+
+8.6s	359	SERVED_MODEL_NAME = 'vrfai/Qwen3.6-27B-FP8'
+
+8.6s	360	VLLM_HOST = '127.0.0.1'
+
+8.6s	361	VLLM_PORT = 1234
+
+8.6s	362	VLLM_BASE_URL = f'http://{VLLM_HOST}:{VLLM_PORT}/v1'
+
+8.6s	363	VLLM_MAX_MODEL_LEN = 65536
+
+8.6s	364	ANALYZER_CONTEXT_WINDOW = 32768
+
+8.6s	365	VLLM_TENSOR_PARALLEL_SIZE = 1
+
+8.6s	366	WORKING_DIR = Path(os.environ['TAAF_KAGGLE_WORKING_DIR'])
+
+8.6s	367	SITE_PACKAGES = WORKING_DIR / 'vllm-site-packages'
+
+8.6s	368	VLLM_SERVER_LOG = WORKING_DIR / 'vllm-openai-server.log'
+
+8.6s	369	VLLM_SERVER_PID = WORKING_DIR / 'vllm-openai-server.pid'
+
+8.6s	370	INSTALL_STAMP = SITE_PACKAGES / f'.{WHEELHOUSE_SLUG}'
+
+8.6s	371	STAMP_TEXT = 'vllm==0.19.0 torch==2.10.0 flashinfer==0.6.6\n'
+
+8.6s	372
+
+8.6s	373	GPU_NAME_PATTERNS = {'rtx-pro-6000': ('rtx pro 6000',), 'h100': ('h100',), 'l4': ('l4',)}
+
+8.6s	374
+
+8.6s	375
+
+8.6s	376	def taaf_kaggle_input_paths() -> dict[str, Path]:
+
+8.6s	377	    raw = os.getenv('TAAF_KAGGLE_INPUT_PATHS', '').strip()
+
+8.6s	378	    if not raw:
+
+8.6s	379	        return {}
+
+8.6s	380	    data = json.loads(raw)
+
+8.6s	381	    if not isinstance(data, dict):
+
+8.6s	382	        raise RuntimeError('TAAF_KAGGLE_INPUT_PATHS must contain a JSON object.')
+
+8.6s	383	    return {str(ref): Path(str(path)) for ref, path in data.items()}
+
+8.6s	384
+
+8.6s	385
+
+8.6s	386	def resolve_kaggle_dataset_path(owner: str, slug: str) -> Path:
+
+8.6s	387	    mapped = taaf_kaggle_input_paths().get(f'{owner}/{slug}')
+
+8.6s	388	    if mapped is not None:
+
+8.6s	389	        return mapped
+
+8.6s	390	    for dataset_path in (Path('/kaggle/input') / slug, Path('/kaggle/input/datasets') / owner / slug):
+
+8.6s	391	        if dataset_path.exists():
+
+8.6s	392	            return dataset_path
+
+8.6s	393	    return Path('/kaggle/input') / slug
+
+8.6s	394
+
+8.6s	395
+
+8.6s	396	WHEELHOUSE = resolve_kaggle_dataset_path(WHEELHOUSE_OWNER, WHEELHOUSE_SLUG)
+
+8.6s	397	MODEL_PATH = resolve_kaggle_dataset_path(MODEL_OWNER, MODEL_SLUG)
+
+8.6s	398
+
+8.6s	399
+
+8.6s	400	def assert_expected_cuda_gpu() -> None:
+
+8.6s	401	    if not Path('/kaggle/input').exists():
+
+8.6s	402	        return
+
+8.6s	403	    assert shutil.which('nvidia-smi'), 'CUDA GPU check failed: nvidia-smi is not available.'
+
+8.6s	404	    result = subprocess.run(['nvidia-smi', '--query-gpu=name', '--format=csv,noheader'], capture_output=True, text=True)
+
+8.6s	405	    assert result.returncode == 0, f'nvidia-smi failed: {result.stderr.strip()}'
+
+8.6s	406	    gpu_names = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+
+8.6s	407	    assert gpu_names, 'nvidia-smi did not report any CUDA GPUs.'
+
+8.6s	408	    expected_gpu_type = os.getenv('KAGGLE_GPU_TYPE', 'rtx-pro-6000').strip().lower()
+
+8.6s	409	    expected_count = os.getenv('KAGGLE_GPU_COUNT', '1')
+
+8.6s	410	    if expected_count.isdigit():
+
+8.6s	411	        assert len(gpu_names) == int(expected_count), f'Expected {expected_count} CUDA GPU(s), found {gpu_names}'
+
+8.6s	412	    patterns = GPU_NAME_PATTERNS.get(expected_gpu_type, (expected_gpu_type.replace('-', ' '),))
+
+8.6s	413	    mismatched = [name for name in gpu_names if not any(pattern in name.lower() for pattern in patterns)]
+
+8.6s	414	    assert not mismatched, f'Expected GPU type {expected_gpu_type!r}, found {gpu_names}'
+
+8.6s	415	    print(f'CUDA GPU check passed for {expected_gpu_type} x{expected_count}: {gpu_names}', flush=True)
+
+8.6s	416
+
+8.6s	417
+
+8.6s	418	def vllm_env() -> dict[str, str]:
+
+8.6s	419	    env = os.environ.copy()
+
+8.6s	420	    existing = env.get('PYTHONPATH', '')
+
+8.6s	421	    env['PYTHONPATH'] = str(SITE_PACKAGES) if not existing else f'{SITE_PACKAGES}{os.pathsep}{existing}'
+
+8.6s	422	    env.update(
+
+8.6s	423	        {
+
+8.6s	424	            'USE_TF': '0',
+
+8.6s	425	            'TRANSFORMERS_NO_TF': '1',
+
+8.6s	426	            'TRANSFORMERS_NO_TORCHVISION': '1',
+
+8.6s	427	            'VLLM_NO_USAGE_STATS': '1',
+
+8.6s	428	        }
+
+8.6s	429	    )
+
+8.6s	430	    return env
+
+8.6s	431
+
+8.6s	432
+
+8.6s	433	def cached_install_is_usable() -> bool:
+
+8.6s	434	    if not INSTALL_STAMP.exists() or INSTALL_STAMP.read_text(encoding='utf-8') != STAMP_TEXT:
+
+8.6s	435	        return False
+
+8.6s	436	    result = subprocess.run(
+
+8.6s	437	        [sys.executable, '-c', "import vllm, torch; print(f'Cached vLLM {vllm.__version__}, torch {torch.__version__}')"],
+
+8.6s	438	        env=vllm_env(),
+
+8.6s	439	        text=True,
+
+8.6s	440	    )
+
+8.6s	441	    return result.returncode == 0
+
+8.6s	442
+
+8.6s	443
+
+8.6s	444	def install_vllm_wheelhouse() -> None:
+
+8.6s	445	    requirements = WHEELHOUSE / 'requirements.lock'
+
+8.6s	446	    if not requirements.exists():
+
+8.6s	447	        raise FileNotFoundError(f'Missing wheelhouse lock file: {requirements}')
+
+8.6s	448	    if cached_install_is_usable():
+
+8.6s	449	        print(f'Using cached vLLM target install at {SITE_PACKAGES}', flush=True)
+
+8.6s	450	        return
+
+8.6s	451	    shutil.rmtree(SITE_PACKAGES, ignore_errors=True)
+
+8.6s	452	    SITE_PACKAGES.mkdir(parents=True, exist_ok=True)
+
+8.6s	453	    cmd = [
+
+8.6s	454	        sys.executable,
+
+8.6s	455	        '-m',
+
+8.6s	456	        'pip',
+
+8.6s	457	        'install',
+
+8.6s	458	        '--no-index',
+
+8.6s	459	        '--find-links',
+
+8.6s	460	        str(WHEELHOUSE),
+
+8.6s	461	        '--requirement',
+
+8.6s	462	        str(requirements),
+
+8.6s	463	        '--target',
+
+8.6s	464	        str(SITE_PACKAGES),
+
+8.6s	465	        '--upgrade',
+
+8.6s	466	        '--ignore-installed',
+
+8.6s	467	        '--only-binary',
+
+8.6s	468	        ':all:',
+
+8.6s	469	        '--no-compile',
+
+8.6s	470	        '--disable-pip-version-check',
+
+8.6s	471	        '--no-warn-conflicts',
+
+8.6s	472	    ]
+
+8.6s	473	    print('Installing vLLM wheelhouse into', SITE_PACKAGES, flush=True)
+
+8.6s	474	    subprocess.run(cmd, check=True)
+
+8.6s	475	    INSTALL_STAMP.write_text(STAMP_TEXT, encoding='utf-8')
+
+8.6s	476
+
+8.6s	477
+
+8.6s	478	def request_json(url: str, payload: dict | None = None, timeout: int = 30) -> dict:
+
+8.6s	479	    data = None if payload is None else json.dumps(payload).encode('utf-8')
+
+8.6s	480	    request = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
+
+8.6s	481	    with urllib.request.urlopen(request, timeout=timeout) as response:
+
+8.6s	482	        return json.loads(response.read().decode('utf-8'))
+
+8.6s	483
+
+8.6s	484
+
+8.6s	485	def tail_server_log(lines: int = 80) -> str:
+
+8.6s	486	    if not VLLM_SERVER_LOG.exists():
+
+8.6s	487	        return ''
+
+8.6s	488	    return '\n'.join(VLLM_SERVER_LOG.read_text(encoding='utf-8', errors='replace').splitlines()[-lines:])
+
+8.6s	489
+
+8.6s	490
+
+8.6s	491	def wait_for_vllm_server(timeout_seconds: int = 900) -> None:
+
+8.6s	492	    deadline = time.monotonic() + timeout_seconds
+
+8.6s	493	    url = f'{VLLM_BASE_URL}/models'
+
+8.6s	494	    while time.monotonic() < deadline:
+
+8.6s	495	        if VLLM_SERVER_PID.exists():
+
+8.6s	496	            try:
+
+8.6s	497	                os.kill(int(VLLM_SERVER_PID.read_text().strip()), 0)
+
+8.6s	498	            except OSError as exc:
+
+8.6s	499	                raise RuntimeError(f'vLLM server process is not alive: {exc}\n{tail_server_log()}') from exc
+
+8.6s	500	        try:
+
+8.6s	501	            models = request_json(url, timeout=5)
+
+8.6s	502	            print('vLLM server ready:', models, flush=True)
+
+8.6s	503	            return
+
+8.6s	504	        except Exception:
+
+8.6s	505	            time.sleep(5)
+
+8.6s	506	    raise TimeoutError(f'Timed out waiting for vLLM server at {url}.\nLast server log lines:\n{tail_server_log()}')
+
+8.6s	507
+
+8.6s	508
+
+8.6s	509	def start_vllm_server() -> None:
+
+8.6s	510	    install_vllm_wheelhouse()
+
+8.6s	511	    VLLM_SERVER_LOG.parent.mkdir(parents=True, exist_ok=True)
+
+8.6s	512	    VLLM_SERVER_PID.unlink(missing_ok=True)
+
+8.6s	513	    log_handle = VLLM_SERVER_LOG.open('w', encoding='utf-8')
+
+8.6s	514	    cmd = [
+
+8.6s	515	        sys.executable,
+
+8.6s	516	        '-m',
+
+8.6s	517	        'vllm.entrypoints.openai.api_server',
+
+8.6s	518	        '--model',
+
+8.6s	519	        str(MODEL_PATH),
+
+8.6s	520	        '--served-model-name',
+
+8.6s	521	        SERVED_MODEL_NAME,
+
+8.6s	522	        '--host',
+
+8.6s	523	        VLLM_HOST,
+
+8.6s	524	        '--port',
+
+8.6s	525	        str(VLLM_PORT),
+
+8.6s	526	        '--tensor-parallel-size',
+
+8.6s	527	        str(VLLM_TENSOR_PARALLEL_SIZE),
+
+8.6s	528	        '--enable-auto-tool-choice',
+
+8.6s	529	        '--tool-call-parser',
+
+8.6s	530	        'qwen3_coder',
+
+8.6s	531	        '--generation-config',
+
+8.6s	532	        'vllm',
+
+8.6s	533	        '--enable-prefix-caching',
+
+8.6s	534	        '--default-chat-template-kwargs',
+
+8.6s	535	        '{"preserve_thinking": true}',
+
+8.6s	536	        '--reasoning-parser',
+
+8.6s	537	        'qwen3',
+
+8.6s	538	        '--max-model-len',
+
+8.6s	539	        str(VLLM_MAX_MODEL_LEN),
+
+8.6s	540	    ]
+
+8.6s	541	    print('Starting vLLM OpenAI server:', ' '.join(cmd), flush=True)
+
+8.6s	542	    process = subprocess.Popen(cmd, env=vllm_env(), stdout=log_handle, stderr=subprocess.STDOUT, text=True)
+
+8.6s	543	    VLLM_SERVER_PID.write_text(str(process.pid), encoding='utf-8')
+
+8.6s	544	    wait_for_vllm_server()
+
+8.6s	545
+
+8.6s	546
+
+8.6s	547	def run_vllm_api_smoke_test() -> None:
+
+8.6s	548	    payload = {
+
+8.6s	549	        'model': SERVED_MODEL_NAME,
+
+8.6s	550	        'messages': [{'role': 'user', 'content': 'Answer in one short sentence: what is 2 + 2?'}],
+
+8.6s	551	        'temperature': 0.0,
+
+8.6s	552	        'max_tokens': 96,
+
+8.6s	553	        'chat_template_kwargs': {'enable_thinking': False},
+
+8.6s	554	    }
+
+8.6s	555	    response = request_json(f'{VLLM_BASE_URL}/chat/completions', payload=payload, timeout=120)
+
+8.6s	556	    generated = response['choices'][0]['message'].get('content', '').strip()
+
+8.6s	557	    print('\n' + '=' * 88, flush=True)
+
+8.6s	558	    print('VLLM OPENAI SERVER QWEN SMOKE TEST REAL MODEL OUTPUT', flush=True)
+
+8.6s	559	    print('Generated:', generated, flush=True)
+
+8.6s	560	    print('=' * 88 + '\n', flush=True)
+
+8.6s	561
+
+8.6s	562
+
+8.6s	563	print(f'vLLM wheelhouse path: {WHEELHOUSE}', flush=True)
+
+8.6s	564	print(f'Qwen model path: {MODEL_PATH}', flush=True)
+
+8.6s	565	assert_expected_cuda_gpu()
+
+8.6s	566	missing = [str(path) for path in (WHEELHOUSE, MODEL_PATH) if not path.exists()]
+
+8.6s	567	if missing:
+
+8.6s	568	    raise FileNotFoundError('Missing attached dataset path(s): ' + ', '.join(missing))
+
+8.6s	569	start_vllm_server()
+
+8.6s	570	run_vllm_api_smoke_test()
+
+8.6s	571	setup_env = {
+
+8.6s	572	    'USE_TF': '0',
+
+8.6s	573	    'TRANSFORMERS_NO_TF': '1',
+
+8.6s	574	    'TRANSFORMERS_NO_TORCHVISION': '1',
+
+8.6s	575	    'VLLM_NO_USAGE_STATS': '1',
+
+8.6s	576	    'PYTHONPATH': str(SITE_PACKAGES) + os.pathsep + os.environ.get('PYTHONPATH', ''),
+
+8.6s	577	    'LOCAL_ANALYZER_BASE_URL': VLLM_BASE_URL,
+
+8.6s	578	    'OPENAI_BASE_URL': VLLM_BASE_URL,
+
+8.6s	579	    'LOCAL_ANALYZER_PROVIDER': 'vllm',
+
+8.6s	580	    'OPENAI_PROVIDER': 'vllm',
+
+8.6s	581	    'LOCAL_ANALYZER_MODEL_ID': SERVED_MODEL_NAME,
+
+8.6s	582	    'INFERENCE_ANALYZER_MODEL': SERVED_MODEL_NAME,
+
+8.6s	583	    'LOCAL_ANALYZER_APP_NAME': 'ARC3 Agent Harness',
+
+8.6s	584	    'LOCAL_ANALYZER_CONTEXT_WINDOW': str(ANALYZER_CONTEXT_WINDOW),
+
+8.6s	585	    'LOCAL_ANALYZER_MAX_OUTPUT': '0',
+
+8.6s	586	    'LOCAL_ANALYZER_TOOL_STEPS': '0',
+
+8.6s	587	    'LOCAL_ANALYZER_TOOL_TIMEOUT': '30',
+
+8.6s	588	    'LOCAL_ANALYZER_TOOL_OUTPUT_TOKENS': '1024',
+
+8.6s	589	    'LOCAL_ANALYZER_YIELD_SECONDS': '60',
+
+8.6s	590	    'LOCAL_ANALYZER_TEMPERATURE': '0.6',
+
+8.6s	591	    'LOCAL_ANALYZER_TOP_P': '0.95',
+
+8.6s	592	    'LOCAL_ANALYZER_TOP_K': '20',
+
+8.6s	593	    'LOCAL_ANALYZER_ENABLE_THINKING': 'true',
+
+8.6s	594	    'MULTIMODAL_CONTEXT': 'current_grid',
+
+8.6s	595	    'MULTIMODAL_UPSCALE': '4',
+
+8.6s	596	}
+
+8.6s	597	setup_env_path = Path(os.environ['TAAF_KAGGLE_SETUP_ENV'])
+
+8.6s	598	existing_setup_env = {}
+
+8.6s	599	if setup_env_path.exists():
+
+8.6s	600	    existing_setup_env = json.loads(setup_env_path.read_text(encoding='utf-8'))
+
+8.6s	601	    if not isinstance(existing_setup_env, dict):
+
+8.6s	602	        raise RuntimeError('TAAF_KAGGLE_SETUP_ENV must contain a JSON object.')
+
+8.6s	603	existing_setup_env.update(setup_env)
+
+8.6s	604	setup_env_path.write_text(json.dumps(existing_setup_env, indent=2), encoding='utf-8')
+
+8.6s	605
+
+8.6s	606	PYSETUP' returned non-zero exit status 1.
+
+8.6s	607
+
+9.7s	608	/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+
+9.7s	609	  cells[i][c] = re.sub('\\\\\|', '|', cell)
+
+9.8s	610	/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+
+9.8s	611	  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+
+10.1s	612	[NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+
+10.2s	613	[NbConvertApp] Writing 158368 bytes to __notebook__.ipynb
+
+11.3s	614	[NbConvertApp] Converting notebook __notebook__.ipynb to html
+
+11.6s	615	[NbConvertApp] Writing 589818 bytes to __results__.html
