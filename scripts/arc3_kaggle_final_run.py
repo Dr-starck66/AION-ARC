@@ -75,7 +75,19 @@ def main():
     parser.add_argument("--execute", action="store_true",
                         help="Upload the notebook, execute it and submit the finished Kaggle version")
     parser.add_argument("--wait-minutes", type=int, default=530)
+    parser.add_argument("--check-auth", action="store_true",
+                        help="Read-only Kaggle authorization probe; no notebook push")
     args = parser.parse_args()
+    if args.check_auth:
+        if not shutil.which("kaggle"):
+            evidence(kaggle_cli="FAIL", private_kernel_auth="UNVERIFIED")
+            raise RuntimeError("Kaggle CLI missing; authorization cannot be checked")
+        check = command(["kaggle", "kernels", "status", AUTH_PROBE_KERNEL], timeout=45, check=False)
+        if check.returncode:
+            evidence(private_kernel_auth="FAIL", auth_probe=AUTH_PROBE_KERNEL)
+            raise RuntimeError("Authenticated access to the historic Kaggle kernel failed")
+        evidence(private_kernel_auth="PASS", auth_probe=AUTH_PROBE_KERNEL)
+        return
     validate()
     if not args.execute:
         print("ASTRA_DRY_RUN_ONLY: no Kaggle upload or submission requested")
@@ -110,14 +122,13 @@ def main():
     else:
         evidence(kernel_status="TIMEOUT", kernel_status_text=status[-300:])
         raise RuntimeError("Kaggle run was not confirmed complete within chosen wait time")
-    # Gameplay log markers are valuable evidence but not a competition requirement.
-    # A completed Kaggle kernel with the actual submission artifact remains
-    # eligible for an official score even if the diagnostic marker is absent.
-    logs = command(["kaggle", "kernels", "logs", KERNEL], timeout=90, check=False)
-    content = logs.stdout + "\n" + logs.stderr
-    game_gate = "PASS" if logs.returncode == 0 and "ASTRA_REAL_GAMEPLAY_PASS" in content else "UNVERIFIED"
-    evidence(game_gate=game_gate, kernel_logs="PASS" if logs.returncode == 0 else "PARTIAL")
-
+    # Phase A is the public Save & Run All validator. It emits a placeholder
+    # submission.parquet; ONLY Phase B, launched via 'submit -k', scores hidden
+    # games. Do not use a plain upload or mistake Phase A for an official score.
+    game_gate = "UNVERIFIED"
+    evidence(phase_a="COMPLETE", phase_b="NOT_STARTED", 
+             gameplay="UNVERIFIED", official_score="UNVERIFIED")
+    
     # Kaggle's output listing is eventually consistent after a successful kernel.
     artifact_found = False
     for attempt in range(3):
@@ -130,13 +141,16 @@ def main():
     if not artifact_found:
         evidence(kernel_status="PARTIAL", error="submission.parquet not listed after complete kernel")
         raise RuntimeError("Refusing submission: Kaggle output file missing")
-    evidence(kernel_status="COMPLETE", game_gate=game_gate, output="submission.parquet")
+    evidence(kernel_status="COMPLETE", game_gate=game_gate,
+             output="submission.parquet", output_scope="PHASE_A_VALIDATION_ONLY")
+    # Submit the notebook kernel reference (-k) to TRIGGER Kaggle's hidden
+    # competition rerun. Never submit the placeholder parquet file directly.
     submitted = command(["kaggle", "competitions", "submit", COMP,
                          "-k", KERNEL, "-f", "submission.parquet",
-                         "-m", "ASTRA AION-ARC v2.9 offline graph navigator and LLM"],
+                         "-m", "ASTRA AION-ARC v2.9 hidden competition rerun"],
                         timeout=120)
     match = re.search(r"Submission ref:\s*(\d+)", submitted.stdout)
-    evidence(official_submission_request="SENT",
+    evidence(official_submission_request="SENT", phase_b="REQUEST_SENT",
              submission_ref=int(match.group(1)) if match else None,
              official_score="UNVERIFIED")
     if match:
