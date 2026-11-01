@@ -35,3 +35,18 @@ Profil navigateur TinyFish existant `prof_0b07cd06fc06432b` : un lien de prépar
 Correctif GitHub `b1cef63504f3a8ac411d1a5b0c523ce8eb557e72` au programme `scripts/arc3_kaggle_final_run.py` : `AUTH_PROBE_KERNEL="drstarck/notebook2700e63354"` (ancienne version privée vérifiée), utilisé pour tester réellement les droits ; le challenger séparé `drstarck/astra-aion-arc3-v2-9-milestone2` n'est pas écrasé ou utilisé comme preuve préalable de connexion. **PASS : commit et relecture GitHub. UNVERIFIED : exécution CLI et score officiel.**
 
 **Sécurité :** ni clé, ni mot de passe, ni cookie de session transcrit ; ne pas activer Railway, ne pas effectuer de recharge TinyFish.
+
+## Reprise opérationnelle du 1er novembre — source de l'autorisation historique
+
+Un échange du **31 octobre 2026 vers 19:07 UTC** rapporte une **réponse HTTP 200 de l'API Kaggle et l'identification du compte `drstarck`** obtenues avec le **jeton API Kaggle déjà fourni par le propriétaire**. Cela prouve une autorisation passée, **pas une autorisation présente aujourd'hui** : le nom du service/VM exécutant l'appel et l'emplacement persistant du jeton ne figurent pas dans le compte rendu retrouvé.
+
+**Contrôle de l'environnement d'exécution de la présente session :** pas d'exécutable `kaggle`, pas de variable d'environnement portant le nom `KAGGLE_API_TOKEN`, pas de répertoire `~/.kaggle`. Aucune valeur de jeton/secret n'a été lue ni écrite.
+
+Le correctif `658c0446a072d27d61bf98c89e7729a1a0c1d2de` supprime un blocage de la soumission : après succès du kernel, **l'absence du marqueur facultatif `ASTRA_REAL_GAMEPLAY_PASS` n'empêche plus l'envoi si le fichier `submission.parquet` existe**. La liste des fichiers est relue jusqu'à trois fois, mais l'absence du parquet provoque toujours un refus sécurisé. **PASS : source modifiée et relue via GitHub, UNVERIFIED : exécution réelle du flux et score officiel.**
+
+Références officielles `Kaggle/kaggle-cli` :
+- `kaggle auth login --no-launch-browser`, `KAGGLE_API_TOKEN` et `~/.kaggle/access_token` : https://github.com/Kaggle/kaggle-cli/blob/main/skills/references/auth.md
+- `kaggle kernels push --accelerator NvidiaRtxPro6000` : https://github.com/Kaggle/kaggle-cli/blob/main/docs/kernels.md
+- `kaggle competitions submit -k ... -f submission.parquet` : https://github.com/Kaggle/kaggle-cli/blob/main/docs/competitions.md
+
+**Prochaine priorité unique :** retrouver l'exécution ASTRA du 31 octobre qui a effectivement obtenu le HTTP 200 avec ce compte et en vérifier les possibilités de réemploi ; à défaut, réaliser une authentification officielle OAuth dans un environnement Kaggle CLI *capable d'exécuter les commandes*, sans jamais demander de mot de passe ici ni créer de dépense.
