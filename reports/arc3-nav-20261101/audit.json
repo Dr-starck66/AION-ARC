@@ -1,0 +1,62 @@
+{
+  "schema": "astra-arc3-candidate-integration-audit/1",
+  "project": "ASTRA AION-ARC",
+  "date_utc": "2026-11-01",
+  "source_repo": "https://github.com/Dr-starck66/AION-ARC",
+  "branch": "astra/arc3-emergency-20261031",
+  "candidate": "kaggle/v29-milestone2/submission.ipynb",
+  "source_controller": "kaggle/arc3_graph_nav.py",
+  "builder": "scripts/build_arc3_milestone2_challenger.py",
+  "tests": "tests/test_arc3_graph_nav.py",
+  "latest_notebook_sha256": "ae3e5c07297df5846b5b927b38c558aae7eb581caaf8af4a9ba76d7c3736f933",
+  "local_evidence": {
+    "automated_tests": "PASS",
+    "tests_passed": 108,
+    "subtests_passed": 7,
+    "notebook_builder": "PASS",
+    "notebook_cell_count": 27,
+    "notebook_rebuilt_byte_identically": true,
+    "patched_upstream_solver_hunks_applied": 27,
+    "patched_solver_hook_count": 1,
+    "patched_solver_compiles": true
+  },
+  "verified_public_game_evidence": {
+    "status": "PASS",
+    "method": "Python module try_graph_step exercised against the live ARC-AGI-3 public API, mocked session wrapper using real HTTP actions and official scorecard",
+    "controller": "cached visual-lattice BFS, fallback to existing LLM for unmatched patterns",
+    "game": "tu93-0768757b",
+    "card_id": "3d6fac7a-5cbd-4e90-8cdf-9a550243ec71",
+    "actions_accepted": 18,
+    "levels_completed": 1,
+    "game_score_out_of_100": 2.2222222222222223,
+    "negative_control": {
+      "game": "ls20-9607627b",
+      "actions_accepted": 0,
+      "abstained": true
+    }
+  },
+  "kaggle_status": {
+    "last_confirmed_existing_submission": {
+      "submission_id": 57848621,
+      "score_out_of_100": 0.07,
+      "source": "docs/ASTRA-ARC3-KAGGLE-RUNS-20261101.md"
+    },
+    "previous_v28_notebook": {
+      "script_version_id": 364607203,
+      "status": "FAILED",
+      "evidence": "Gmail Kaggle notification 2026-11-01T17:21:53Z"
+    },
+    "previous_v29_notebook": {
+      "script_version_id": 364609200,
+      "status": "FAILED",
+      "evidence": "Gmail Kaggle notification 2026-11-01T17:26:54Z"
+    },
+    "integrated_candidate_uploaded_to_kaggle": false,
+    "integrated_candidate_official_submission": false,
+    "integrated_candidate_official_score": "UNVERIFIED",
+    "comparison_with_last_official_score": "UNVERIFIED",
+    "note": "Public dev-game score is NOT an official Kaggle leaderboard score. Notebook GPU/inference execution and hidden scoring have not occurred for the integrated revision."
+  },
+  "deadline_utc": "2026-11-02T23:59:00Z",
+  "cost_incurred_by_this_task": "No paid resource or subscription created."
+}
