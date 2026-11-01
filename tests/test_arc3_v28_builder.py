@@ -106,6 +106,37 @@ class RuntimeEvidenceTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             call(types.SimpleNamespace(_model=types.SimpleNamespace(base_url="https://example.org/v1")))
 
+    def test_reasoning_only_response_reaches_duck_unchanged(self):
+        for key in ("reasoning", "reasoning_content"):
+            with self.subTest(key=key):
+                events = []
+                reply = types.SimpleNamespace(message={"content":None, key:"Inspecting the board"},
+                                              usage={"completion_tokens":12288}, finish_reason="length")
+                scope = {"functools":functools, "urlparse":urlparse,
+                         "_astra_original_chat":lambda *a,**k:reply,
+                         "ASTRA_TRACE_LOCK":threading.Lock(),
+                         "ASTRA_EVIDENCE":{"model_responses":0,"errors":[]}, "_astra_event":events.append}
+                call = self.extract("_astra_chat", scope)
+                agent = types.SimpleNamespace(_model=types.SimpleNamespace(base_url="http://127.0.0.1:8001/v1"))
+                self.assertIs(call(agent), reply)
+                self.assertTrue(events[0]["reasoning_only"])
+                self.assertEqual(events[0]["finish_reason"], "length")
+                self.assertEqual(scope["ASTRA_EVIDENCE"]["errors"], [])
+
+    def test_entirely_empty_response_still_fails_and_is_recorded(self):
+        for message in ({"content":None}, {}, None):
+            with self.subTest(message=message):
+                reply = types.SimpleNamespace(message=message, usage={})
+                evidence = {"model_responses":0,"errors":[]}
+                scope = {"functools":functools, "urlparse":urlparse,
+                         "_astra_original_chat":lambda *a,**k:reply,
+                         "ASTRA_TRACE_LOCK":threading.Lock(), "ASTRA_EVIDENCE":evidence}
+                call = self.extract("_astra_chat", scope)
+                with self.assertRaisesRegex(RuntimeError, "entirely empty"):
+                    call(types.SimpleNamespace(_model=types.SimpleNamespace(base_url="http://127.0.0.1:8001/v1")))
+                self.assertEqual(evidence["model_responses"], 0)
+                self.assertEqual(evidence["errors"], ["model:EmptyAssistantResponse"])
+
     def validate(self, actions, responses, state="gave_up", errors=None):
         with tempfile.TemporaryDirectory() as tmp:
             work = pathlib.Path(tmp)

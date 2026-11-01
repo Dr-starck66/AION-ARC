@@ -67,7 +67,7 @@ if sys.version_info[:2] != (3, 12):
     raise RuntimeError("Offline wheels require Python 3.12: copy the upstream notebook and pin its original environment")
 ASTRA_PROFILE = "milestone2"
 ASTRA_PUBLIC_GAMES = ("ls20", "vc33")
-ASTRA_PUBLIC_BUDGET_S = 1800
+ASTRA_PUBLIC_BUDGET_S = 300
 os.environ["HF_HUB_OFFLINE"] = "1"
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
 gpu = subprocess.check_output(["nvidia-smi", "--query-gpu=name,memory.total", "--format=csv,noheader,nounits"], text=True).strip().splitlines()
@@ -102,7 +102,7 @@ def build() -> dict:
     cells = [{"cell_type": "markdown", "metadata": {}, "source": [
         "# ASTRA AION-ARC v2.9 — Milestone 2 comparison\n",
         "Reuses Daniel Franzen's Apache-2.0 public Duck solver, built on Tufa Labs, and ASTRA v2.8 instrumentation. All upstream notices are retained below.\n",
-        "Normal runs: ls20 and vc33, one pass, 30 minutes after setup. Hidden rerun: original upstream competition settings and all gateway games.\n",
+        "Normal runs: ls20 and vc33, one pass, 5-minute smoke test after setup. Hidden rerun: original upstream competition settings and all gateway games. This shorter validation cannot be compared directly with the earlier 30-minute benchmark.\n",
         "This changes both model and harness; differences are not isolated causal effects. Existing submission #57848621 is preserved. Official score UNVERIFIED.\n",
     ]}, wrap(BOOTSTRAP, "astra-v29-preflight")]
     for index, original in enumerate(source["cells"]):

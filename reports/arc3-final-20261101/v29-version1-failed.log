@@ -1,0 +1,287 @@
+4.4s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+4.4s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+4.4s 3 0.00s - to python to disable frozen modules.
+4.4s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+4.8s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+4.8s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+4.8s 7 0.00s - to python to disable frozen modules.
+4.8s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+5.5s 9 ASTRA_V29_RUNTIME {"profile": "milestone2", "gpu": ["NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887"], "python": "3.12.13", "official_score": "UNVERIFIED", "preserved_submission": 57848621}
+5.9s 10 Checking patch ARC3-Inference/inference/agent/action_names.py...
+5.9s 11 Checking patch ARC3-Inference/inference/agent/noop_repeat_guard.py...
+5.9s 12 Checking patch ARC3-Inference/inference/agent/priority_pace_reference.json...
+5.9s 13 Checking patch ARC3-Inference/inference/agent/priority_scheduler.py...
+5.9s 14 Checking patch ARC3-Inference/inference/agent/prompts.py...
+5.9s 15 Checking patch ARC3-Inference/inference/agent/python_tool_sandbox.py...
+5.9s 16 Checking patch ARC3-Inference/inference/agent/runtime_state.py...
+5.9s 17 Checking patch ARC3-Inference/inference/agent/tool_agent.py...
+5.9s 18 Checking patch ARC3-Inference/inference/agent/vision_context.py...
+5.9s 19 Checking patch ARC3-Inference/inference/framework/run.py...
+5.9s 20 Hunk #1 succeeded at 467 (offset 48 lines).
+5.9s 21 Hunk #2 succeeded at 1271 (offset 48 lines).
+5.9s 22 Checking patch ARC3-Inference/inference/framework/solver.py...
+5.9s 23 Checking patch ARC3-Inference/inference/utils/animation.py...
+5.9s 24 Checking patch ARC3-Inference/inference/utils/frame_diff.py...
+5.9s 25 Checking patch ARC3-Inference/inference/utils/openai_compat.py...
+5.9s 26 Checking patch ARC3-Inference/inference/utils/retained_functions.py...
+5.9s 27 Checking patch ARC3-Inference/inference/utils/segmentation.py...
+5.9s 28 Applied patch ARC3-Inference/inference/agent/action_names.py cleanly.
+5.9s 29 Applied patch ARC3-Inference/inference/agent/noop_repeat_guard.py cleanly.
+5.9s 30 Applied patch ARC3-Inference/inference/agent/priority_pace_reference.json cleanly.
+5.9s 31 Applied patch ARC3-Inference/inference/agent/priority_scheduler.py cleanly.
+5.9s 32 Applied patch ARC3-Inference/inference/agent/prompts.py cleanly.
+5.9s 33 Applied patch ARC3-Inference/inference/agent/python_tool_sandbox.py cleanly.
+5.9s 34 Applied patch ARC3-Inference/inference/agent/runtime_state.py cleanly.
+5.9s 35 Applied patch ARC3-Inference/inference/agent/tool_agent.py cleanly.
+5.9s 36 Applied patch ARC3-Inference/inference/agent/vision_context.py cleanly.
+5.9s 37 Applied patch ARC3-Inference/inference/framework/run.py cleanly.
+5.9s 38 Applied patch ARC3-Inference/inference/framework/solver.py cleanly.
+5.9s 39 Applied patch ARC3-Inference/inference/utils/animation.py cleanly.
+5.9s 40 Applied patch ARC3-Inference/inference/utils/frame_diff.py cleanly.
+5.9s 41 Applied patch ARC3-Inference/inference/utils/openai_compat.py cleanly.
+5.9s 42 Applied patch ARC3-Inference/inference/utils/retained_functions.py cleanly.
+5.9s 43 Applied patch ARC3-Inference/inference/utils/segmentation.py cleanly.
+5.9s 44 harness patch applied successfully
+5.9s 45 taaf.kaggle: TRUE_SUBMISSION=False
+5.9s 46 Checking patch ARC3-Inference/inference/agent/action_names.py...
+5.9s 47 Checking patch ARC3-Inference/inference/agent/noop_repeat_guard.py...
+5.9s 48 Checking patch ARC3-Inference/inference/agent/priority_pace_reference.json...
+5.9s 49 Checking patch ARC3-Inference/inference/agent/priority_scheduler.py...
+5.9s 50 Checking patch ARC3-Inference/inference/agent/prompts.py...
+5.9s 51 Checking patch ARC3-Inference/inference/agent/python_tool_sandbox.py...
+5.9s 52 Checking patch ARC3-Inference/inference/agent/runtime_state.py...
+5.9s 53 Checking patch ARC3-Inference/inference/agent/tool_agent.py...
+5.9s 54 Checking patch ARC3-Inference/inference/agent/vision_context.py...
+5.9s 55 Checking patch ARC3-Inference/inference/framework/run.py...
+5.9s 56 Hunk #1 succeeded at 467 (offset 48 lines).
+5.9s 57 Hunk #2 succeeded at 1271 (offset 48 lines).
+5.9s 58 Checking patch ARC3-Inference/inference/framework/solver.py...
+5.9s 59 Checking patch ARC3-Inference/inference/utils/animation.py...
+5.9s 60 Checking patch ARC3-Inference/inference/utils/frame_diff.py...
+5.9s 61 Checking patch ARC3-Inference/inference/utils/openai_compat.py...
+5.9s 62 Checking patch ARC3-Inference/inference/utils/retained_functions.py...
+5.9s 63 Checking patch ARC3-Inference/inference/utils/segmentation.py...
+5.9s 64 Applied patch ARC3-Inference/inference/agent/action_names.py cleanly.
+5.9s 65 Applied patch ARC3-Inference/inference/agent/noop_repeat_guard.py cleanly.
+5.9s 66 Applied patch ARC3-Inference/inference/agent/priority_pace_reference.json cleanly.
+5.9s 67 Applied patch ARC3-Inference/inference/agent/priority_scheduler.py cleanly.
+5.9s 68 Applied patch ARC3-Inference/inference/agent/prompts.py cleanly.
+5.9s 69 Applied patch ARC3-Inference/inference/agent/python_tool_sandbox.py cleanly.
+5.9s 70 Applied patch ARC3-Inference/inference/agent/runtime_state.py cleanly.
+5.9s 71 Applied patch ARC3-Inference/inference/agent/tool_agent.py cleanly.
+5.9s 72 Applied patch ARC3-Inference/inference/agent/vision_context.py cleanly.
+5.9s 73 Applied patch ARC3-Inference/inference/framework/run.py cleanly.
+5.9s 74 Applied patch ARC3-Inference/inference/framework/solver.py cleanly.
+5.9s 75 Applied patch ARC3-Inference/inference/utils/animation.py cleanly.
+5.9s 76 Applied patch ARC3-Inference/inference/utils/frame_diff.py cleanly.
+5.9s 77 Applied patch ARC3-Inference/inference/utils/openai_compat.py cleanly.
+5.9s 78 Applied patch ARC3-Inference/inference/utils/retained_functions.py cleanly.
+5.9s 79 Applied patch ARC3-Inference/inference/utils/segmentation.py cleanly.
+5.9s 80 
+5.9s 81 Checking patch ARC3-Inference/inference/agent/action_names.py...
+5.9s 82 Checking patch ARC3-Inference/inference/agent/noop_repeat_guard.py...
+5.9s 83 Checking patch ARC3-Inference/inference/agent/priority_pace_reference.json...
+5.9s 84 Checking patch ARC3-Inference/inference/agent/priority_scheduler.py...
+5.9s 85 Checking patch ARC3-Inference/inference/agent/prompts.py...
+5.9s 86 Checking patch ARC3-Inference/inference/agent/python_tool_sandbox.py...
+5.9s 87 Checking patch ARC3-Inference/inference/agent/runtime_state.py...
+5.9s 88 Checking patch ARC3-Inference/inference/agent/tool_agent.py...
+5.9s 89 Checking patch ARC3-Inference/inference/agent/vision_context.py...
+5.9s 90 Checking patch ARC3-Inference/inference/framework/run.py...
+5.9s 91 Hunk #1 succeeded at 467 (offset 48 lines).
+5.9s 92 Hunk #2 succeeded at 1271 (offset 48 lines).
+5.9s 93 Checking patch ARC3-Inference/inference/framework/solver.py...
+5.9s 94 Checking patch ARC3-Inference/inference/utils/animation.py...
+5.9s 95 Checking patch ARC3-Inference/inference/utils/frame_diff.py...
+5.9s 96 Checking patch ARC3-Inference/inference/utils/openai_compat.py...
+5.9s 97 Checking patch ARC3-Inference/inference/utils/retained_functions.py...
+5.9s 98 Checking patch ARC3-Inference/inference/utils/segmentation.py...
+5.9s 99 Applied patch ARC3-Inference/inference/agent/action_names.py cleanly.
+5.9s 100 Applied patch ARC3-Inference/inference/agent/noop_repeat_guard.py cleanly.
+5.9s 101 Applied patch ARC3-Inference/inference/agent/priority_pace_reference.json cleanly.
+5.9s 102 Applied patch ARC3-Inference/inference/agent/priority_scheduler.py cleanly.
+5.9s 103 Applied patch ARC3-Inference/inference/agent/prompts.py cleanly.
+5.9s 104 Applied patch ARC3-Inference/inference/agent/python_tool_sandbox.py cleanly.
+5.9s 105 Applied patch ARC3-Inference/inference/agent/runtime_state.py cleanly.
+5.9s 106 Applied patch ARC3-Inference/inference/agent/tool_agent.py cleanly.
+5.9s 107 Applied patch ARC3-Inference/inference/agent/vision_context.py cleanly.
+5.9s 108 Applied patch ARC3-Inference/inference/framework/run.py cleanly.
+5.9s 109 Applied patch ARC3-Inference/inference/framework/solver.py cleanly.
+5.9s 110 Applied patch ARC3-Inference/inference/utils/animation.py cleanly.
+5.9s 111 Applied patch ARC3-Inference/inference/utils/frame_diff.py cleanly.
+5.9s 112 Applied patch ARC3-Inference/inference/utils/openai_compat.py cleanly.
+5.9s 113 Applied patch ARC3-Inference/inference/utils/retained_functions.py cleanly.
+5.9s 114 Applied patch ARC3-Inference/inference/utils/segmentation.py cleanly.
+6.1s 115 Precaching: Started...
+16.5s 116 Precaching: loaded 211 files (6.70 GB) in 10.55 seconds.
+16.5s 117 
+18.3s 118 taaf.kaggle: wrote /usr/local/lib/python3.12/dist-packages/taaf_kaggle_sources.pth (3 source roots)
+18.5s 119 === installing Pennyroyal (offline) ===
+18.6s 120 $ /tmp/sgl-intel/bin/uv venv --python /usr/bin/python3 /tmp/sgl-intel/venv
+18.8s 121 $ /tmp/sgl-intel/bin/uv pip install --python /tmp/sgl-intel/venv/bin/python --no-index --find-links /kaggle/input/datasets/dfranzen/pennyroyal-v253/wheels -r /kaggle/input/datasets/dfranzen/pennyroyal-v253/requirements.lock
+21.4s 122 $ /tmp/sgl-intel/bin/uv pip install --python /tmp/sgl-intel/venv/bin/python --no-index --find-links /kaggle/input/datasets/dfranzen/pennyroyal-v253/wheels --reinstall --no-deps /kaggle/input/datasets/dfranzen/pennyroyal-v253/wheels/sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl
+21.4s 123 $ /tmp/sgl-intel/venv/lib/python3.12/site-packages/nvidia/cu13/bin/nvcc --version
+21.4s 124 nvcc: NVIDIA (R) Cuda compiler driver
+21.4s 125 Copyright (c) 2005-2025 NVIDIA Corporation
+21.4s 126 Built on Wed_Aug_20_01:58:59_PM_PDT_2025
+21.4s 127 Cuda compilation tools, release 13.0, V13.0.88
+21.4s 128 Build cuda_13.0.r13.0/compiler.36424714_0
+21.4s 129 Host compiler: g++-11
+21.4s 130 $ /tmp/sgl-intel/venv/bin/python -c 'import pathlib, sglang, torch
+21.4s 131 print("sglang", sglang.__version__, "| torch", torch.__version__)
+21.4s 132 assert torch.cuda.is_available(), "CUDA unavailable"
+21.4s 133 print("GPU:", torch.cuda.get_device_name(0), "capability:", torch.cuda.get_device_capability(0))
+21.4s 134 '
+58.0s 135 sglang 0.5.19+gd00d88efc8d6 | torch 2.13.0+cu130
+58.0s 136 GPU: NVIDIA RTX PRO 6000 Blackwell Server Edition capability: (12, 0)
+58.0s 137 Target: /kaggle/input/models/dfranzen/intel-qwen3.8-flash-next-w4a16-autoround/transformers/default/1 | shards: 38 | PLE dtype: checkpoint default (typically BF16)
+58.1s 138 Draft source: /kaggle/input/models/dfranzen/albucino-qwen3-8-flash-next-drafter/transformers/default/1
+58.1s 139 SGLang draft view: /tmp/sgl-intel/draft-view-746747f37bf36968 (2 linked weight shards)
+58.1s 140 
+58.1s 141 /tmp/sgl-intel/venv/bin/sglang serve --model-path /kaggle/input/models/dfranzen/intel-qwen3.8-flash-next-w4a16-autoround/transformers/default/1 --load-format safetensors --model-loader-extra-config '{"enable_multithread_load":false}' --served-model-name flashnext --host 127.0.0.1 --port 8001 --tensor-parallel-size 1 --dtype bfloat16 --quantization auto-round --kv-cache-dtype fp8_e4m3 --mem-fraction-static 0.96 --context-length 139264 --page-size 64 --max-running-requests 10 --chunked-prefill-size 8192 --max-prefill-tokens 16384 --cuda-graph-max-bs-decode 10 --cuda-graph-bs-decode 1 2 4 7 8 9 10 --mamba-ssm-dtype bfloat16 --max-mamba-cache-size 60 --mamba-radix-cache-strategy extra_buffer --mamba-track-interval 64 --mamba-backend flashinfer --linear-attn-decode-backend flashinfer --linear-attn-prefill-backend flashinfer --moe-runner-backend auto --ple-offload-embedding --trust-remote-code --mm-feature-transport cpu --image-processor-backend pil --reasoning-parser qwen3 --tool-call-parser qwen3_coder --default-chat-template-kwargs '{"preserve_thinking":true}' --watchdog-timeout 1800 --schedule-policy lpm --warmups structured_output --enable-cache-report --enable-metrics --enable-request-time-stats-logging --weight-loader-prefetch-checkpoints --weight-loader-drop-cache-after-load --chat-template /kaggle/input/models/dfranzen/intel-qwen3.8-flash-next-w4a16-autoround/transformers/default/1/chat_template.jinja --gdn-mtp-cache-mode none --speculative-algorithm NEXTN --speculative-num-steps 3 --speculative-eagle-topk 1 --speculative-num-draft-tokens 4 --speculative-draft-model-path /tmp/sgl-intel/draft-view-746747f37bf36968 --speculative-draft-model-quantization compressed-tensors --speculative-moe-runner-backend auto --speculative-draft-kv-cache-dtype fp8_e4m3 --speculative-accept-threshold-single 1.0 --speculative-accept-threshold-acc 1.0 --speculative-token-map /kaggle/input/datasets/dfranzen/pennyroyal-v253/hot_tokens_64k.pt
+58.1s 142 
+58.1s 143 pid 502 -> /kaggle/working/serve.log
+58.1s 144 0s ...
+88.1s 145 30s ...
+118.1s 146 Precaching: Started...
+118.1s 147 60s ...
+148.1s 148 90s ...
+178.1s 149 120s ...
+208.1s 150 150s ...
+238.1s 151 180s ...
+268.1s 152 210s ...
+298.1s 153 240s ...
+328.2s 154 270s ...
+358.2s 155 300s ...
+388.2s 156 330s ...
+392.0s 157 Precaching: loaded 62 files (185.40 GB) in 273.64 seconds.
+392.0s 158 
+418.2s 159 360s ...
+448.2s 160 390s ...
+478.2s 161 420s ...
+508.2s 162 450s ...
+538.2s 163 480s ...
+568.2s 164 510s ...
+575.2s 165 
+575.2s 166 READY after 517s -> http://127.0.0.1:8001/v1
+577.2s 167 benchmark.solver: HarnessSolver(label='duck-harness', runtime_environment=None, job_dir=None, soft_end_time=None, minimal_diagnostics=False, model='local', analyzer_timeout=900.0, max_actions_per_game=None, max_runtime_s_per_game=29018, max_generated_tokens_per_game=None, concurrency=100, save_request_logs=True, start_local_server=False, local_server_config='', local_server_api_key_file='', local_server_repo_dir='/Users/jeroencottaar/code/ARC3-Inference', local_server_port=None, local_server_tensor_parallel_size=None, local_server_count=1, cancel_drain_timeout_s=120.0)
+577.3s 168 [sys] RAM 106.3/176.9 | swap none | proc 0.3 GB, 105 threads, 64 fds | GPU0 91.1/95.6 | disk / 7123.5/8156.9, /kaggle/working 0.0/19.5
+577.3s 169 [sys] RAM 106.3/176.9 | swap none | proc 0.3 GB, 105 threads, 64 fds | GPU0 91.1/95.6 | disk / 7123.5/8156.9, /kaggle/working 0.0/19.5
+577.4s 170 Starting benchmark...
+577.6s 171 ASTRA_PUBLIC_GAMES ['ls20-9607627b', 'vc33-5430563c']
+577.7s 172 priority gate active: 10 concurrent streams
+577.7s 173 
+577.7s 174 priority gate active: 10 concurrent streams
+577.7s 175 ls20-9607627b: warmup RESET issued before the analyzer is reachable
+577.7s 176 
+577.7s 177 ls20-9607627b: warmup RESET issued before the analyzer is reachable
+697.3s 178 [sys] RAM 106.3/176.9 | swap none | proc 0.3 GB, 107 threads, 67 fds | GPU0 92.5/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.0/19.5
+817.3s 179 [sys] RAM 106.8/176.9 | swap none | proc 0.3 GB, 107 threads, 67 fds | GPU0 92.9/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.0/19.5
+937.3s 180 [sys] RAM 107.0/176.9 | swap none | proc 0.3 GB, 107 threads, 67 fds | GPU0 93.0/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.0/19.5
+1057.3s 181 [sys] RAM 108.0/176.9 | swap none | proc 0.4 GB, 107 threads, 67 fds | GPU0 93.2/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.1/19.5
+1177.3s 182 [sys] RAM 107.6/176.9 | swap none | proc 0.4 GB, 107 threads, 67 fds | GPU0 93.6/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.1/19.5
+1178.5s 183 benchmark: regenerated diagnostics in /kaggle/working in 0.47s
+1178.5s 184 benchmark: duck-harness-kaggle
+1178.5s 185 solver:    duck-harness
+1178.5s 186 games:     2
+1178.5s 187 passes:    1
+1178.5s 188 runs:      2 (won: 0)
+1178.5s 189 started:   2026-11-01 16:52:15
+1178.5s 190 ended:     in progress
+1178.5s 191 mean score:    15.54
+1178.5s 192 median score:  15.54
+1178.5s 193 total actions: 212
+1178.5s 194 total tokens:  142916
+1178.5s 195 generated tokens/sec: 237.90 (job wallclock)
+1178.5s 196 total wallclock: 1157.0s
+1178.5s 197 
+1178.5s 198 per-game (mean across passes):
+1178.5s 199 ls20-9607627b: score=10.01, levels=2.0/7, actions=139, tokens=67424
+1178.5s 200 vc33-5430563c: score=21.08, levels=3.0/7, actions=73, tokens=75492
+1178.5s 201 
+1297.4s 202 [sys] RAM 107.6/176.9 | swap none | proc 0.4 GB, 107 threads, 68 fds | GPU0 93.6/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.1/19.5
+1417.4s 203 [sys] RAM 107.8/176.9 | swap none | proc 0.5 GB, 107 threads, 68 fds | GPU0 93.6/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.1/19.5
+1537.4s 204 [sys] RAM 107.9/176.9 | swap none | proc 0.5 GB, 107 threads, 68 fds | GPU0 93.6/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.1/19.5
+1657.4s 205 [sys] RAM 107.7/176.9 | swap none | proc 0.5 GB, 107 threads, 68 fds | GPU0 93.6/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.1/19.5
+1777.4s 206 [sys] RAM 107.6/176.9 | swap none | proc 0.5 GB, 107 threads, 68 fds | GPU0 93.6/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.1/19.5
+1779.0s 207 benchmark: regenerated diagnostics in /kaggle/working in 0.41s
+1779.0s 208 benchmark: duck-harness-kaggle
+1779.0s 209 solver:    duck-harness
+1779.0s 210 games:     2
+1779.0s 211 passes:    1
+1779.0s 212 runs:      2 (won: 0)
+1779.0s 213 started:   2026-11-01 16:52:15
+1779.0s 214 ended:     in progress
+1779.0s 215 mean score:    33.52
+1779.0s 216 median score:  33.52
+1779.0s 217 total actions: 431
+1779.0s 218 total tokens:  282066
+1779.0s 219 generated tokens/sec: 234.81 (job wallclock)
+1779.0s 220 total wallclock: 2349.0s
+1779.0s 221 
+1779.0s 222 per-game (mean across passes):
+1779.0s 223 ls20-9607627b: score=35.71, levels=4.0/7, actions=305, tokens=134949
+1779.0s 224 vc33-5430563c: score=31.33, levels=4.0/7, actions=126, tokens=147117
+1779.0s 225 
+1844.4s 226 analyzer failed at action 127: Local model returned no assistant content or tool calls
+1844.4s 227 
+1844.4s 228 analyzer failed at action 127: Local model returned no assistant content or tool calls
+1844.6s 229 [finished] vc33-5430563c state=crashed level=4/7 score=31.33 actions=126 tokens=147117 per-level=18/7,8/18,28/44,72/61,0/131,0/34,0/152 note="error: RuntimeError: Analyzer did not return a result."
+1897.4s 230 [sys] RAM 107.3/176.9 | swap none | proc 0.5 GB, 107 threads, 68 fds | GPU0 93.6/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.2/19.5
+2017.4s 231 [sys] RAM 107.2/176.9 | swap none | proc 0.5 GB, 107 threads, 68 fds | GPU0 93.6/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.2/19.5
+2137.6s 232 [sys] RAM 107.6/176.9 | swap none | proc 0.6 GB, 108 threads, 70 fds | GPU0 93.6/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.2/19.5
+2257.7s 233 [sys] RAM 107.5/176.9 | swap none | proc 0.6 GB, 107 threads, 68 fds | GPU0 93.6/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.2/19.5
+2286.5s 234 tail fade phase after 28.5 minutes: 1.5 minutes remaining; fading tail B to zero over the final 6.0 minutes, retaining hazard C
+2286.5s 235 
+2286.5s 236 tail fade phase after 28.5 minutes: 1.5 minutes remaining; fading tail B to zero over the final 6.0 minutes, retaining hazard C
+2377.9s 237 [sys] RAM 107.5/176.9 | swap none | proc 0.6 GB, 108 threads, 70 fds | GPU0 93.6/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.2/19.5
+2378.8s 238 [finished] ls20-9607627b state=cancelled level=4/7 score=35.71 actions=480 tokens=199090 per-level=31/22,98/123,50/73,71/84,230/96,0/192,0/186 note="tokens=199090"
+2379.9s 239 benchmark: regenerated diagnostics in /kaggle/working in 1.09s
+2379.9s 240 benchmark: duck-harness-kaggle
+2379.9s 241 solver:    duck-harness
+2379.9s 242 games:     2
+2379.9s 243 passes:    1
+2379.9s 244 runs:      2 (won: 0)
+2379.9s 245 started:   2026-11-01 16:52:15
+2379.9s 246 ended:     2026-11-01 17:22:17
+2379.9s 247 duration:  30m 1s
+2379.9s 248 mean score:    33.52
+2379.9s 249 median score:  33.52
+2379.9s 250 total actions: 606
+2379.9s 251 total tokens:  346207
+2379.9s 252 generated tokens/sec: 192.22 (job wallclock)
+2379.9s 253 total wallclock: 3067.6s
+2379.9s 254 
+2379.9s 255 per-game (mean across passes):
+2379.9s 256 ls20-9607627b: score=35.71, levels=4.0/7, actions=480, tokens=199090
+2379.9s 257 vc33-5430563c: score=31.33, levels=4.0/7, actions=126, tokens=147117
+2379.9s 258 
+2379.9s 259 diagnostics: /kaggle/working/diagnostics.html
+2380.3s 260 Traceback (most recent call last):
+2380.3s 261 File "<string>", line 1, in <module>
+2380.3s 262 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 131, in execute_notebook
+2380.3s 263 raise_for_execution_errors(nb, output_path)
+2380.3s 264 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 251, in raise_for_execution_errors
+2380.3s 265 raise error
+2380.3s 266 papermill.exceptions.PapermillExecutionError:
+2380.3s 267 ---------------------------------------------------------------------------
+2380.3s 268 Exception encountered at "In [12]":
+2380.3s 269 ---------------------------------------------------------------------------
+2380.3s 270 RuntimeError                              Traceback (most recent call last)
+2380.3s 271 /tmp/ipykernel_65/4008009165.py in <cell line: 1>()
+2380.3s 272 ----> 1 await eval(compile("print('Starting benchmark...')\n\n# Build the live competition game list from the gateway's available environments.\ndef _competition_games():\n    import arc_agi\n\n    import taaf.game_api\n\n    spec = taaf.game_api.ArcadeSpec(\n        operation_mode=arc_agi.OperationMode.COMPETITION,\n        arc_base_url=os.environ[\"ARC_BASE_URL\"],\n        environments_dir=\"\",\n    )\n    arcade = arc_agi.Arcade(\n        operation_mode=arc_agi.OperationMode.COMPETITION,\n        arc_base_url=spec.arc_base_url,\n        environments_dir=\"\",\n    )\n    game_ids = [env_info.game_id for env_info in arcade.available_environments]\n    if not game_ids:\n        raise RuntimeError(\"Competition Arcade exposed zero environments.\")\n    return [taaf.game_api.GameAPI(env_name=game_id, arcade_spec=spec) for game_id in game_ids]\n\n\n# Build the offline game list from the competition's bundled environment files.\ndef _offline_games(env_dir: str):\n    import arc_agi\n\n    import taaf.game_api\n\n    spec = taaf.game_api.ArcadeSpec(operation_mode=arc_agi.OperationMode.OFFLINE, environments_dir=env_dir)\n    arcade = arc_agi.Arcade(operation_mode=arc_agi.OperationMode.OFFLINE, environments_dir=env_dir)\n    game_ids = [env_info.game_id for env_info in arcade.available_environments]\n    if not game_ids:\n        raise RuntimeError(f\"No offline environments found under {env_dir}.\")\n    game_ids = [game_id for game_id in game_ids if not any(game_id.startswith(g) for g in demo_excluded_games)]\n    return [taaf.game_api.GameAPI(env_name=game_id, arcade_spec=spec) for game_id in game_ids]\n\n\n# The gateway can take a while to come up; poll until it answers.\ndef _wait_for_gateway(base_url: str, timeout_s: float = 600.0) -> None:\n    deadline = time.monotonic() + timeout_s\n    last_error = \"\"\n    while time.monotonic() < deadline:\n        try:\n            with urlopen(f\"{base_url}api/games\", timeout=10) as response:\n                if response.status < 500:\n                    return\n        except Exception as exc:\n            last_error = repr(exc)\n        time.sleep(5)\n    raise RuntimeError(f\"Kaggle gateway did not become ready: {last_error}\")\n\n\n# Print the run preamble and persist the launcher's git status for diagnostics.\n#print((BUNDLE_DIR / \"preamble.txt\").read_text())\n(WORKING_DIR / \"git_status.txt\").write_text((BUNDLE_DIR / \"git_status.txt\").read_text())\n\n# arc_agi reads RECORDINGS_DIR and ARC_API_KEY from env (ArcadeSpec carries neither); operation\n# mode, environments dir, and base url are all passed explicitly via the spec, so no env is needed.\nos.environ.setdefault(\"RECORDINGS_DIR\", str(WORKING_DIR / \"server_recording\"))\n\nif TRUE_SUBMISSION:\n    # Real submission: play the live competition Arcade served by the Kaggle gateway.\n    os.environ.setdefault(\"ARC_API_KEY\", \"test-key-123\")\n    os.environ.setdefault(\"ARC_BASE_URL\", \"http://gateway:8001/\")\n    # The gateway boots asynchronously; wait before swapping in its game list.\n    _wait_for_gateway(os.environ[\"ARC_BASE_URL\"])\n    bm.games = _competition_games()\nelse:\n    # Interactive run: play the bundled competition environments offline (no gateway).\n    # The competition's environment files ship alongside the wheelhouse in the competition dataset.\n    competition_env_files = str(Path(\"/kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels\").parent / \"environment_files\")\n    bm.games = _offline_games(competition_env_files)\n    wanted = set(ASTRA_PUBLIC_GAMES)\n    bm.games = sorted((g for g in bm.games if g.env_name.split(\"-\", 1)[0] in wanted), key=lambda g: g.env_name)\n    if {g.env_name.split(\"-\", 1)[0] for g in bm.games} != wanted:\n        raise RuntimeError(\"Requested public comparison games are missing\")\n    print(\"ASTRA_PUBLIC_GAMES\", [g.env_name for g in bm.games], flush=True)\n\n\n# Outside a real submission, stop ~10 min before the wall-clock budget for a graceful exit.\nsoft_end = None\nif not TRUE_SUBMISSION:\n    budget = float(getattr(target, \"max_runtime_s\", 0.0) or 0.0)\n    if budget > 0:\n        soft_end = datetime.now() + timedelta(seconds=ASTRA_PUBLIC_BUDGET_S)\n\n# Play the benchmark; teardown commands run even if the run raises.\nawait bm.run(soft_end_time=soft_end, runtime_environment=target, minimal_diagnostics=TRUE_SUBMISSION)\n_astra_validate(bm)\nif not TRUE_SUBMISSION:\n    # An offline run isn't scored, but Kaggle still expects a submission.parquet output.\n    import pandas as pd\n\n    pd.DataFrame(\n        [[\"1_0\", \"1\", True, 1]],\n        columns=[\"row_id\", \"game_id\", \"end_of_game\", \"score\"],\n    ).to_parquet(WORKING_DIR / \"submission.parquet\", index=False)", 'astra-v29-source-20', 'exec', flags=__import__('ast').PyCF_ALLOW_TOP_LEVEL_AWAIT), globals())
+2380.3s 273 
+2380.3s 274 astra-v29-source-20 in <module>
+2380.3s 275 
+2380.3s 276 astra-v29-reused-gameplay-evidence in _astra_validate(benchmark)
+2380.3s 277 
+2380.3s 278 RuntimeError: ASTRA gameplay gate failed; see astra_runtime_evidence.json
+2380.3s 279 
+2381.8s 280 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+2381.8s 281 cells[i][c] = re.sub('\\\\\|', '|', cell)
+2382.0s 282 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+2382.0s 283 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+2382.3s 284 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+2382.5s 285 [NbConvertApp] Writing 653681 bytes to __notebook__.ipynb
+2383.6s 286 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+2384.2s 287 [NbConvertApp] Writing 1798631 bytes to __results__.html

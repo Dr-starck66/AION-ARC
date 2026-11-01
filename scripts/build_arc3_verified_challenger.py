@@ -160,11 +160,19 @@ def _astra_chat(self, *args, **kwargs):
     # Duck returns _ChatCompletionResult, not the raw OpenAI JSON body.
     message = getattr(reply, "message", None)
     usage = getattr(reply, "usage", None)
-    if not isinstance(message, dict) or not (message.get("content") or message.get("tool_calls")):
-        raise RuntimeError("Local model returned no assistant content or tool calls")
+    # Qwen/SGLang can return a reasoning-only turn (including length-limited
+    # turns). Duck owns its continuation/recovery policy; do not abort before
+    # it can process that real response. An entirely empty reply still fails.
+    reasoning = (message.get("reasoning_content") or message.get("reasoning")) if isinstance(message, dict) else None
+    if not isinstance(message, dict) or not (message.get("content") or message.get("tool_calls") or reasoning):
+        with ASTRA_TRACE_LOCK:
+            ASTRA_EVIDENCE["errors"].append("model:EmptyAssistantResponse")
+        raise RuntimeError("Local model returned an entirely empty assistant response")
     with ASTRA_TRACE_LOCK:
         ASTRA_EVIDENCE["model_responses"] += 1
-    _astra_event({"kind": "local_model_response", "usage": usage or {}})
+    _astra_event({"kind": "local_model_response", "usage": usage or {},
+                  "reasoning_only": bool(reasoning and not message.get("content") and not message.get("tool_calls")),
+                  "finish_reason": getattr(reply, "finish_reason", "")})
     return reply
 ToolAgent._chat_completion = _astra_chat
 
