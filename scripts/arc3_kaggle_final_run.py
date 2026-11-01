@@ -21,6 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 FOLDER = ROOT / "kaggle/v29-milestone2"
 KERNEL = "drstarck/astra-aion-arc3-v2-9-milestone2"
+AUTH_PROBE_KERNEL = "drstarck/notebook2700e63354"  # Historic private v6; never overwrite
 COMP = "arc-prize-2026-arc-agi-3"
 DEADLINE = dt.datetime(2026, 11, 2, 23, 59, tzinfo=dt.timezone.utc)
 RECEIPT = ROOT / "reports/arc3-final-20261101/receipt.json"
@@ -84,10 +85,10 @@ def main():
     if not shutil.which("kaggle"):
         raise RuntimeError("Kaggle CLI not available in the authenticated execution environment")
     # Status is also a proof that the CLI can access this private notebook.
-    probe = command(["kaggle", "kernels", "status", KERNEL], timeout=40, check=False)
+    probe = command(["kaggle", "kernels", "status", AUTH_PROBE_KERNEL], timeout=40, check=False)
     if probe.returncode:
-        raise RuntimeError("Kaggle CLI access to the existing private notebook is not authorized")
-    evidence(private_kernel_auth="PASS", previous_kernel_status=probe.stdout.strip()[-300:])
+        raise RuntimeError("Kaggle CLI has no authorized access to drstarck\u0027s historic private notebook; do not push")
+    evidence(private_kernel_auth="PASS", verified_baseline=AUTH_PROBE_KERNEL, previous_kernel_status=probe.stdout.strip()[-300:])
     # Exactly one new version. Do not auto-repeat GPU work or consume daily slots.
     pushed = command(["kaggle", "kernels", "push", "-p", str(FOLDER),
                       "--accelerator", "NvidiaRtxPro6000"], timeout=150)
