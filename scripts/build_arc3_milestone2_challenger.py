@@ -18,6 +18,44 @@ SOURCE = ROOT / "kaggle/vendor/dfranzen-milestone2-v3-source.ipynb"
 TARGET = ROOT / "kaggle/v29-milestone2/submission.ipynb"
 SOURCE_SHA256 = "a6e4b090de28b4da0e7d1fe801881b94345ad68b7f377dd62cf0d8830013f6c4"
 
+
+GRAPH_NAV_SOURCE = ROOT / "kaggle/arc3_graph_nav.py"
+
+
+def graph_install_code() -> str:
+    """Install the proven pixel-graph policy inside the *actual* Duck harness.
+
+    The hook runs before model analysis only when a conservative visual
+    signature matches. Original LLM behavior remains the fallback.
+    The entire module is embedded in the notebook: Kaggle needs no network.
+    """
+    nav_source = GRAPH_NAV_SOURCE.read_text(encoding="utf-8")
+    compile(nav_source, str(GRAPH_NAV_SOURCE), "exec")
+    body = (
+        "from pathlib import Path\n"
+        "graph_module = BUNDLE_DIR / 'src/ARC3-Inference/inference/utils/astra_graph_nav.py'\n"
+        "graph_module.parent.mkdir(parents=True, exist_ok=True)\n"
+        "graph_module.write_text(" + repr(nav_source) + ", encoding='utf-8')\n"
+        "solver_file = BUNDLE_DIR / 'src/ARC3-Inference/inference/framework/solver.py'\n"
+        "solver_code = solver_file.read_text(encoding='utf-8')\n"
+        "future = 'from __future__ import annotations\\n'\n"
+        "anchor = '                if retry_analysis_step is None:\\n'\n"
+        "if solver_code.count(future) != 1 or solver_code.count(anchor) != 1:\n"
+        "    raise RuntimeError('ASTRA graph navigator hook anchors changed; abort')\n"
+        "solver_code = solver_code.replace(future, future + "
+        "'from inference.utils.astra_graph_nav import try_graph_step as _astra_graph_nav_try_step\\n', 1)\n"
+        "solver_code = solver_code.replace(anchor, "
+        "'                if _astra_graph_nav_try_step(self):\\n"
+        "                    retry_analysis_step = None\\n"
+        "                    continue\\n' + anchor, 1)\n"
+        "compile(solver_code, str(solver_file), 'exec')\n"
+        "solver_file.write_text(solver_code, encoding='utf-8')\n"
+        "print('ASTRA_GRAPH_NAV_HOOK_INSTALLED', graph_module.stat().st_size, flush=True)\n"
+    )
+    compile(body, "astra_graph_install", "exec")
+    return body
+
+
 BOOTSTRAP = '''import json
 import os
 import platform
@@ -104,9 +142,12 @@ def build() -> dict:
             assert body.count(run) == 1
             body = body.replace(run, run + '\n_astra_validate(bm)')
         cells.append(wrap(body, f"astra-v29-source-{index}"))
+        if index == 4:
+            cells.append(wrap(graph_install_code(), "astra-v29-graph-nav-install"))
     metadata = {"kernelspec": source["metadata"]["kernelspec"], "language_info": {"name": "python"},
                 "kaggle": {**source["metadata"]["kaggle"], "accelerator": "nvidiaRtxPro6000", "isGpuEnabled": True},
-                "astra": {"version": "2.9-experimental", "upstream": "dfranzen/arc-agi-3-milestone-2-solution@354920985", "source_sha256": SOURCE_SHA256, "official_score": "UNVERIFIED", "preserved_submission": 57848621}}
+                "astra": {"version": "2.9-experimental", "upstream": "dfranzen/arc-agi-3-milestone-2-solution@354920985", "source_sha256": SOURCE_SHA256, "official_score": "UNVERIFIED", "preserved_submission": 57848621,
+                          "graph_nav": "visual-lattice-bfs", "graph_nav_source": "kaggle/arc3_graph_nav.py"}}
     return {"nbformat": 4, "nbformat_minor": 5, "metadata": metadata, "cells": cells}
 
 
