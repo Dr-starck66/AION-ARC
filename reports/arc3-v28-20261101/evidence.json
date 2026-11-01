@@ -1,0 +1,137 @@
+{
+  "project": "ASTRA AION-ARC Omega",
+  "date_europe_paris": "2026-11-01",
+  "mission_status": "PARTIAL",
+  "base_commit": "e4286a33de376be1a3358a29ca1e48b3ad377c32",
+  "duck_upstream_commit": "7652836056c59e044f093e3c13ed7438c814169e",
+  "leaderboard": {
+    "status": "PASS",
+    "source": "browser rendered Kaggle leaderboard",
+    "url": "https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-3/leaderboard?search=Dr+starck",
+    "team": "Dr starck",
+    "rank": 4514,
+    "teams": 5028,
+    "score": 0.07,
+    "entries": 1,
+    "leaders": [
+      {
+        "team": "Yi-Chia Chen @ Fields Model",
+        "score": 75.56
+      },
+      {
+        "team": "Tufa Labs",
+        "score": 70.02
+      },
+      {
+        "team": "faster machine is all you need",
+        "score": 58.59
+      }
+    ]
+  },
+  "preserved_submission": {
+    "id": 57848621,
+    "version": 6,
+    "scriptVersionId": 364319161,
+    "source": "user mission and prior repository evidence",
+    "private_details_reverified_today": false,
+    "modified": false
+  },
+  "authentication": {
+    "status": "FAIL",
+    "google_account_observed": "ced669",
+    "required_kaggle_account": "drstarck",
+    "last_email_result": "The username or password provided is incorrect.",
+    "further_auth_requests": false
+  },
+  "executions": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests",
+        "kaggle/test_aion_guard.py",
+        "kaggle/test_aion_v26_recovery.py"
+      ],
+      "exit_code": 0,
+      "log": "reports/arc3-v28-20261101/tests.log"
+    },
+    {
+      "command": [
+        "python",
+        "scripts/verify_arc3_upstream_patch.py",
+        "../duck-harness"
+      ],
+      "exit_code": 0,
+      "log": "reports/arc3-v28-20261101/upstream-integration.json"
+    }
+  ],
+  "builds": [
+    {
+      "status": "PASS",
+      "scope": "notebook build only",
+      "profile": "recovery",
+      "path": "kaggle/v28-recovery/submission.ipynb",
+      "sha256": "8bffb250cbe39d5c69bf6272b5d7af7965af5be4c30ccefd1e91716e59fbdf0c",
+      "kaggle_execution": "UNVERIFIED",
+      "score": "UNVERIFIED"
+    },
+    {
+      "status": "PASS",
+      "scope": "notebook build only",
+      "profile": "upstream",
+      "path": "kaggle/v28-upstream/submission.ipynb",
+      "sha256": "9506e5a147927c8ff365f8e86c8a73c422a47c6b1c8197e3bdfcb2744ef35fa1",
+      "kaggle_execution": "UNVERIFIED",
+      "score": "UNVERIFIED"
+    }
+  ],
+  "integration": {
+    "status": "PASS",
+    "scope": "real upstream source patch and nested compilation only",
+    "patched_python_files": 26,
+    "original_v27_negative_control": {
+      "status": "FAIL",
+      "expected": true,
+      "error": "SyntaxError",
+      "line": 22
+    },
+    "real_sandbox_subprocess": {
+      "status": "PASS",
+      "controlled_actions": 2,
+      "arc_game": false
+    },
+    "logs": [
+      "AION-ARC v2.1 overlay PASS: /tmp/tmpi4wosm6j/work/aion_arc_v21_overlay",
+      "AION-ARC v2.2 scientific runtime extension PASS",
+      "ASTRA ACTION-EFFICIENCY Ω runtime governor PASS",
+      "ASTRA HYPOTHESIS TOURNAMENT Ω runtime layer PASS",
+      "AION-ARC v2.5 TEMPORAL CONSISTENCY GATE Ω: PASS",
+      "AION-ARC v2.3 HOST ENFORCEMENT Ω: PASS",
+      "AION-ARC v2.3 HOST ENFORCEMENT Ω: PASS",
+      "AION-ARC v2.4 PERSISTENT HOST MEMORY Ω: PASS",
+      "AION-ARC V2.6 RECOVERY PATCH: PASS (static application only; Kaggle score UNVERIFIED)",
+      "ASTRA_V28_PATCH_COMPILE_PASS"
+    ],
+    "gameplay": "UNVERIFIED",
+    "score": "UNVERIFIED"
+  },
+  "kaggle_challenger_run": {
+    "status": "UNVERIFIED",
+    "run_id": null
+  },
+  "actual_dataset_attachment": "UNVERIFIED",
+  "allocated_gpu_and_quota": "UNVERIFIED",
+  "new_official_submission": {
+    "status": "UNVERIFIED",
+    "id": null,
+    "score": null,
+    "delta_from_0_07": null,
+    "attempts_launched": 0
+  },
+  "cost": {
+    "paid_resources_created": 0
+  },
+  "next_priority": "Actual Kaggle run with model-response and environment-action evidence, paired upstream/recovery, before any new official submission."
+}

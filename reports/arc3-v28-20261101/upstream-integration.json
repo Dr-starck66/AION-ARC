@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "scope": "real upstream source patch and nested compilation only",
+  "patched_python_files": 26,
+  "original_v27_negative_control": {
+    "status": "FAIL",
+    "expected": true,
+    "error": "SyntaxError",
+    "line": 22
+  },
+  "real_sandbox_subprocess": {
+    "status": "PASS",
+    "controlled_actions": 2,
+    "arc_game": false
+  },
+  "logs": [
+    "AION-ARC v2.1 overlay PASS: /tmp/tmpi4wosm6j/work/aion_arc_v21_overlay",
+    "AION-ARC v2.2 scientific runtime extension PASS",
+    "ASTRA ACTION-EFFICIENCY \u03a9 runtime governor PASS",
+    "ASTRA HYPOTHESIS TOURNAMENT \u03a9 runtime layer PASS",
+    "AION-ARC v2.5 TEMPORAL CONSISTENCY GATE \u03a9: PASS",
+    "AION-ARC v2.3 HOST ENFORCEMENT \u03a9: PASS",
+    "AION-ARC v2.3 HOST ENFORCEMENT \u03a9: PASS",
+    "AION-ARC v2.4 PERSISTENT HOST MEMORY \u03a9: PASS",
+    "AION-ARC V2.6 RECOVERY PATCH: PASS (static application only; Kaggle score UNVERIFIED)",
+    "ASTRA_V28_PATCH_COMPILE_PASS"
+  ],
+  "gameplay": "UNVERIFIED",
+  "score": "UNVERIFIED"
+}
