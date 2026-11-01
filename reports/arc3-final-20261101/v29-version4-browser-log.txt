@@ -1,0 +1,453 @@
+Time
+	
+#
+	
+Log Message
+
+4.1s	0	0.00s - Debugger warning: It seems that frozen modules are being used, which may
+
+4.1s	1	0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+
+4.1s	2	0.00s - to python to disable frozen modules.
+
+4.1s	3	0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+
+4.4s	4	0.00s - Debugger warning: It seems that frozen modules are being used, which may
+
+4.4s	5	0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+
+4.4s	6	0.00s - to python to disable frozen modules.
+
+4.4s	7	0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+
+5.5s	8	Checking patch ARC3-Inference/inference/agent/action_names.py...
+
+5.5s	9	Checking patch ARC3-Inference/inference/agent/noop_repeat_guard.py...
+
+5.5s	10	Checking patch ARC3-Inference/inference/agent/priority_pace_reference.json...
+
+5.5s	11	Checking patch ARC3-Inference/inference/agent/priority_scheduler.py...
+
+5.5s	12	Checking patch ARC3-Inference/inference/agent/prompts.py...
+
+5.5s	13	Checking patch ARC3-Inference/inference/agent/python_tool_sandbox.py...
+
+5.5s	14	Checking patch ARC3-Inference/inference/agent/runtime_state.py...
+
+5.5s	15	Checking patch ARC3-Inference/inference/agent/tool_agent.py...
+
+5.5s	16	Checking patch ARC3-Inference/inference/agent/vision_context.py...
+
+5.5s	17	Checking patch ARC3-Inference/inference/framework/run.py...
+
+5.5s	18	Hunk #1 succeeded at 467 (offset 48 lines).
+
+5.5s	19	Hunk #2 succeeded at 1271 (offset 48 lines).
+
+5.5s	20	Checking patch ARC3-Inference/inference/framework/solver.py...
+
+5.5s	21	Checking patch ARC3-Inference/inference/utils/animation.py...
+
+5.5s	22	Checking patch ARC3-Inference/inference/utils/frame_diff.py...
+
+5.5s	23	Checking patch ARC3-Inference/inference/utils/openai_compat.py...
+
+5.5s	24	Checking patch ARC3-Inference/inference/utils/retained_functions.py...
+
+5.5s	25	Checking patch ARC3-Inference/inference/utils/segmentation.py...
+
+5.5s	26	Applied patch ARC3-Inference/inference/agent/action_names.py cleanly.
+
+5.5s	27	Applied patch ARC3-Inference/inference/agent/noop_repeat_guard.py cleanly.
+
+5.5s	28	Applied patch ARC3-Inference/inference/agent/priority_pace_reference.json cleanly.
+
+5.5s	29	Applied patch ARC3-Inference/inference/agent/priority_scheduler.py cleanly.
+
+5.5s	30	Applied patch ARC3-Inference/inference/agent/prompts.py cleanly.
+
+5.5s	31	Applied patch ARC3-Inference/inference/agent/python_tool_sandbox.py cleanly.
+
+5.5s	32	Applied patch ARC3-Inference/inference/agent/runtime_state.py cleanly.
+
+5.5s	33	Applied patch ARC3-Inference/inference/agent/tool_agent.py cleanly.
+
+5.5s	34	Applied patch ARC3-Inference/inference/agent/vision_context.py cleanly.
+
+5.5s	35	Applied patch ARC3-Inference/inference/framework/run.py cleanly.
+
+5.5s	36	Applied patch ARC3-Inference/inference/framework/solver.py cleanly.
+
+5.5s	37	Applied patch ARC3-Inference/inference/utils/animation.py cleanly.
+
+5.5s	38	Applied patch ARC3-Inference/inference/utils/frame_diff.py cleanly.
+
+5.5s	39	Applied patch ARC3-Inference/inference/utils/openai_compat.py cleanly.
+
+5.5s	40	Applied patch ARC3-Inference/inference/utils/retained_functions.py cleanly.
+
+5.5s	41	Applied patch ARC3-Inference/inference/utils/segmentation.py cleanly.
+
+5.5s	42	Checking patch ARC3-Inference/inference/agent/action_names.py...
+
+5.5s	43	Checking patch ARC3-Inference/inference/agent/noop_repeat_guard.py...
+
+5.5s	44	Checking patch ARC3-Inference/inference/agent/priority_pace_reference.json...
+
+5.5s	45	Checking patch ARC3-Inference/inference/agent/priority_scheduler.py...
+
+5.5s	46	Checking patch ARC3-Inference/inference/agent/prompts.py...
+
+5.5s	47	Checking patch ARC3-Inference/inference/agent/python_tool_sandbox.py...
+
+5.5s	48	Checking patch ARC3-Inference/inference/agent/runtime_state.py...
+
+5.5s	49	Checking patch ARC3-Inference/inference/agent/tool_agent.py...
+
+5.5s	50	Checking patch ARC3-Inference/inference/agent/vision_context.py...
+
+5.5s	51	Checking patch ARC3-Inference/inference/framework/run.py...
+
+5.5s	52	Hunk #1 succeeded at 467 (offset 48 lines).
+
+5.5s	53	Hunk #2 succeeded at 1271 (offset 48 lines).
+
+5.5s	54	Checking patch ARC3-Inference/inference/framework/solver.py...
+
+5.5s	55	Checking patch ARC3-Inference/inference/utils/animation.py...
+
+5.5s	56	Checking patch ARC3-Inference/inference/utils/frame_diff.py...
+
+5.5s	57	Checking patch ARC3-Inference/inference/utils/openai_compat.py...
+
+5.5s	58	Checking patch ARC3-Inference/inference/utils/retained_functions.py...
+
+5.5s	59	Checking patch ARC3-Inference/inference/utils/segmentation.py...
+
+5.5s	60	Applied patch ARC3-Inference/inference/agent/action_names.py cleanly.
+
+5.5s	61	Applied patch ARC3-Inference/inference/agent/noop_repeat_guard.py cleanly.
+
+5.5s	62	Applied patch ARC3-Inference/inference/agent/priority_pace_reference.json cleanly.
+
+5.5s	63	Applied patch ARC3-Inference/inference/agent/priority_scheduler.py cleanly.
+
+5.5s	64	Applied patch ARC3-Inference/inference/agent/prompts.py cleanly.
+
+5.5s	65	Applied patch ARC3-Inference/inference/agent/python_tool_sandbox.py cleanly.
+
+5.5s	66	Applied patch ARC3-Inference/inference/agent/runtime_state.py cleanly.
+
+5.5s	67	Applied patch ARC3-Inference/inference/agent/tool_agent.py cleanly.
+
+5.5s	68	Applied patch ARC3-Inference/inference/agent/vision_context.py cleanly.
+
+5.5s	69	Applied patch ARC3-Inference/inference/framework/run.py cleanly.
+
+5.5s	70	Applied patch ARC3-Inference/inference/framework/solver.py cleanly.
+
+5.5s	71	Applied patch ARC3-Inference/inference/utils/animation.py cleanly.
+
+5.5s	72	Applied patch ARC3-Inference/inference/utils/frame_diff.py cleanly.
+
+5.5s	73	Applied patch ARC3-Inference/inference/utils/openai_compat.py cleanly.
+
+5.5s	74	Applied patch ARC3-Inference/inference/utils/retained_functions.py cleanly.
+
+5.5s	75	Applied patch ARC3-Inference/inference/utils/segmentation.py cleanly.
+
+5.5s	76	
+
+5.5s	77	Checking patch ARC3-Inference/inference/agent/action_names.py...
+
+5.5s	78	Checking patch ARC3-Inference/inference/agent/noop_repeat_guard.py...
+
+5.5s	79	Checking patch ARC3-Inference/inference/agent/priority_pace_reference.json...
+
+5.5s	80	Checking patch ARC3-Inference/inference/agent/priority_scheduler.py...
+
+5.5s	81	Checking patch ARC3-Inference/inference/agent/prompts.py...
+
+5.5s	82	Checking patch ARC3-Inference/inference/agent/python_tool_sandbox.py...
+
+5.5s	83	Checking patch ARC3-Inference/inference/agent/runtime_state.py...
+
+5.5s	84	Checking patch ARC3-Inference/inference/agent/tool_agent.py...
+
+5.5s	85	Checking patch ARC3-Inference/inference/agent/vision_context.py...
+
+5.5s	86	Checking patch ARC3-Inference/inference/framework/run.py...
+
+5.5s	87	Hunk #1 succeeded at 467 (offset 48 lines).
+
+5.5s	88	Hunk #2 succeeded at 1271 (offset 48 lines).
+
+5.5s	89	Checking patch ARC3-Inference/inference/framework/solver.py...
+
+5.5s	90	Checking patch ARC3-Inference/inference/utils/animation.py...
+
+5.5s	91	Checking patch ARC3-Inference/inference/utils/frame_diff.py...
+
+5.5s	92	Checking patch ARC3-Inference/inference/utils/openai_compat.py...
+
+5.5s	93	Checking patch ARC3-Inference/inference/utils/retained_functions.py...
+
+5.5s	94	Checking patch ARC3-Inference/inference/utils/segmentation.py...
+
+5.5s	95	Applied patch ARC3-Inference/inference/agent/action_names.py cleanly.
+
+5.5s	96	Applied patch ARC3-Inference/inference/agent/noop_repeat_guard.py cleanly.
+
+5.5s	97	Applied patch ARC3-Inference/inference/agent/priority_pace_reference.json cleanly.
+
+5.5s	98	Applied patch ARC3-Inference/inference/agent/priority_scheduler.py cleanly.
+
+5.5s	99	Applied patch ARC3-Inference/inference/agent/prompts.py cleanly.
+
+5.5s	100	Applied patch ARC3-Inference/inference/agent/python_tool_sandbox.py cleanly.
+
+5.5s	101	Applied patch ARC3-Inference/inference/agent/runtime_state.py cleanly.
+
+5.5s	102	Applied patch ARC3-Inference/inference/agent/tool_agent.py cleanly.
+
+5.5s	103	Applied patch ARC3-Inference/inference/agent/vision_context.py cleanly.
+
+5.5s	104	Applied patch ARC3-Inference/inference/framework/run.py cleanly.
+
+5.5s	105	Applied patch ARC3-Inference/inference/framework/solver.py cleanly.
+
+5.5s	106	Applied patch ARC3-Inference/inference/utils/animation.py cleanly.
+
+5.5s	107	Applied patch ARC3-Inference/inference/utils/frame_diff.py cleanly.
+
+5.5s	108	Applied patch ARC3-Inference/inference/utils/openai_compat.py cleanly.
+
+5.5s	109	Applied patch ARC3-Inference/inference/utils/retained_functions.py cleanly.
+
+5.5s	110	Applied patch ARC3-Inference/inference/utils/segmentation.py cleanly.
+
+5.1s	111	ASTRA_V29_RUNTIME {"profile": "milestone2", "gpu": ["NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887"], "python": "3.12.13", "official_score": "UNVERIFIED", "preserved_submission": 57848621}
+
+5.5s	112	harness patch applied successfully
+
+5.5s	113	taaf.kaggle: TRUE_SUBMISSION=False
+
+5.5s	114	ASTRA_GRAPH_NAV_HOOK_INSTALLED 5731
+
+5.7s	115	Precaching: Started...
+
+14.9s	116	Precaching: loaded 211 files (6.70 GB) in 9.43 seconds.
+
+14.9s	117	
+
+16.8s	118	taaf.kaggle: wrote /usr/local/lib/python3.12/dist-packages/taaf_kaggle_sources.pth (3 source roots)
+
+17.0s	119	=== installing Pennyroyal (offline) ===
+
+17.0s	120	$ /tmp/sgl-intel/bin/uv venv --python /usr/bin/python3 /tmp/sgl-intel/venv
+
+17.2s	121	$ /tmp/sgl-intel/bin/uv pip install --python /tmp/sgl-intel/venv/bin/python --no-index --find-links /kaggle/input/datasets/dfranzen/pennyroyal-v253/wheels -r /kaggle/input/datasets/dfranzen/pennyroyal-v253/requirements.lock
+
+19.8s	122	$ /tmp/sgl-intel/bin/uv pip install --python /tmp/sgl-intel/venv/bin/python --no-index --find-links /kaggle/input/datasets/dfranzen/pennyroyal-v253/wheels --reinstall --no-deps /kaggle/input/datasets/dfranzen/pennyroyal-v253/wheels/sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl
+
+19.8s	123	$ /tmp/sgl-intel/venv/lib/python3.12/site-packages/nvidia/cu13/bin/nvcc --version
+
+19.8s	124	nvcc: NVIDIA (R) Cuda compiler driver
+
+19.8s	125	Copyright (c) 2005-2025 NVIDIA Corporation
+
+19.8s	126	Built on Wed_Aug_20_01:58:59_PM_PDT_2025
+
+19.8s	127	Cuda compilation tools, release 13.0, V13.0.88
+
+19.8s	128	Build cuda_13.0.r13.0/compiler.36424714_0
+
+19.8s	129	Host compiler: g++-11
+
+19.8s	130	$ /tmp/sgl-intel/venv/bin/python -c 'import pathlib, sglang, torch
+
+19.8s	131	print("sglang", sglang.__version__, "| torch", torch.__version__)
+
+19.8s	132	assert torch.cuda.is_available(), "CUDA unavailable"
+
+19.8s	133	print("GPU:", torch.cuda.get_device_name(0), "capability:", torch.cuda.get_device_capability(0))
+
+19.8s	134	'
+
+53.9s	135	sglang 0.5.19+gd00d88efc8d6 | torch 2.13.0+cu130
+
+53.9s	136	GPU: NVIDIA RTX PRO 6000 Blackwell Server Edition capability: (12, 0)
+
+53.9s	137	Target: /kaggle/input/models/dfranzen/intel-qwen3.8-flash-next-w4a16-autoround/transformers/default/1 | shards: 38 | PLE dtype: checkpoint default (typically BF16)
+
+54.0s	138	Draft source: /kaggle/input/models/dfranzen/albucino-qwen3-8-flash-next-drafter/transformers/default/1
+
+54.0s	139	SGLang draft view: /tmp/sgl-intel/draft-view-746747f37bf36968 (2 linked weight shards)
+
+54.0s	140	
+
+54.0s	141	/tmp/sgl-intel/venv/bin/sglang serve --model-path /kaggle/input/models/dfranzen/intel-qwen3.8-flash-next-w4a16-autoround/transformers/default/1 --load-format safetensors --model-loader-extra-config '{"enable_multithread_load":false}' --served-model-name flashnext --host 127.0.0.1 --port 8001 --tensor-parallel-size 1 --dtype bfloat16 --quantization auto-round --kv-cache-dtype fp8_e4m3 --mem-fraction-static 0.96 --context-length 139264 --page-size 64 --max-running-requests 10 --chunked-prefill-size 8192 --max-prefill-tokens 16384 --cuda-graph-max-bs-decode 10 --cuda-graph-bs-decode 1 2 4 7 8 9 10 --mamba-ssm-dtype bfloat16 --max-mamba-cache-size 60 --mamba-radix-cache-strategy extra_buffer --mamba-track-interval 64 --mamba-backend flashinfer --linear-attn-decode-backend flashinfer --linear-attn-prefill-backend flashinfer --moe-runner-backend auto --ple-offload-embedding --trust-remote-code --mm-feature-transport cpu --image-processor-backend pil --reasoning-parser qwen3 --tool-call-parser qwen3_coder --default-chat-template-kwargs '{"preserve_thinking":true}' --watchdog-timeout 1800 --schedule-policy lpm --warmups structured_output --enable-cache-report --enable-metrics --enable-request-time-stats-logging --weight-loader-prefetch-checkpoints --weight-loader-drop-cache-after-load --chat-template /kaggle/input/models/dfranzen/intel-qwen3.8-flash-next-w4a16-autoround/transformers/default/1/chat_template.jinja --gdn-mtp-cache-mode none --speculative-algorithm NEXTN --speculative-num-steps 3 --speculative-eagle-topk 1 --speculative-num-draft-tokens 4 --speculative-draft-model-path /tmp/sgl-intel/draft-view-746747f37bf36968 --speculative-draft-model-quantization compressed-tensors --speculative-moe-runner-backend auto --speculative-draft-kv-cache-dtype fp8_e4m3 --speculative-accept-threshold-single 1.0 --speculative-accept-threshold-acc 1.0 --speculative-token-map /kaggle/input/datasets/dfranzen/pennyroyal-v253/hot_tokens_64k.pt
+
+54.0s	142	
+
+54.0s	143	pid 498 -> /kaggle/working/serve.log
+
+54.0s	144	  0s ...
+
+84.0s	145	  30s ...
+
+114.0s	146	Precaching: Started...
+
+114.0s	147	  60s ...
+
+144.0s	148	  90s ...
+
+174.0s	149	  120s ...
+
+204.1s	150	  150s ...
+
+234.1s	151	  180s ...
+
+264.1s	152	  210s ...
+
+294.1s	153	  240s ...
+
+324.1s	154	  270s ...
+
+354.1s	155	  300s ...
+
+384.1s	156	  330s ...
+
+414.1s	157	  360s ...
+
+433.0s	158	Precaching: loaded 62 files (185.40 GB) in 318.75 seconds.
+
+433.0s	159	
+
+444.1s	160	  390s ...
+
+474.1s	161	  420s ...
+
+504.1s	162	  450s ...
+
+534.1s	163	  480s ...
+
+564.1s	164	  510s ...
+
+594.1s	165	  540s ...
+
+613.1s	166	
+
+613.1s	167	READY after 559s -> http://127.0.0.1:8001/v1
+
+615.0s	168	benchmark.solver: HarnessSolver(label='duck-harness', runtime_environment=None, job_dir=None, soft_end_time=None, minimal_diagnostics=False, model='local', analyzer_timeout=900.0, max_actions_per_game=None, max_runtime_s_per_game=29018, max_generated_tokens_per_game=None, concurrency=100, save_request_logs=True, start_local_server=False, local_server_config='', local_server_api_key_file='', local_server_repo_dir='/Users/jeroencottaar/code/ARC3-Inference', local_server_port=None, local_server_tensor_parallel_size=None, local_server_count=1, cancel_drain_timeout_s=120.0)
+
+615.0s	169	[sys] RAM 106.0/176.9 | swap none | proc 0.3 GB, 105 threads, 64 fds | GPU0 91.1/95.6 | disk / 7123.5/8156.9, /kaggle/working 0.0/19.5
+
+615.0s	170	[sys] RAM 106.0/176.9 | swap none | proc 0.3 GB, 105 threads, 64 fds | GPU0 91.1/95.6 | disk / 7123.5/8156.9, /kaggle/working 0.0/19.5
+
+615.2s	171	Starting benchmark...
+
+615.4s	172	ASTRA_PUBLIC_GAMES ['ls20-9607627b', 'vc33-5430563c']
+
+615.5s	173	priority gate active: 10 concurrent streams
+
+615.5s	174	
+
+615.5s	175	priority gate active: 10 concurrent streams
+
+615.5s	176	vc33-5430563c: warmup RESET issued before the analyzer is reachable
+
+615.5s	177	
+
+615.5s	178	vc33-5430563c: warmup RESET issued before the analyzer is reachable
+
+735.0s	179	[sys] RAM 106.2/176.9 | swap none | proc 0.3 GB, 107 threads, 67 fds | GPU0 92.5/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.0/19.5
+
+855.1s	180	[sys] RAM 106.4/176.9 | swap none | proc 0.3 GB, 107 threads, 67 fds | GPU0 93.1/95.6 | disk / 7123.6/8156.9, /kaggle/working 0.0/19.5
+
+915.4s	181	analyzer request timed out at action 63; yielding with 0 tool call(s) preserved: HTTPConnectionPool(host='127.0.0.1', port=8001): Read timed out. (read timeout=9.669616)
+
+915.4s	182	
+
+915.4s	183	analyzer request timed out at action 63; yielding with 0 tool call(s) preserved: HTTPConnectionPool(host='127.0.0.1', port=8001): Read timed out. (read timeout=9.669616)
+
+915.5s	184	analyzer request timed out at action 51; yielding with 0 tool call(s) preserved: HTTPConnectionPool(host='127.0.0.1', port=8001): Read timed out. (read timeout=19.121811)
+
+915.5s	185	
+
+915.5s	186	analyzer request timed out at action 51; yielding with 0 tool call(s) preserved: HTTPConnectionPool(host='127.0.0.1', port=8001): Read timed out. (read timeout=19.121811)
+
+915.7s	187	[finished] ls20-9607627b state=cancelled level=1/7 score=3.57 actions=50 tokens=34871 per-level=22/22,28/123,0/73,0/84,0/96,0/192,0/186 note="tokens=34871"
+
+915.7s	188	[finished] vc33-5430563c state=cancelled level=3/7 score=20.87 actions=62 tokens=36711 per-level=23/7,11/18,27/44,1/61,0/131,0/34,0/152 note="tokens=36711"
+
+916.5s	189	benchmark: regenerated diagnostics in /kaggle/working in 1.06s
+
+916.5s	190	benchmark: duck-harness-kaggle
+
+916.5s	191	solver:    duck-harness
+
+916.5s	192	games:     2
+
+916.5s	193	passes:    1
+
+916.5s	194	runs:      2 (won: 0)
+
+916.5s	195	started:   2026-11-01 23:12:02
+
+916.5s	196	ended:     2026-11-01 23:17:02
+
+916.5s	197	duration:  5m 0s
+
+916.5s	198	mean score:    12.22
+
+916.5s	199	median score:  12.22
+
+916.5s	200	total actions: 112
+
+916.5s	201	total tokens:  71582
+
+916.5s	202	generated tokens/sec: 238.50 (job wallclock)
+
+916.5s	203	total wallclock: 600.0s
+
+916.5s	204	
+
+916.5s	205	per-game (mean across passes):
+
+916.5s	206	  ls20-9607627b: score=3.57, levels=1.0/7, actions=50, tokens=34871
+
+916.5s	207	  vc33-5430563c: score=20.87, levels=3.0/7, actions=62, tokens=36711
+
+916.5s	208	
+
+916.5s	209	diagnostics: /kaggle/working/diagnostics.html
+
+916.5s	210	ASTRA_REAL_GAMEPLAY_PARTIAL {"model_responses": 52, "environment_actions": 112, "games": 2, "crashed_games": [], "errors": [], "budget_timeouts": ["ReadTimeout", "ReadTimeout"], "official_score": "UNVERIFIED"}
+
+917.4s	211	/usr/local/lib/python3.12/dist-packages/IPython/core/display.py:724: UserWarning: Consider using IPython.display.IFrame instead
+
+917.4s	212	  warnings.warn("Consider using IPython.display.IFrame instead")
+
+917.4s	213	
+
+917.4s	214	/usr/local/lib/python3.12/dist-packages/IPython/core/display.py:724: UserWarning: Consider using IPython.display.IFrame instead
+
+917.4s	215	  warnings.warn("Consider using IPython.display.IFrame instead")
+
+919.1s	216	/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+
+919.1s	217	  cells[i][c] = re.sub('\\\\\|', '|', cell)
+
+919.3s	218	/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+
+919.3s	219	  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+
+919.6s	220	[NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+
+919.7s	221	[NbConvertApp] Writing 1273377 bytes to __notebook__.ipynb
+
+920.8s	222	[NbConvertApp] Converting notebook __notebook__.ipynb to html
+
+921.5s	223	[NbConvertApp] Writing 2431496 bytes to __results__.html

@@ -1,6 +1,6 @@
 # ASTRA AION-ARC — exécution Kaggle finale
 
-État intermédiaire : **PARTIAL**. Aucun nouveau score officiel n'est affirmé.
+État global : **PARTIAL**. **Nouvelle soumission officielle enregistrée**, rerun caché en cours. Aucun nouveau score officiel n'est affirmé.
 
 ## Travail repris
 
@@ -41,7 +41,7 @@ Le contrôle réel confirme Python 3.12.13, RTX PRO 6000 Blackwell (97887 MiB), 
 
 Le test public est limité à cinq minutes après chargement, contre trente minutes auparavant : ses scores ne seront donc pas une comparaison équivalente. Le budget de l'évaluation cachée reste celui du candidat initial, jusqu'à neuf heures.
 
-**Soumission officielle nouvelle : non encore enregistrée. Score nouveau : UNVERIFIED.** L'interface confirme qu'une soumission relance le notebook sur les jeux cachés ; elle attend la sortie `submission.parquet` de la version terminée. Le petit Parquet public de prévalidation n'est jamais traité comme un score de jeu.
+Le petit Parquet public de prévalidation n'est jamais traité comme un score de jeu. La nouvelle soumission officielle déclenche le rerun caché du notebook, conformément au dialogue Kaggle.
 
 Les journaux originaux et les résultats négatifs sont conservés dans ce dossier. `session-evidence.json` porte les identifiants et l'état détaillé.
 
@@ -54,6 +54,25 @@ La version 4 distingue maintenant les délais de lecture survenus **après** l'�
 - **PASS** : 115 tests et 16 sous-tests, incluant expiration publique, délai prématuré, délai caché, absence de jeu et maintien des échecs dans le rapport.
 - **PASS** : export du brouillon Kaggle puis comparaison exacte des 14 cellules de code avec le candidat testé ; cinq sources toujours présentes.
 - SHA-256 du candidat v4 : `c010f3cde9433b962810c264951098681116c35dd6c7e5067135fa1b8f97fb02`.
-- Retest réellement démarré : version Kaggle 4, [`364690053`](https://www.kaggle.com/code/drstarck/astra-aion-arc3-v2-9-milestone2?scriptVersionId=364690053), RTX PRO 6000, **RUNNING**.
+- Retest réellement exécuté : version Kaggle 4, [`364690053`](https://www.kaggle.com/code/drstarck/astra-aion-arc3-v2-9-milestone2?scriptVersionId=364690053), RTX PRO 6000. Kaggle confirme **925,7 secondes, successful**.
+- Preuve de jeu : **52 réponses du modèle, 112 actions, quatre niveaux franchis, zéro jeu en panne, zéro erreur prématurée**. Deux ReadTimeout de fin conservés dans `budget_timeouts`, statut de jeu **PARTIAL**. Moyenne de 12,22 sur deux jeux et cinq minutes, sans valeur de score officiel ni comparaison équivalente au test de trente minutes.
 
 Cette correction ne transforme pas un échec en succès ni un test public en score officiel.
+
+## Soumission officielle enregistrée
+
+**PASS — enregistrement**, le 2 novembre 2026 à **00:18:06, heure de Paris** (1 novembre 23:18:06 UTC), depuis le compte `drstarck`.
+
+- Notebook : `drstarck/astra-aion-arc3-v2-9-milestone2`.
+- Version exacte : **4**, `scriptVersionId=364690053`.
+- Fichier sélectionné : `submission.parquet` ; l'option « File Upload » est désactivée pour cette compétition. L'envoi porte donc sur le notebook à réexécuter avec les jeux cachés.
+- État officiel observé après envoi : **Notebook Running**.
+- [Page officielle des soumissions](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-3/submissions).
+- Description enregistrée : « ASTRA AION-ARC v29 / f34ebbff. 115 tests + 16 subtests. RTX offline. 52 model responses, 112 public actions. Expected timed stops retained as PARTIAL. Full hidden evaluation budget. »
+- Identifiant numérique de **soumission** : **UNVERIFIED pendant le calcul** ; la ligne en cours n'expose pas encore la case `name` contenant l'identifiant. Ne jamais lui substituer `364690053`, qui est l'identifiant de version du notebook.
+- Nouvelle note et nouveau rang : **UNVERIFIED — calcul Kaggle en cours**. Dernière note officielle effectivement vérifiée : **0,07/100** sur l'ancienne soumission `57848621`.
+- Intervention manuelle demandée : **aucune**. Dépense créée : **aucune**. Aucun nouveau workflow ni nouveau service n'a été créé.
+
+La procédure reproductible et les pièges réels de l'interface sont conservés dans [`docs/ARC3-WORK-BROWSER-EXECUTION.md`](../../docs/ARC3-WORK-BROWSER-EXECUTION.md). Les journaux du retest et le reçu UI sont inclus dans ce dossier. Le résultat 100/100 et la victoire ne sont pas obtenus ni annoncés.
+
+**PASS — continuité :** le reçu et la version exacte ont été ajoutés à la tâche centrale déjà active `6ae5fe6216e0819197eddcfe2786a44e`, sans nouvelle automatisation et sans modification de son calendrier ni de ses autres modules. Cela enregistre une consigne de suivi ; cela ne prouve pas un résultat futur du calcul. Au dernier contrôle de cette session, environ trois minutes après l'envoi, Kaggle affiche toujours **Notebook Running**.

@@ -96,9 +96,41 @@
   },
   "v29_version4": {
     "script_version_id": 364690053,
-    "status": "RUNNING",
+    "status": "FINISHED_PUBLIC_VALIDATION",
     "accelerator": "GPU RTX Pro 6000",
     "notebook_sha256": "c010f3cde9433b962810c264951098681116c35dd6c7e5067135fa1b8f97fb02",
-    "url": "https://www.kaggle.com/code/drstarck/astra-aion-arc3-v2-9-milestone2?scriptVersionId=364690053"
+    "url": "https://www.kaggle.com/code/drstarck/astra-aion-arc3-v2-9-milestone2?scriptVersionId=364690053",
+    "kernel_execution": "PASS",
+    "gameplay": "PARTIAL",
+    "model_responses": 52,
+    "environment_actions": 112,
+    "public_levels_completed": 4,
+    "crashed_games": [],
+    "errors": [],
+    "budget_timeouts": [
+      "ReadTimeout",
+      "ReadTimeout"
+    ],
+    "public_two_game_mean": 12.22,
+    "server_ready_at_seconds": 613.1,
+    "kernel_runtime_seconds": 925.7
+  },
+  "official_submission_request": "REGISTERED",
+  "official_submission_registration": "PASS",
+  "official_submission_status": "Notebook Running",
+  "official_submission_at_utc": "2026-11-01T23:18:06Z",
+  "official_submission_at_paris": "2026-11-02T00:18:06+01:00",
+  "official_submission_notebook_version": 4,
+  "official_submission_script_version_id": 364690053,
+  "official_submission_id_status": "UNVERIFIED: running row has no selection checkbox/name yet; never substitute scriptVersionId",
+  "official_new_rank": "UNVERIFIED",
+  "submission_page": "https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-3/submissions",
+  "manual_user_intervention_required": false,
+  "followup_existing_automation": {
+    "id": "6ae5fe6216e0819197eddcfe2786a44e",
+    "update": "PASS",
+    "enabled": true,
+    "new_automation_created": false,
+    "scope": "Kaggle receipt and verified-status follow-up added; existing schedule and other modules retained"
   }
 }
