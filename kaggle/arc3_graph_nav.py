@@ -85,11 +85,11 @@ def graph_route(raw_grid: Any, *, legal_actions=(1, 2, 3, 4)) -> dict | None:
 
 
 def try_graph_step(session: Any) -> bool:
-    """Use normal TAAF step_env accounting; preserve all scorer/stop gates.
+    """Execute a cached vision plan, one host-validated action at a time.
 
-    This runs *inside* the existing game session before model analysis, so
-    every action is enforced and scored by the original host.  Fail closed
-    and never retry a non-changing state forever.
+    After the first step, game boards may mutate visited edges, so *never*
+    re-plan against an altered image on every turn. Re-plan only after a
+    level transition. The existing AI agent remains the safe fallback.
     """
     if getattr(session, "_astra_graph_nav_disabled", False):
         return False
@@ -97,13 +97,24 @@ def try_graph_step(session: Any) -> bool:
         if session.should_stop() or session.action_count >= 140:
             return False
         state = session.game.current_state
-        route = graph_route(
-            session.current_frame().grid,
-            legal_actions=state.available_actions,
-        )
+        route = getattr(session, "_astra_graph_nav_route", None)
         if route is None:
+            route = graph_route(
+                session.current_frame().grid,
+                legal_actions=state.available_actions,
+            )
+            if route is None:
+                return False
+            route["next"] = 0
+            session._astra_graph_nav_route = route
+        step_index = route["next"]
+        if step_index >= len(route["actions"]):
+            session._astra_graph_nav_disabled = True
             return False
-        action = route["actions"][0]
+        action = route["actions"][step_index]
+        if action not in state.available_actions:
+            session._astra_graph_nav_disabled = True
+            return False
         before = session.action_count
         result = session.step_env({"action": f"ACTION{action}"})
         if (
@@ -120,7 +131,13 @@ def try_graph_step(session: Any) -> bool:
         ):
             session._astra_graph_nav_disabled = True
         if result.get("level_completed"):
+            session._astra_graph_nav_route = None
             print("ASTRA_GRAPH_NAV_LEVEL_COMPLETED", session.action_count, flush=True)
+        else:
+            route["next"] = step_index + 1
+            if route["next"] >= len(route["actions"]):
+                # All planned moves exhausted without winning: fail closed.
+                session._astra_graph_nav_disabled = True
         return True
     except Exception as exc:
         session._astra_graph_nav_disabled = True
