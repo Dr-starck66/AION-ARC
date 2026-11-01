@@ -25,3 +25,13 @@ La prochaine priorité n'est pas d'inventer un autre navigateur : **retrouver un
 - **Kaggle public :** la consultation sans authentification des versions 364609200 / 364607203 ne donne pas accès aux sorties privées. Les emails du 1er novembre indiquent les deux échecs, mais pas la cause technique détaillée.
 
 **Verdict :** `PASS_DISCOVERY` sur les trois familles de connecteurs et historiques ; `FAIL_AUTH_REUSE` pour toute session Kaggle existante exposée aux outils présents ; `UNVERIFIED` pour la réexécution et le nouveau score officiel. Aucune dépense, aucune activation Railway, aucun mot de passe demandé ou écrit. La marche restante est un mécanisme de transfert d'une session Kaggle déjà ouverte vers un outil réellement autorisé, ou la connexion native sécurisée au compte Kaggle dans l'environnement qui exécutera le notebook ; ne pas suggérer que les identifiants redonnés dans la conversation constituent une session réutilisable.
+
+## Raccordement OAuth — contrôle du 1er novembre 2026, 18:50 UTC
+
+La documentation officielle du client Kaggle vérifiée indique une connexion OAuth via `kaggle auth login --no-launch-browser` ; ce mécanisme **ne demande aucun mot de passe dans ChatGPT** et stocke le résultat dans l'environnement qui exécute réellement la CLI. Sources : https://github.com/Kaggle/kaggle-cli/blob/main/skills/references/auth.md ; https://github.com/Kaggle/kaggle-cli/blob/main/skills/references/competitions.md .
+
+Profil navigateur TinyFish existant `prof_0b07cd06fc06432b` : un lien de préparation de connexion Kaggle a été généré via `start_profile_setup_session`; l'API a répondu `setup_started:false` et a demandé une connexion dans la page dédiée, suivie de `Save profile`. Ne pas stocker le jeton temporaire du lien de préparation dans GitHub. Une nouvelle lecture de `list_profiles` n'a trouvé **aucun site kaggle.com connecté**. Le solde TinyFish de −0,408 USD empêche les exécutions agent ; cette voie **n'est pas utilisable pour la soumission à coût nul** dans l'état et ne doit pas être présentée comme un succès.
+
+Correctif GitHub `b1cef63504f3a8ac411d1a5b0c523ce8eb557e72` au programme `scripts/arc3_kaggle_final_run.py` : `AUTH_PROBE_KERNEL="drstarck/notebook2700e63354"` (ancienne version privée vérifiée), utilisé pour tester réellement les droits ; le challenger séparé `drstarck/astra-aion-arc3-v2-9-milestone2` n'est pas écrasé ou utilisé comme preuve préalable de connexion. **PASS : commit et relecture GitHub. UNVERIFIED : exécution CLI et score officiel.**
+
+**Sécurité :** ni clé, ni mot de passe, ni cookie de session transcrit ; ne pas activer Railway, ne pas effectuer de recharge TinyFish.
