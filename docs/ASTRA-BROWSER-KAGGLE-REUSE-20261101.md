@@ -50,3 +50,13 @@ Références officielles `Kaggle/kaggle-cli` :
 - `kaggle competitions submit -k ... -f submission.parquet` : https://github.com/Kaggle/kaggle-cli/blob/main/docs/competitions.md
 
 **Prochaine priorité unique :** retrouver l'exécution ASTRA du 31 octobre qui a effectivement obtenu le HTTP 200 avec ce compte et en vérifier les possibilités de réemploi ; à défaut, réaliser une authentification officielle OAuth dans un environnement Kaggle CLI *capable d'exécuter les commandes*, sans jamais demander de mot de passe ici ni créer de dépense.
+
+## Solution de repli d'authentification sans mot de passe — 1er novembre 2026
+
+- Notebook cloud **gratuit** créé et relu à l'identique sur `main` : `notebooks/ASTRA_KAGGLE_AUTH_AND_SUBMIT_COLAB.ipynb`, commit `f1256c782f8e5e05a3dba4f007e90614be258a27`.
+- Ce notebook installe le CLI dans **Google Colab**, clone la branche AION-ARC existante, lit seulement le secret `KAGGLE_API_TOKEN` depuis le coffre privé **Colab** (si déjà créé), sinon propose `kaggle auth login --no-launch-browser`, vérifie en lecture seule l'accès au notebook historique `drstarck/notebook2700e63354`, puis appelle le runner existant `--execute`.
+- Douze assertions statiques vérifiées via GitHub (relecture des fichiers, noms, mode noyau `-k`, pas de valeur `KGAT_...`, distinction phase A / phase B). **Aucune exécution Colab autorisée ni compte Kaggle effectivement lié à ce stade.**
+- Lien Colab de forme standard, pas testé dans la session de l'utilisateur : https://colab.research.google.com/github/Dr-starck66/AION-ARC/blob/main/notebooks/ASTRA_KAGGLE_AUTH_AND_SUBMIT_COLAB.ipynb
+- **Note d'intégrité** : l'affirmation historique du 31 octobre « API Kaggle HTTP 200 avec `drstarck` » provient d'un **message d'assistant**, non d'un journal ou d'une réponse d'outil indépendante conservée dans les éléments consultables. Ne pas la traiter comme un `PASS` d'authentification actuel ; elle est **UNVERIFIED** au niveau de la preuve brute.
+
+Reste exclusivement : **approbation par le titulaire du compte de l'accès Kaggle dans l'environnement d'exécution** ou utilisation d'un jeton déjà présent dans son coffre Colab, puis réponse HTTP privée effectivement obtenue depuis `kaggle kernels status`, `kaggle kernels push`, et `kaggle competitions submit -k`. Le scénario OAuth headless en Colab n'a pas encore été testé de bout en bout ; si cette forme d'OAuth échoue sur le navigateur distant, la session ne doit pas prétendre être authentifiée. Aucun abonnement, secret dans GitHub ou réactivation Railway.
