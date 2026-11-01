@@ -1,0 +1,81 @@
+Observed Kaggle output: astra_runtime_evidence.json, scriptVersionId=364686331
+  - generic: "\"root\""
+  - generic: ":"
+  - generic: "{"
+  - generic: 10 items
+  - text: "\""
+  - generic: model_responses
+  - text: "\""
+  - generic: ":"
+  - generic: int48
+  - text: "\""
+  - generic: environment_actions
+  - text: "\""
+  - generic: ":"
+  - generic: int99
+  - generic: "\"errors\""
+  - generic: ":"
+  - generic: "["
+  - generic: 2 items
+  - text: "0"
+  - generic: ":"
+  - text: string
+  - generic: "\"model:ReadTimeout\""
+  - text: "1"
+  - generic: ":"
+  - text: string
+  - generic: "\"model:ReadTimeout\""
+  - generic: "]"
+  - text: "\""
+  - generic: profile
+  - text: "\""
+  - generic: ":"
+  - text: string
+  - generic: "\"milestone2\""
+  - text: "\""
+  - generic: mode
+  - text: "\""
+  - generic: ":"
+  - text: string
+  - generic: "\"public\""
+  - generic: "\"runs\""
+  - generic: ":"
+  - generic: "["
+  - generic: 2 items
+  - text: "0"
+  - generic: ":"
+  - generic: "{"
+  - generic: ...
+  - generic: "}"
+  - generic: 16 items
+  - text: "1"
+  - generic: ":"
+  - generic: "{"
+  - generic: ...
+  - generic: "}"
+  - generic: 16 items
+  - generic: "]"
+  - generic: "\"crashed_games\""
+  - generic: ":"
+  - generic: "["
+  - generic: "]"
+  - generic: 0 items
+  - text: "\""
+  - generic: status
+  - text: "\""
+  - generic: ":"
+  - text: string
+  - generic: "\"FAIL\""
+  - text: "\""
+  - generic: scope
+  - text: "\""
+  - generic: ":"
+  - text: string
+  - generic: "\"instrumented gameplay only; not an official Kaggle score\""
+  - text: "\""
+  - generic: official_score
+  - text: "\""
+  - generic: ":"
+  - text: string
+  - generic: "\"UNVERIFIED\""
+  - generic: "}"

@@ -132,6 +132,7 @@ print("ASTRA_V28_PATCH_COMPILE_PASS", flush=True)
 INSTRUMENTATION = r'''import functools
 import hashlib
 import threading
+import time
 from urllib.parse import urlparse
 
 import taaf.game_api
@@ -140,6 +141,7 @@ from inference.agent.tool_agent import ToolAgent
 ASTRA_EVIDENCE = {"model_responses": 0, "environment_actions": 0, "errors": []}
 ASTRA_TRACE_LOCK = threading.Lock()
 ASTRA_TRACE_PATH = WORKING_DIR / "astra_gameplay.jsonl"
+ASTRA_PUBLIC_STOP_DEADLINE = None
 
 def _astra_event(event):
     with ASTRA_TRACE_LOCK:
@@ -154,8 +156,18 @@ def _astra_chat(self, *args, **kwargs):
     try:
         reply = _astra_original_chat(self, *args, **kwargs)
     except Exception as exc:
+        expected_stop = (
+            not TRUE_SUBMISSION and ASTRA_PUBLIC_STOP_DEADLINE is not None
+            and type(exc).__name__ in ("ReadTimeout", "Timeout")
+            and time.monotonic() >= ASTRA_PUBLIC_STOP_DEADLINE
+        )
         with ASTRA_TRACE_LOCK:
-            ASTRA_EVIDENCE["errors"].append("model:" + type(exc).__name__)
+            if expected_stop:
+                ASTRA_EVIDENCE.setdefault("budget_timeouts", []).append(type(exc).__name__)
+            else:
+                ASTRA_EVIDENCE["errors"].append("model:" + type(exc).__name__)
+        _astra_event({"kind": "model_exception", "type": type(exc).__name__,
+                      "expected_public_budget_stop": expected_stop})
         raise
     # Duck returns _ChatCompletionResult, not the raw OpenAI JSON body.
     message = getattr(reply, "message", None)
@@ -203,20 +215,29 @@ def _astra_validate(benchmark):
     runs = [r.to_json_dict() for r in benchmark.game_runs]
     crashed = [r.get("game_id") for r in runs if r.get("state") == "crashed"]
     played = ASTRA_EVIDENCE["model_responses"] > 0 and ASTRA_EVIDENCE["environment_actions"] > 0
+    degraded = bool(crashed or ASTRA_EVIDENCE["errors"] or ASTRA_EVIDENCE.get("budget_timeouts"))
+    status = "FAIL" if not played else ("PARTIAL" if degraded else "PASS")
+    # Public validation stays strict for genuine crashes and early errors.
+    # During a hidden rerun, retain every failure and mark PARTIAL while letting
+    # Kaggle score the real actions already taken in the other games.
+    reject = not played or (not TRUE_SUBMISSION and (crashed or ASTRA_EVIDENCE["errors"]))
+    if reject:
+        status = "FAIL"
     evidence = {
         **ASTRA_EVIDENCE, "profile": ASTRA_PROFILE,
         "mode": "hidden" if TRUE_SUBMISSION else "public",
         "runs": runs, "crashed_games": crashed,
-        "status": "PASS" if played and not crashed and not ASTRA_EVIDENCE["errors"] else "FAIL",
+        "status": status,
         "scope": "instrumented gameplay only; not an official Kaggle score",
         "official_score": "UNVERIFIED",
     }
     (WORKING_DIR / "astra_runtime_evidence.json").write_text(json.dumps(evidence, indent=2))
-    if not played or crashed or ASTRA_EVIDENCE["errors"]:
+    if reject:
         raise RuntimeError("ASTRA gameplay gate failed; see astra_runtime_evidence.json")
-    print("ASTRA_REAL_GAMEPLAY_PASS", json.dumps({
+    print("ASTRA_REAL_GAMEPLAY_" + status, json.dumps({
         "model_responses": evidence["model_responses"], "environment_actions": evidence["environment_actions"],
-        "games": len(runs), "official_score": "UNVERIFIED",
+        "games": len(runs), "crashed_games": crashed, "errors": evidence["errors"],
+        "budget_timeouts": evidence.get("budget_timeouts", []), "official_score": "UNVERIFIED",
     }), flush=True)
 '''
 

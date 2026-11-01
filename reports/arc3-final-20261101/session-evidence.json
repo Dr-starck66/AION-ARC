@@ -1,0 +1,104 @@
+{
+  "observed_at_utc": "2026-11-01T22:37:49.057466+00:00",
+  "status": "PARTIAL",
+  "authenticated_account": "drstarck",
+  "auth_method": "preexisting cloud-browser session; no new credential",
+  "baseline": {
+    "submission_id": 57848621,
+    "notebook_version": 6,
+    "script_version_id": 364319161,
+    "public_score": 0.07,
+    "public_rank_observed": 4523,
+    "team_count_observed": 5036
+  },
+  "v29_version1": {
+    "script_version_id": 364609200,
+    "status": "FAIL",
+    "runtime_seconds": 2388.5,
+    "reason": "instrumentation rejected assistant without content/tool calls; reasoning-only compatibility defect",
+    "public_two_game_mean": 33.52,
+    "official_score": "UNVERIFIED",
+    "ls20": {
+      "levels": 4,
+      "total_levels": 7,
+      "score": 35.71
+    },
+    "vc33": {
+      "levels": 4,
+      "total_levels": 7,
+      "score": 31.33,
+      "state": "crashed"
+    }
+  },
+  "patch": {
+    "commit": "cd7dffa76087da1a497aab0aae0478b8da1ff374",
+    "tests": 110,
+    "subtests": 12,
+    "compiled_upstream_files": 34,
+    "embedded_sandbox": "PASS",
+    "graph_hook_integration": "PASS",
+    "negative_controls": "PASS",
+    "notebook_sha256": "902940f130b8ce0e4124bac632a767d855d9b7ab6951d503604682c5b9dccded"
+  },
+  "v29_version2": {
+    "status": "FAIL",
+    "reason": "UI import cleared sources and defaulted to GPU T4 x2; hardware preflight rejected it"
+  },
+  "official_new_submission_id": null,
+  "official_new_score": "UNVERIFIED",
+  "expense_created": false,
+  "v29_version3": {
+    "script_version_id": 364686331,
+    "status": "FAIL",
+    "accelerator": "GPU RTX Pro 6000",
+    "source_count": 5,
+    "free_gpu_hours_remaining_observed": 28,
+    "url": "https://www.kaggle.com/code/drstarck/astra-aion-arc3-v2-9-milestone2?scriptVersionId=364686331",
+    "runtime_checks": {
+      "python": "3.12.13",
+      "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+      "cuda": "13.0",
+      "sglang": "0.5.19+gd00d88efc8d6",
+      "torch": "2.13.0+cu130",
+      "stage": "Model loading; no gameplay yet verified"
+    },
+    "runtime_seconds": 1050.7,
+    "model_responses": 48,
+    "environment_actions": 99,
+    "crashed_games": [],
+    "errors": [
+      "model:ReadTimeout",
+      "model:ReadTimeout"
+    ],
+    "reason": "two expected read timeouts at the exact 300-second public stop misclassified as fatal",
+    "public_two_game_mean": 12.1,
+    "public_levels_completed": 4
+  },
+  "submission_quota_remaining_observed": 1,
+  "official_submission_dialog": "Hidden rerun confirmed; cannot submit until submission.parquet appears from completed version",
+  "v28_version1": {
+    "status": "FAIL",
+    "script_version_id": 364607203,
+    "runtime_seconds": 2567.8,
+    "observed_cause": "local model request read timeouts at budget end, then gameplay evidence gate failed",
+    "public_two_game_mean": 0.01,
+    "ls20_levels_completed": 0,
+    "vc33_levels_completed": 1,
+    "official_score": "UNVERIFIED"
+  },
+  "next_patch": {
+    "tests": 115,
+    "subtests": 16,
+    "scope": "Expired public timeout becomes PARTIAL, early errors still fail public validation; hidden failures retained as PARTIAL while Kaggle scores real actions",
+    "notebook_sha256": "c010f3cde9433b962810c264951098681116c35dd6c7e5067135fa1b8f97fb02",
+    "kaggle_draft_exact_match": true,
+    "source_count": 5
+  },
+  "v29_version4": {
+    "script_version_id": 364690053,
+    "status": "RUNNING",
+    "accelerator": "GPU RTX Pro 6000",
+    "notebook_sha256": "c010f3cde9433b962810c264951098681116c35dd6c7e5067135fa1b8f97fb02",
+    "url": "https://www.kaggle.com/code/drstarck/astra-aion-arc3-v2-9-milestone2?scriptVersionId=364690053"
+  }
+}

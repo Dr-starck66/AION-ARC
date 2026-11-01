@@ -1,0 +1,8 @@
+python -m pytest -q
+115 passed, 16 subtests passed in 0.93s
+
+python scripts/arc3_kaggle_final_run.py
+ASTRA_NOTEBOOK_VALIDATED c010f3cde9433b962810c264951098681116c35dd6c7e5067135fa1b8f97fb02
+ASTRA_DRY_RUN_ONLY
+
+Kaggle draft exported and all 14 code cells exactly matched; five sources present.

@@ -1,0 +1,13 @@
+python -m pytest -q
+110 passed, 12 subtests passed in 0.47s
+
+python scripts/arc3_kaggle_final_run.py
+ASTRA_NOTEBOOK_VALIDATED 902940f130b8ce0e4124bac632a767d855d9b7ab6951d503604682c5b9dccded
+ASTRA_DRY_RUN_ONLY
+
+python scripts/verify_arc3_milestone2_patch.py /workspace/scratch/4dd203098540/duck-harness
+PASS: 34 Python files; embedded sandbox; negative corrupt-EOF control.
+
+Actual upstream patch + graph_install_code integration: PASS
+
+Earlier unittest-discover attempt failed because pytest was missing; installed pytest from registry, then ran full pytest suite above.

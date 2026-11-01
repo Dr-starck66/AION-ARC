@@ -1,0 +1,1609 @@
+Time
+	
+#
+	
+Log Message
+
+4.2s	1	0.00s - Debugger warning: It seems that frozen modules are being used, which may
+
+4.2s	2	0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+
+4.2s	3	0.00s - to python to disable frozen modules.
+
+4.2s	4	0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+
+4.5s	5	0.00s - Debugger warning: It seems that frozen modules are being used, which may
+
+4.5s	6	0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+
+4.5s	7	0.00s - to python to disable frozen modules.
+
+4.5s	8	0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+
+5.2s	9	ASTRA_V28_RUNTIME {"mode": "REAL_PUBLIC_GAMES", "profile": "recovery", "gpu": ["NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887"], "python": "3.12.13", "official_score": "UNVERIFIED", "preserved_submission": 57848621}
+
+5.2s	10	taaf.kaggle: TRUE_SUBMISSION=False
+
+7.9s	11	taaf.kaggle: source bundle = /kaggle/input/datasets/jeroencottaar/taaf-kaggle-source-share
+
+7.9s	12	taaf.kaggle: input paths = {"driessmit1/arc3-vllm-h100-wheelhouse-v3": "/kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3", "driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot": "/kaggle/input/datasets/driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot", "jeroencottaar/taaf-kaggle-source-share": "/kaggle/input/datasets/jeroencottaar/taaf-kaggle-source-share"}
+
+8.0s	13	taaf.kaggle: wrote /usr/local/lib/python3.12/dist-packages/taaf_kaggle_sources.pth (3 source roots)
+
+8.0s	14	taaf.kaggle: setup command: "$PYTHON" - <<'PYSETUP'
+
+8.0s	15	import json
+
+8.0s	16	import os
+
+8.0s	17	import shutil
+
+8.0s	18	import subprocess
+
+8.0s	19	import sys
+
+8.0s	20	import time
+
+8.0s	21	import urllib.request
+
+8.0s	22	from pathlib import Path
+
+8.0s	23	
+
+8.0s	24	WHEELHOUSE_OWNER = 'driessmit1'
+
+8.0s	25	WHEELHOUSE_SLUG = 'arc3-vllm-h100-wheelhouse-v3'
+
+8.0s	26	MODEL_OWNER = 'driessmit1'
+
+8.0s	27	MODEL_SLUG = 'vrfai-qwen3-6-27b-fp8-hf-snapshot'
+
+8.0s	28	SERVED_MODEL_NAME = 'vrfai/Qwen3.6-27B-FP8'
+
+8.0s	29	VLLM_HOST = '127.0.0.1'
+
+8.0s	30	VLLM_PORT = 1234
+
+8.0s	31	VLLM_BASE_URL = f'http://{VLLM_HOST}:{VLLM_PORT}/v1'
+
+8.0s	32	VLLM_MAX_MODEL_LEN = 65536
+
+8.0s	33	ANALYZER_CONTEXT_WINDOW = 32768
+
+8.0s	34	VLLM_TENSOR_PARALLEL_SIZE = 1
+
+8.0s	35	WORKING_DIR = Path(os.environ['TAAF_KAGGLE_WORKING_DIR'])
+
+8.0s	36	SITE_PACKAGES = WORKING_DIR / 'vllm-site-packages'
+
+8.0s	37	VLLM_SERVER_LOG = WORKING_DIR / 'vllm-openai-server.log'
+
+8.0s	38	VLLM_SERVER_PID = WORKING_DIR / 'vllm-openai-server.pid'
+
+8.0s	39	INSTALL_STAMP = SITE_PACKAGES / f'.{WHEELHOUSE_SLUG}'
+
+8.0s	40	STAMP_TEXT = 'vllm==0.19.0 torch==2.10.0 flashinfer==0.6.6\n'
+
+8.0s	41	
+
+8.0s	42	GPU_NAME_PATTERNS = {'rtx-pro-6000': ('rtx pro 6000',), 'h100': ('h100',), 'l4': ('l4',)}
+
+8.0s	43	
+
+8.0s	44	
+
+8.0s	45	def taaf_kaggle_input_paths() -> dict[str, Path]:
+
+8.0s	46	    raw = os.getenv('TAAF_KAGGLE_INPUT_PATHS', '').strip()
+
+8.0s	47	    if not raw:
+
+8.0s	48	        return {}
+
+8.0s	49	    data = json.loads(raw)
+
+8.0s	50	    if not isinstance(data, dict):
+
+8.0s	51	        raise RuntimeError('TAAF_KAGGLE_INPUT_PATHS must contain a JSON object.')
+
+8.0s	52	    return {str(ref): Path(str(path)) for ref, path in data.items()}
+
+8.0s	53	
+
+8.0s	54	
+
+8.0s	55	def resolve_kaggle_dataset_path(owner: str, slug: str) -> Path:
+
+8.0s	56	    mapped = taaf_kaggle_input_paths().get(f'{owner}/{slug}')
+
+8.0s	57	    if mapped is not None:
+
+8.0s	58	        return mapped
+
+8.0s	59	    for dataset_path in (Path('/kaggle/input') / slug, Path('/kaggle/input/datasets') / owner / slug):
+
+8.0s	60	        if dataset_path.exists():
+
+8.0s	61	            return dataset_path
+
+8.0s	62	    return Path('/kaggle/input') / slug
+
+8.0s	63	
+
+8.0s	64	
+
+8.0s	65	WHEELHOUSE = resolve_kaggle_dataset_path(WHEELHOUSE_OWNER, WHEELHOUSE_SLUG)
+
+8.0s	66	MODEL_PATH = resolve_kaggle_dataset_path(MODEL_OWNER, MODEL_SLUG)
+
+8.0s	67	
+
+8.0s	68	
+
+8.0s	69	def assert_expected_cuda_gpu() -> None:
+
+8.0s	70	    if not Path('/kaggle/input').exists():
+
+8.0s	71	        return
+
+8.0s	72	    assert shutil.which('nvidia-smi'), 'CUDA GPU check failed: nvidia-smi is not available.'
+
+8.0s	73	    result = subprocess.run(['nvidia-smi', '--query-gpu=name', '--format=csv,noheader'], capture_output=True, text=True)
+
+8.0s	74	    assert result.returncode == 0, f'nvidia-smi failed: {result.stderr.strip()}'
+
+8.0s	75	    gpu_names = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+
+8.0s	76	    assert gpu_names, 'nvidia-smi did not report any CUDA GPUs.'
+
+8.0s	77	    expected_gpu_type = os.getenv('KAGGLE_GPU_TYPE', 'rtx-pro-6000').strip().lower()
+
+8.0s	78	    expected_count = os.getenv('KAGGLE_GPU_COUNT', '1')
+
+8.0s	79	    if expected_count.isdigit():
+
+8.0s	80	        assert len(gpu_names) == int(expected_count), f'Expected {expected_count} CUDA GPU(s), found {gpu_names}'
+
+8.0s	81	    patterns = GPU_NAME_PATTERNS.get(expected_gpu_type, (expected_gpu_type.replace('-', ' '),))
+
+8.0s	82	    mismatched = [name for name in gpu_names if not any(pattern in name.lower() for pattern in patterns)]
+
+8.0s	83	    assert not mismatched, f'Expected GPU type {expected_gpu_type!r}, found {gpu_names}'
+
+8.0s	84	    print(f'CUDA GPU check passed for {expected_gpu_type} x{expected_count}: {gpu_names}', flush=True)
+
+8.0s	85	
+
+8.0s	86	
+
+8.0s	87	def vllm_env() -> dict[str, str]:
+
+8.0s	88	    env = os.environ.copy()
+
+8.0s	89	    existing = env.get('PYTHONPATH', '')
+
+8.0s	90	    env['PYTHONPATH'] = str(SITE_PACKAGES) if not existing else f'{SITE_PACKAGES}{os.pathsep}{existing}'
+
+8.0s	91	    env.update(
+
+8.0s	92	        {
+
+8.0s	93	            'USE_TF': '0',
+
+8.0s	94	            'TRANSFORMERS_NO_TF': '1',
+
+8.0s	95	            'TRANSFORMERS_NO_TORCHVISION': '1',
+
+8.0s	96	            'VLLM_NO_USAGE_STATS': '1',
+
+8.0s	97	        }
+
+8.0s	98	    )
+
+8.0s	99	    return env
+
+8.0s	100	
+
+8.0s	101	
+
+8.0s	102	def cached_install_is_usable() -> bool:
+
+8.0s	103	    if not INSTALL_STAMP.exists() or INSTALL_STAMP.read_text(encoding='utf-8') != STAMP_TEXT:
+
+8.0s	104	        return False
+
+8.0s	105	    result = subprocess.run(
+
+8.0s	106	        [sys.executable, '-c', "import vllm, torch; print(f'Cached vLLM {vllm.__version__}, torch {torch.__version__}')"],
+
+8.0s	107	        env=vllm_env(),
+
+8.0s	108	        text=True,
+
+8.0s	109	    )
+
+8.0s	110	    return result.returncode == 0
+
+8.0s	111	
+
+8.0s	112	
+
+8.0s	113	def install_vllm_wheelhouse() -> None:
+
+8.0s	114	    requirements = WHEELHOUSE / 'requirements.lock'
+
+8.0s	115	    if not requirements.exists():
+
+8.0s	116	        raise FileNotFoundError(f'Missing wheelhouse lock file: {requirements}')
+
+8.0s	117	    if cached_install_is_usable():
+
+8.0s	118	        print(f'Using cached vLLM target install at {SITE_PACKAGES}', flush=True)
+
+8.0s	119	        return
+
+8.0s	120	    shutil.rmtree(SITE_PACKAGES, ignore_errors=True)
+
+8.0s	121	    SITE_PACKAGES.mkdir(parents=True, exist_ok=True)
+
+8.0s	122	    cmd = [
+
+8.0s	123	        sys.executable,
+
+8.0s	124	        '-m',
+
+8.0s	125	        'pip',
+
+8.0s	126	        'install',
+
+8.0s	127	        '--no-index',
+
+8.0s	128	        '--find-links',
+
+8.0s	129	        str(WHEELHOUSE),
+
+8.0s	130	        '--requirement',
+
+8.0s	131	        str(requirements),
+
+8.0s	132	        '--target',
+
+8.0s	133	        str(SITE_PACKAGES),
+
+8.0s	134	        '--upgrade',
+
+8.0s	135	        '--ignore-installed',
+
+8.0s	136	        '--only-binary',
+
+8.0s	137	        ':all:',
+
+8.0s	138	        '--no-compile',
+
+8.0s	139	        '--disable-pip-version-check',
+
+8.0s	140	        '--no-warn-conflicts',
+
+8.0s	141	    ]
+
+8.0s	142	    print('Installing vLLM wheelhouse into', SITE_PACKAGES, flush=True)
+
+8.0s	143	    subprocess.run(cmd, check=True)
+
+8.0s	144	    INSTALL_STAMP.write_text(STAMP_TEXT, encoding='utf-8')
+
+8.0s	145	
+
+8.0s	146	
+
+8.0s	147	def request_json(url: str, payload: dict | None = None, timeout: int = 30) -> dict:
+
+8.0s	148	    data = None if payload is None else json.dumps(payload).encode('utf-8')
+
+8.0s	149	    request = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
+
+8.0s	150	    with urllib.request.urlopen(request, timeout=timeout) as response:
+
+8.0s	151	        return json.loads(response.read().decode('utf-8'))
+
+8.0s	152	
+
+8.0s	153	
+
+8.0s	154	def tail_server_log(lines: int = 80) -> str:
+
+8.0s	155	    if not VLLM_SERVER_LOG.exists():
+
+8.0s	156	        return ''
+
+8.0s	157	    return '\n'.join(VLLM_SERVER_LOG.read_text(encoding='utf-8', errors='replace').splitlines()[-lines:])
+
+8.0s	158	
+
+8.0s	159	
+
+8.0s	160	def wait_for_vllm_server(timeout_seconds: int = 900) -> None:
+
+8.0s	161	    deadline = time.monotonic() + timeout_seconds
+
+8.0s	162	    url = f'{VLLM_BASE_URL}/models'
+
+8.0s	163	    while time.monotonic() < deadline:
+
+8.0s	164	        if VLLM_SERVER_PID.exists():
+
+8.0s	165	            try:
+
+8.0s	166	                os.kill(int(VLLM_SERVER_PID.read_text().strip()), 0)
+
+8.0s	167	            except OSError as exc:
+
+8.0s	168	                raise RuntimeError(f'vLLM server process is not alive: {exc}\n{tail_server_log()}') from exc
+
+8.0s	169	        try:
+
+8.0s	170	            models = request_json(url, timeout=5)
+
+8.0s	171	            print('vLLM server ready:', models, flush=True)
+
+8.0s	172	            return
+
+8.0s	173	        except Exception:
+
+8.0s	174	            time.sleep(5)
+
+8.0s	175	    raise TimeoutError(f'Timed out waiting for vLLM server at {url}.\nLast server log lines:\n{tail_server_log()}')
+
+8.0s	176	
+
+8.0s	177	
+
+8.0s	178	def start_vllm_server() -> None:
+
+8.0s	179	    install_vllm_wheelhouse()
+
+8.0s	180	    VLLM_SERVER_LOG.parent.mkdir(parents=True, exist_ok=True)
+
+8.0s	181	    VLLM_SERVER_PID.unlink(missing_ok=True)
+
+8.0s	182	    log_handle = VLLM_SERVER_LOG.open('w', encoding='utf-8')
+
+8.0s	183	    cmd = [
+
+8.0s	184	        sys.executable,
+
+8.0s	185	        '-m',
+
+8.0s	186	        'vllm.entrypoints.openai.api_server',
+
+8.0s	187	        '--model',
+
+8.0s	188	        str(MODEL_PATH),
+
+8.0s	189	        '--served-model-name',
+
+8.0s	190	        SERVED_MODEL_NAME,
+
+8.0s	191	        '--host',
+
+8.0s	192	        VLLM_HOST,
+
+8.0s	193	        '--port',
+
+8.0s	194	        str(VLLM_PORT),
+
+8.0s	195	        '--tensor-parallel-size',
+
+8.0s	196	        str(VLLM_TENSOR_PARALLEL_SIZE),
+
+8.0s	197	        '--enable-auto-tool-choice',
+
+8.0s	198	        '--tool-call-parser',
+
+8.0s	199	        'qwen3_coder',
+
+8.0s	200	        '--generation-config',
+
+8.0s	201	        'vllm',
+
+8.0s	202	        '--enable-prefix-caching',
+
+8.0s	203	        '--default-chat-template-kwargs',
+
+8.0s	204	        '{"preserve_thinking": true}',
+
+8.0s	205	        '--reasoning-parser',
+
+8.0s	206	        'qwen3',
+
+8.0s	207	        '--max-model-len',
+
+8.0s	208	        str(VLLM_MAX_MODEL_LEN),
+
+8.0s	209	    ]
+
+8.0s	210	    print('Starting vLLM OpenAI server:', ' '.join(cmd), flush=True)
+
+8.0s	211	    process = subprocess.Popen(cmd, env=vllm_env(), stdout=log_handle, stderr=subprocess.STDOUT, text=True)
+
+8.0s	212	    VLLM_SERVER_PID.write_text(str(process.pid), encoding='utf-8')
+
+8.0s	213	    wait_for_vllm_server()
+
+8.0s	214	
+
+8.0s	215	
+
+8.0s	216	def run_vllm_api_smoke_test() -> None:
+
+8.0s	217	    payload = {
+
+8.0s	218	        'model': SERVED_MODEL_NAME,
+
+8.0s	219	        'messages': [{'role': 'user', 'content': 'Answer in one short sentence: what is 2 + 2?'}],
+
+8.0s	220	        'temperature': 0.0,
+
+8.0s	221	        'max_tokens': 96,
+
+8.0s	222	        'chat_template_kwargs': {'enable_thinking': False},
+
+8.0s	223	    }
+
+8.0s	224	    response = request_json(f'{VLLM_BASE_URL}/chat/completions', payload=payload, timeout=120)
+
+8.0s	225	    generated = response['choices'][0]['message'].get('content', '').strip()
+
+8.0s	226	    print('\n' + '=' * 88, flush=True)
+
+8.0s	227	    print('VLLM OPENAI SERVER QWEN SMOKE TEST REAL MODEL OUTPUT', flush=True)
+
+8.0s	228	    print('Generated:', generated, flush=True)
+
+8.0s	229	    print('=' * 88 + '\n', flush=True)
+
+8.0s	230	
+
+8.0s	231	
+
+8.0s	232	print(f'vLLM wheelhouse path: {WHEELHOUSE}', flush=True)
+
+8.0s	233	print(f'Qwen model path: {MODEL_PATH}', flush=True)
+
+8.0s	234	assert_expected_cuda_gpu()
+
+8.0s	235	missing = [str(path) for path in (WHEELHOUSE, MODEL_PATH) if not path.exists()]
+
+8.0s	236	if missing:
+
+8.0s	237	    raise FileNotFoundError('Missing attached dataset path(s): ' + ', '.join(missing))
+
+8.0s	238	start_vllm_server()
+
+8.0s	239	run_vllm_api_smoke_test()
+
+8.0s	240	setup_env = {
+
+8.0s	241	    'USE_TF': '0',
+
+8.0s	242	    'TRANSFORMERS_NO_TF': '1',
+
+8.0s	243	    'TRANSFORMERS_NO_TORCHVISION': '1',
+
+8.0s	244	    'VLLM_NO_USAGE_STATS': '1',
+
+8.0s	245	    'PYTHONPATH': str(SITE_PACKAGES) + os.pathsep + os.environ.get('PYTHONPATH', ''),
+
+8.0s	246	    'LOCAL_ANALYZER_BASE_URL': VLLM_BASE_URL,
+
+8.0s	247	    'OPENAI_BASE_URL': VLLM_BASE_URL,
+
+8.0s	248	    'LOCAL_ANALYZER_PROVIDER': 'vllm',
+
+8.0s	249	    'OPENAI_PROVIDER': 'vllm',
+
+8.0s	250	    'LOCAL_ANALYZER_MODEL_ID': SERVED_MODEL_NAME,
+
+8.0s	251	    'INFERENCE_ANALYZER_MODEL': SERVED_MODEL_NAME,
+
+8.0s	252	    'LOCAL_ANALYZER_APP_NAME': 'ARC3 Agent Harness',
+
+8.0s	253	    'LOCAL_ANALYZER_CONTEXT_WINDOW': str(ANALYZER_CONTEXT_WINDOW),
+
+8.0s	254	    'LOCAL_ANALYZER_MAX_OUTPUT': '0',
+
+8.0s	255	    'LOCAL_ANALYZER_TOOL_STEPS': '0',
+
+8.0s	256	    'LOCAL_ANALYZER_TOOL_TIMEOUT': '30',
+
+8.0s	257	    'LOCAL_ANALYZER_TOOL_OUTPUT_TOKENS': '1024',
+
+8.0s	258	    'LOCAL_ANALYZER_YIELD_SECONDS': '60',
+
+8.0s	259	    'LOCAL_ANALYZER_TEMPERATURE': '0.6',
+
+8.0s	260	    'LOCAL_ANALYZER_TOP_P': '0.95',
+
+8.0s	261	    'LOCAL_ANALYZER_TOP_K': '20',
+
+8.0s	262	    'LOCAL_ANALYZER_ENABLE_THINKING': 'true',
+
+8.0s	263	    'MULTIMODAL_CONTEXT': 'current_grid',
+
+8.0s	264	    'MULTIMODAL_UPSCALE': '4',
+
+8.0s	265	}
+
+8.0s	266	setup_env_path = Path(os.environ['TAAF_KAGGLE_SETUP_ENV'])
+
+8.0s	267	existing_setup_env = {}
+
+8.0s	268	if setup_env_path.exists():
+
+8.0s	269	    existing_setup_env = json.loads(setup_env_path.read_text(encoding='utf-8'))
+
+8.0s	270	    if not isinstance(existing_setup_env, dict):
+
+8.0s	271	        raise RuntimeError('TAAF_KAGGLE_SETUP_ENV must contain a JSON object.')
+
+8.0s	272	existing_setup_env.update(setup_env)
+
+8.0s	273	setup_env_path.write_text(json.dumps(existing_setup_env, indent=2), encoding='utf-8')
+
+8.0s	274	
+
+8.0s	275	PYSETUP
+
+8.0s	276	vLLM wheelhouse path: /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3
+
+8.0s	277	Qwen model path: /kaggle/input/datasets/driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot
+
+8.0s	278	CUDA GPU check passed for rtx-pro-6000 x1: ['NVIDIA RTX PRO 6000 Blackwell Server Edition']
+
+8.0s	279	Installing vLLM wheelhouse into /kaggle/working/vllm-site-packages
+
+8.1s	280	vLLM wheelhouse path: /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3
+
+8.1s	281	Qwen model path: /kaggle/input/datasets/driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot
+
+8.1s	282	CUDA GPU check passed for rtx-pro-6000 x1: ['NVIDIA RTX PRO 6000 Blackwell Server Edition']
+
+8.1s	283	Installing vLLM wheelhouse into /kaggle/working/vllm-site-packages
+
+8.4s	284	Looking in links: /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3
+
+8.4s	285	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/aiohappyeyeballs-2.6.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 1))
+
+8.4s	286	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/aiohttp-3.13.5-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 2))
+
+8.4s	287	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/aiosignal-1.4.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 3))
+
+8.4s	288	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/annotated_doc-0.0.4-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 4))
+
+8.5s	289	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/annotated_types-0.7.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 5))
+
+8.5s	290	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/anthropic-0.97.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 6))
+
+8.5s	291	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/anyio-4.13.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 7))
+
+8.5s	292	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/apache_tvm_ffi-0.1.10-cp312-abi3-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 8))
+
+8.5s	293	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/astor-0.8.1-py2.py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 9))
+
+8.6s	294	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/attrs-26.1.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 10))
+
+8.6s	295	Looking in links: /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3
+
+8.6s	296	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/aiohappyeyeballs-2.6.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 1))
+
+8.6s	297	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/aiohttp-3.13.5-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 2))
+
+8.6s	298	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/aiosignal-1.4.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 3))
+
+8.6s	299	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/annotated_doc-0.0.4-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 4))
+
+8.6s	300	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/annotated_types-0.7.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 5))
+
+8.6s	301	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/anthropic-0.97.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 6))
+
+8.6s	302	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/anyio-4.13.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 7))
+
+8.6s	303	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/apache_tvm_ffi-0.1.10-cp312-abi3-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 8))
+
+8.6s	304	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/astor-0.8.1-py2.py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 9))
+
+8.6s	305	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/attrs-26.1.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 10))
+
+8.6s	306	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/blake3-1.0.8-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 11))
+
+8.6s	307	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cachetools-7.0.6-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 12))
+
+8.6s	308	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cbor2-6.0.1-cp312-cp312-manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 13))
+
+8.6s	309	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/certifi-2026.4.22-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 14))
+
+8.6s	310	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cffi-2.0.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 15))
+
+8.6s	311	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/charset_normalizer-3.4.7-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 16))
+
+8.7s	312	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/click-8.3.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 17))
+
+8.7s	313	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cloudpickle-3.1.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 18))
+
+8.7s	314	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/compressed_tensors-0.14.0.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 19))
+
+8.7s	315	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cryptography-47.0.0-cp311-abi3-manylinux_2_34_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 20))
+
+8.8s	316	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/blake3-1.0.8-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 11))
+
+8.8s	317	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cachetools-7.0.6-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 12))
+
+8.8s	318	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cbor2-6.0.1-cp312-cp312-manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 13))
+
+8.8s	319	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/certifi-2026.4.22-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 14))
+
+8.8s	320	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cffi-2.0.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 15))
+
+8.8s	321	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/charset_normalizer-3.4.7-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 16))
+
+8.8s	322	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/click-8.3.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 17))
+
+8.8s	323	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cloudpickle-3.1.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 18))
+
+8.8s	324	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/compressed_tensors-0.14.0.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 19))
+
+8.8s	325	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cryptography-47.0.0-cp311-abi3-manylinux_2_34_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 20))
+
+8.8s	326	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cuda_bindings-12.9.4-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 21))
+
+8.9s	327	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cuda_pathfinder-1.5.4-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 22))
+
+8.9s	328	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cuda_python-12.9.4-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 23))
+
+8.9s	329	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/depyf-0.20.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 24))
+
+8.9s	330	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/dill-0.4.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 25))
+
+8.9s	331	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/diskcache-5.6.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 26))
+
+9.0s	332	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/distro-1.9.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 27))
+
+9.0s	333	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/dnspython-2.8.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 28))
+
+9.0s	334	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/docstring_parser-0.18.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 29))
+
+9.0s	335	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cuda_bindings-12.9.4-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 21))
+
+9.0s	336	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cuda_pathfinder-1.5.4-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 22))
+
+9.0s	337	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/cuda_python-12.9.4-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 23))
+
+9.0s	338	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/depyf-0.20.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 24))
+
+9.0s	339	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/dill-0.4.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 25))
+
+9.0s	340	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/diskcache-5.6.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 26))
+
+9.0s	341	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/distro-1.9.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 27))
+
+9.0s	342	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/dnspython-2.8.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 28))
+
+9.0s	343	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/docstring_parser-0.18.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 29))
+
+9.0s	344	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/einops-0.8.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 30))
+
+9.0s	345	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/email_validator-2.3.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 31))
+
+9.0s	346	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/fastapi_cli-0.0.24-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 32))
+
+9.0s	347	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/fastapi_cloud_cli-0.17.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 33))
+
+9.0s	348	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/fastapi-0.136.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 34))
+
+9.1s	349	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/fastar-0.11.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 35))
+
+9.1s	350	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/filelock-3.29.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 36))
+
+9.1s	351	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/flashinfer_cubin-0.6.6-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 37))
+
+9.2s	352	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/einops-0.8.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 30))
+
+9.2s	353	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/email_validator-2.3.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 31))
+
+9.2s	354	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/fastapi_cli-0.0.24-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 32))
+
+9.2s	355	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/fastapi_cloud_cli-0.17.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 33))
+
+9.2s	356	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/fastapi-0.136.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 34))
+
+9.2s	357	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/fastar-0.11.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 35))
+
+9.2s	358	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/filelock-3.29.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 36))
+
+9.2s	359	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/flashinfer_cubin-0.6.6-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 37))
+
+11.5s	360	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/flashinfer_python-0.6.6-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 38))
+
+11.6s	361	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/frozenlist-1.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 39))
+
+11.6s	362	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/fsspec-2026.4.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 40))
+
+11.6s	363	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/gguf-0.18.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 41))
+
+11.6s	364	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/googleapis_common_protos-1.74.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 42))
+
+11.6s	365	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/grpcio-1.80.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 43))
+
+11.7s	366	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/flashinfer_python-0.6.6-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 38))
+
+11.7s	367	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/frozenlist-1.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 39))
+
+11.7s	368	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/fsspec-2026.4.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 40))
+
+11.7s	369	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/gguf-0.18.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 41))
+
+11.7s	370	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/googleapis_common_protos-1.74.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 42))
+
+11.7s	371	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/grpcio-1.80.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 43))
+
+11.7s	372	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/h11-0.16.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 44))
+
+11.7s	373	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/hf_xet-1.4.3-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 45))
+
+11.8s	374	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/httpcore-1.0.9-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 46))
+
+11.8s	375	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/httptools-0.7.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 47))
+
+11.8s	376	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/httpx_sse-0.4.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 48))
+
+11.8s	377	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/httpx-0.28.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 49))
+
+11.8s	378	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/huggingface_hub-0.36.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 50))
+
+11.9s	379	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/idna-3.13-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 51))
+
+11.9s	380	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/ijson-3.5.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 52))
+
+11.9s	381	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/importlib_metadata-8.7.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 53))
+
+11.9s	382	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/interegular-0.3.3-py37-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 54))
+
+11.9s	383	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/h11-0.16.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 44))
+
+11.9s	384	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/hf_xet-1.4.3-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 45))
+
+11.9s	385	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/httpcore-1.0.9-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 46))
+
+11.9s	386	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/httptools-0.7.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 47))
+
+11.9s	387	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/httpx_sse-0.4.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 48))
+
+11.9s	388	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/httpx-0.28.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 49))
+
+11.9s	389	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/huggingface_hub-0.36.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 50))
+
+11.9s	390	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/idna-3.13-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 51))
+
+11.9s	391	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/ijson-3.5.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 52))
+
+11.9s	392	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/importlib_metadata-8.7.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 53))
+
+11.9s	393	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/interegular-0.3.3-py37-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 54))
+
+11.9s	394	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/jinja2-3.1.6-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 55))
+
+11.9s	395	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/jiter-0.14.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 56))
+
+11.9s	396	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/jmespath-1.1.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 57))
+
+12.0s	397	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/jsonschema_specifications-2025.9.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 58))
+
+12.0s	398	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/jsonschema-4.26.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 59))
+
+12.0s	399	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/lark-1.2.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 60))
+
+12.0s	400	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/llguidance-1.3.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 61))
+
+12.0s	401	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/llvmlite-0.44.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 62))
+
+12.1s	402	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/jinja2-3.1.6-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 55))
+
+12.1s	403	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/jiter-0.14.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 56))
+
+12.1s	404	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/jmespath-1.1.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 57))
+
+12.1s	405	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/jsonschema_specifications-2025.9.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 58))
+
+12.1s	406	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/jsonschema-4.26.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 59))
+
+12.1s	407	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/lark-1.2.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 60))
+
+12.1s	408	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/llguidance-1.3.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 61))
+
+12.1s	409	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/llvmlite-0.44.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 62))
+
+12.4s	410	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/lm_format_enforcer-0.11.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 63))
+
+12.5s	411	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/loguru-0.7.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 64))
+
+12.5s	412	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/markdown_it_py-4.0.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 65))
+
+12.5s	413	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 66))
+
+12.5s	414	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/mcp-1.27.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 67))
+
+12.5s	415	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/mdurl-0.1.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 68))
+
+12.5s	416	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/mistral_common-1.11.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 69))
+
+12.6s	417	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/model_hosting_container_standards-0.1.14-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 70))
+
+12.6s	418	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/mpmath-1.3.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 71))
+
+12.6s	419	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/msgspec-0.21.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 72))
+
+12.6s	420	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/lm_format_enforcer-0.11.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 63))
+
+12.6s	421	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/loguru-0.7.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 64))
+
+12.6s	422	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/markdown_it_py-4.0.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 65))
+
+12.6s	423	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 66))
+
+12.6s	424	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/mcp-1.27.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 67))
+
+12.6s	425	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/mdurl-0.1.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 68))
+
+12.6s	426	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/mistral_common-1.11.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 69))
+
+12.6s	427	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/model_hosting_container_standards-0.1.14-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 70))
+
+12.6s	428	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/mpmath-1.3.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 71))
+
+12.6s	429	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/msgspec-0.21.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 72))
+
+12.7s	430	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/multidict-6.7.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 73))
+
+12.7s	431	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/networkx-3.6.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 74))
+
+12.7s	432	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/ninja-1.13.0-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 75))
+
+12.7s	433	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/numba-0.61.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 76))
+
+12.8s	434	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/numpy-2.2.6-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 77))
+
+12.9s	435	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/multidict-6.7.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 73))
+
+12.9s	436	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/networkx-3.6.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 74))
+
+12.9s	437	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/ninja-1.13.0-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 75))
+
+12.9s	438	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/numba-0.61.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 76))
+
+12.9s	439	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/numpy-2.2.6-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 77))
+
+13.0s	440	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cublas_cu12-12.8.4.1-py3-none-manylinux_2_27_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 78))
+
+13.2s	441	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cublas_cu12-12.8.4.1-py3-none-manylinux_2_27_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 78))
+
+18.7s	442	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cuda_cupti_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 79))
+
+18.9s	443	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 80))
+
+18.9s	444	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cuda_cupti_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 79))
+
+18.9s	445	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 80))
+
+19.9s	446	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cuda_runtime_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 81))
+
+19.9s	447	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cudnn_cu12-9.10.2.21-py3-none-manylinux_2_27_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 82))
+
+20.1s	448	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cuda_runtime_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 81))
+
+20.1s	449	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cudnn_cu12-9.10.2.21-py3-none-manylinux_2_27_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 82))
+
+26.8s	450	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cudnn_frontend-1.18.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 83))
+
+26.9s	451	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 84))
+
+27.0s	452	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cudnn_frontend-1.18.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 83))
+
+27.0s	453	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 84))
+
+28.6s	454	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cufile_cu12-1.13.1.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 85))
+
+28.6s	455	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_curand_cu12-10.3.9.90-py3-none-manylinux_2_27_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 86))
+
+28.8s	456	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cufile_cu12-1.13.1.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 85))
+
+28.8s	457	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_curand_cu12-10.3.9.90-py3-none-manylinux_2_27_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 86))
+
+29.3s	458	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cusolver_cu12-11.7.3.90-py3-none-manylinux_2_27_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 87))
+
+29.5s	459	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cusolver_cu12-11.7.3.90-py3-none-manylinux_2_27_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 87))
+
+31.7s	460	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cusparse_cu12-12.5.8.93-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 88))
+
+31.9s	461	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cusparse_cu12-12.5.8.93-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 88))
+
+34.1s	462	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cusparselt_cu12-0.7.1-py3-none-manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 89))
+
+34.3s	463	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cusparselt_cu12-0.7.1-py3-none-manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 89))
+
+36.8s	464	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cutlass_dsl_libs_base-4.5.0.dev0-cp312-cp312-manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 90))
+
+37.0s	465	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cutlass_dsl_libs_base-4.5.0.dev0-cp312-cp312-manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 90))
+
+37.6s	466	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cutlass_dsl-4.5.0.dev0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 91))
+
+37.6s	467	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_ml_py-13.595.45-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 92))
+
+37.6s	468	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_nccl_cu12-2.27.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 93))
+
+37.8s	469	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_cutlass_dsl-4.5.0.dev0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 91))
+
+37.8s	470	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_ml_py-13.595.45-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 92))
+
+37.8s	471	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_nccl_cu12-2.27.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 93))
+
+40.5s	472	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_nvjitlink_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 94))
+
+40.7s	473	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_nvjitlink_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 94))
+
+40.8s	474	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_nvshmem_cu12-3.4.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 95))
+
+41.0s	475	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_nvshmem_cu12-3.4.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 95))
+
+42.1s	476	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_nvtx_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 96))
+
+42.1s	477	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/openai_harmony-0.0.8-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 97))
+
+42.1s	478	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/openai-2.33.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 98))
+
+42.1s	479	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opencv_python_headless-4.13.0.92-cp37-abi3-manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 99))
+
+42.3s	480	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/nvidia_nvtx_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 96))
+
+42.3s	481	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/openai_harmony-0.0.8-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 97))
+
+42.3s	482	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/openai-2.33.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 98))
+
+42.3s	483	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opencv_python_headless-4.13.0.92-cp37-abi3-manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 99))
+
+42.7s	484	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_api-1.41.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 100))
+
+42.8s	485	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_exporter_otlp_proto_common-1.41.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 101))
+
+42.8s	486	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_exporter_otlp_proto_grpc-1.41.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 102))
+
+42.8s	487	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_exporter_otlp_proto_http-1.41.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 103))
+
+42.8s	488	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_exporter_otlp-1.41.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 104))
+
+42.8s	489	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_proto-1.41.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 105))
+
+42.8s	490	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_sdk-1.41.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 106))
+
+42.8s	491	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_semantic_conventions_ai-0.5.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 107))
+
+42.9s	492	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_semantic_conventions-0.62b1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 108))
+
+42.9s	493	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/outlines_core-0.2.11-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 109))
+
+42.9s	494	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/packaging-26.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 110))
+
+42.9s	495	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/partial_json_parser-0.2.1.1.post7-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 111))
+
+42.9s	496	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pillow-12.2.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 112))
+
+42.9s	497	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_api-1.41.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 100))
+
+42.9s	498	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_exporter_otlp_proto_common-1.41.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 101))
+
+42.9s	499	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_exporter_otlp_proto_grpc-1.41.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 102))
+
+42.9s	500	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_exporter_otlp_proto_http-1.41.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 103))
+
+42.9s	501	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_exporter_otlp-1.41.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 104))
+
+42.9s	502	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_proto-1.41.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 105))
+
+42.9s	503	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_sdk-1.41.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 106))
+
+42.9s	504	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_semantic_conventions_ai-0.5.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 107))
+
+42.9s	505	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/opentelemetry_semantic_conventions-0.62b1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 108))
+
+42.9s	506	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/outlines_core-0.2.11-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 109))
+
+42.9s	507	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/packaging-26.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 110))
+
+42.9s	508	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/partial_json_parser-0.2.1.1.post7-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 111))
+
+42.9s	509	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pillow-12.2.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 112))
+
+43.0s	510	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/prometheus_client-0.25.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 113))
+
+43.0s	511	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/prometheus_fastapi_instrumentator-7.1.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 114))
+
+43.0s	512	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/propcache-0.4.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 115))
+
+43.1s	513	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/protobuf-6.33.6-cp39-abi3-manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 116))
+
+43.1s	514	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 117))
+
+43.1s	515	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/py_cpuinfo-9.0.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 118))
+
+43.1s	516	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pybase64-1.4.3-cp312-cp312-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 119))
+
+43.1s	517	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pycountry-26.2.16-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 120))
+
+43.2s	518	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pycparser-3.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 121))
+
+43.2s	519	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/prometheus_client-0.25.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 113))
+
+43.2s	520	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/prometheus_fastapi_instrumentator-7.1.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 114))
+
+43.2s	521	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/propcache-0.4.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 115))
+
+43.2s	522	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/protobuf-6.33.6-cp39-abi3-manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 116))
+
+43.2s	523	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 117))
+
+43.2s	524	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/py_cpuinfo-9.0.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 118))
+
+43.2s	525	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pybase64-1.4.3-cp312-cp312-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 119))
+
+43.2s	526	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pycountry-26.2.16-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 120))
+
+43.2s	527	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pycparser-3.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 121))
+
+43.2s	528	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pydantic_core-2.46.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 122))
+
+43.3s	529	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pydantic_extra_types-2.11.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 123))
+
+43.3s	530	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pydantic_settings-2.14.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 124))
+
+43.3s	531	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pydantic-2.13.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 125))
+
+43.3s	532	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pygments-2.20.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 126))
+
+43.3s	533	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pyjwt-2.12.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 127))
+
+43.4s	534	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/python_dotenv-1.2.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 128))
+
+43.4s	535	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/python_json_logger-4.1.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 129))
+
+43.4s	536	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/python_multipart-0.0.27-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 130))
+
+43.4s	537	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 131))
+
+43.4s	538	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pyzmq-27.1.0-cp312-abi3-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 132))
+
+43.4s	539	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pydantic_core-2.46.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 122))
+
+43.4s	540	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pydantic_extra_types-2.11.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 123))
+
+43.4s	541	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pydantic_settings-2.14.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 124))
+
+43.4s	542	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pydantic-2.13.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 125))
+
+43.4s	543	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pygments-2.20.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 126))
+
+43.4s	544	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pyjwt-2.12.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 127))
+
+43.4s	545	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/python_dotenv-1.2.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 128))
+
+43.4s	546	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/python_json_logger-4.1.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 129))
+
+43.4s	547	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/python_multipart-0.0.27-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 130))
+
+43.4s	548	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 131))
+
+43.4s	549	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/pyzmq-27.1.0-cp312-abi3-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 132))
+
+43.4s	550	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/quack_kernels-0.4.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 133))
+
+43.5s	551	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/referencing-0.37.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 134))
+
+43.5s	552	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/regex-2026.4.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 135))
+
+43.5s	553	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requests-2.33.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 136))
+
+43.5s	554	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/rich_toolkit-0.19.7-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 137))
+
+43.5s	555	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/rich-15.0.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 138))
+
+43.5s	556	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/rignore-0.7.6-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 139))
+
+43.6s	557	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/rpds_py-0.30.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 140))
+
+43.6s	558	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/safetensors-0.7.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 141))
+
+43.6s	559	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/sentencepiece-0.2.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 142))
+
+43.6s	560	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/sentry_sdk-2.58.0-py2.py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 143))
+
+43.6s	561	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/quack_kernels-0.4.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 133))
+
+43.6s	562	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/referencing-0.37.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 134))
+
+43.6s	563	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/regex-2026.4.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 135))
+
+43.6s	564	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requests-2.33.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 136))
+
+43.6s	565	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/rich_toolkit-0.19.7-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 137))
+
+43.6s	566	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/rich-15.0.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 138))
+
+43.6s	567	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/rignore-0.7.6-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 139))
+
+43.6s	568	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/rpds_py-0.30.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 140))
+
+43.6s	569	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/safetensors-0.7.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 141))
+
+43.6s	570	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/sentencepiece-0.2.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 142))
+
+43.6s	571	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/sentry_sdk-2.58.0-py2.py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 143))
+
+43.7s	572	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/setproctitle-1.3.7-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 144))
+
+43.7s	573	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/setuptools-80.10.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 145))
+
+43.7s	574	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/shellingham-1.5.4-py2.py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 146))
+
+43.7s	575	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/six-1.17.0-py2.py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 147))
+
+43.7s	576	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/sniffio-1.3.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 148))
+
+43.7s	577	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/sse_starlette-3.4.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 149))
+
+43.7s	578	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/starlette-0.52.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 150))
+
+43.8s	579	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/supervisor-4.3.0-py2.py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 151))
+
+43.8s	580	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/sympy-1.14.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 152))
+
+43.8s	581	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/tabulate-0.10.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 153))
+
+43.9s	582	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/tiktoken-0.12.0-cp312-cp312-manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 154))
+
+43.9s	583	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/setproctitle-1.3.7-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 144))
+
+43.9s	584	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/setuptools-80.10.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 145))
+
+43.9s	585	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/shellingham-1.5.4-py2.py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 146))
+
+43.9s	586	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/six-1.17.0-py2.py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 147))
+
+43.9s	587	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/sniffio-1.3.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 148))
+
+43.9s	588	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/sse_starlette-3.4.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 149))
+
+43.9s	589	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/starlette-0.52.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 150))
+
+43.9s	590	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/supervisor-4.3.0-py2.py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 151))
+
+43.9s	591	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/sympy-1.14.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 152))
+
+43.9s	592	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/tabulate-0.10.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 153))
+
+43.9s	593	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/tiktoken-0.12.0-cp312-cp312-manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 154))
+
+43.9s	594	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 155))
+
+43.9s	595	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/torch_c_dlpack_ext-0.1.5-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 156))
+
+44.0s	596	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/torch-2.10.0-3-cp312-cp312-manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 157))
+
+44.1s	597	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 155))
+
+44.1s	598	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/torch_c_dlpack_ext-0.1.5-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 156))
+
+44.1s	599	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/torch-2.10.0-3-cp312-cp312-manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 157))
+
+52.4s	600	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/torchaudio-2.10.0-cp312-cp312-manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 158))
+
+52.5s	601	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/torchvision-0.25.0-cp312-cp312-manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 159))
+
+52.5s	602	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/tqdm-4.67.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 160))
+
+52.6s	603	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/transformers-4.57.6-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 161))
+
+52.6s	604	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/torchaudio-2.10.0-cp312-cp312-manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 158))
+
+52.6s	605	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/torchvision-0.25.0-cp312-cp312-manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 159))
+
+52.6s	606	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/tqdm-4.67.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 160))
+
+52.6s	607	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/transformers-4.57.6-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 161))
+
+52.9s	608	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/triton-3.6.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 162))
+
+53.1s	609	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/triton-3.6.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 162))
+
+54.6s	610	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/typer-0.25.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 163))
+
+54.6s	611	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/typing_extensions-4.15.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 164))
+
+54.6s	612	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/typing_inspection-0.4.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 165))
+
+54.6s	613	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/urllib3-2.6.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 166))
+
+54.6s	614	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/uvicorn-0.46.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 167))
+
+54.6s	615	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/uvloop-0.22.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 168))
+
+54.7s	616	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/vllm-0.19.0-cp38-abi3-manylinux_2_31_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 169))
+
+54.8s	617	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/typer-0.25.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 163))
+
+54.8s	618	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/typing_extensions-4.15.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 164))
+
+54.8s	619	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/typing_inspection-0.4.2-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 165))
+
+54.8s	620	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/urllib3-2.6.3-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 166))
+
+54.8s	621	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/uvicorn-0.46.0-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 167))
+
+54.8s	622	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/uvloop-0.22.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 168))
+
+54.8s	623	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/vllm-0.19.0-cp38-abi3-manylinux_2_31_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 169))
+
+58.8s	624	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/watchfiles-1.1.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 170))
+
+58.8s	625	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/websockets-16.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 171))
+
+58.9s	626	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/xgrammar-0.1.34-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 172))
+
+59.0s	627	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/watchfiles-1.1.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 170))
+
+59.0s	628	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/websockets-16.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 171))
+
+59.0s	629	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/xgrammar-0.1.34-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 172))
+
+59.3s	630	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/yarl-1.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 173))
+
+59.3s	631	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/zipp-3.23.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 174))
+
+59.5s	632	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/yarl-1.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 173))
+
+59.5s	633	Processing /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/zipp-3.23.1-py3-none-any.whl (from -r /kaggle/input/datasets/driessmit1/arc3-vllm-h100-wheelhouse-v3/requirements.lock (line 174))
+
+59.6s	634	Installing collected packages: supervisor, py-cpuinfo, nvidia-ml-py, nvidia-cusparselt-cu12, mpmath, zipp, websockets, uvloop, urllib3, typing-extensions, triton, tqdm, tabulate, sympy, sniffio, six, shellingham, setuptools, setproctitle, sentencepiece, safetensors, rpds-py, rignore, regex, pyzmq, PyYAML, python-multipart, python-json-logger, python-dotenv, PyJWT, Pygments, pycparser, pycountry, pybase64, psutil, protobuf, propcache, prometheus-client, pillow, partial-json-parser, packaging, outlines-core, nvidia-nvtx-cu12, nvidia-nvshmem-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufile-cu12, nvidia-cudnn-frontend, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, numpy, ninja, networkx, multidict, msgspec, mdurl, MarkupSafe, loguru, llvmlite, llguidance, lark, jmespath, jiter, interegular, ijson, idna, httpx-sse, httptools, hf-xet, h11, fsspec, frozenlist, flashinfer-cubin, filelock, fastar, einops, docstring-parser, dnspython, distro, diskcache, dill, cuda-pathfinder, cloudpickle, click, charset-normalizer, certifi, cbor2, cachetools, blake3, attrs, astor, annotated-types, annotated-doc, aiohappyeyeballs, yarl, uvicorn, typing-inspection, sentry-sdk, requests, referencing, pydantic_core, opentelemetry-proto, opencv-python-headless, nvidia-cusparse-cu12, nvidia-cufft-cu12, nvidia-cudnn-cu12, numba, markdown-it-py, Jinja2, importlib-metadata, httpcore, grpcio, googleapis-common-protos, email-validator, depyf, cuda-bindings, cffi, apache-tvm-ffi, anyio, aiosignal, watchfiles, tiktoken, starlette, rich, pydantic, opentelemetry-exporter-otlp-proto-common, opentelemetry-api, nvidia-cusolver-cu12, jsonschema-specifications, huggingface-hub, httpx, gguf, cuda-python, cryptography, aiohttp, typer, torch, tokenizers, sse-starlette, rich-toolkit, pydantic-settings, pydantic-extra-types, prometheus-fastapi-instrumentator, opentelemetry-semantic-conventions, openai-harmony, openai, nvidia-cutlass-dsl-libs-base, lm-format-enforcer, jsonschema, fastapi, anthropic, transformers, torchvision, torchaudio, torch-c-dlpack-ext, opentelemetry-sdk, nvidia-cutlass-dsl, model-hosting-container-standards, mcp, fastapi-cloud-cli, fastapi-cli, xgrammar, quack-kernels, opentelemetry-semantic-conventions-ai, opentelemetry-exporter-otlp-proto-http, opentelemetry-exporter-otlp-proto-grpc, mistral_common, flashinfer-python, compressed-tensors, opentelemetry-exporter-otlp, vllm
+
+59.8s	635	Installing collected packages: supervisor, py-cpuinfo, nvidia-ml-py, nvidia-cusparselt-cu12, mpmath, zipp, websockets, uvloop, urllib3, typing-extensions, triton, tqdm, tabulate, sympy, sniffio, six, shellingham, setuptools, setproctitle, sentencepiece, safetensors, rpds-py, rignore, regex, pyzmq, PyYAML, python-multipart, python-json-logger, python-dotenv, PyJWT, Pygments, pycparser, pycountry, pybase64, psutil, protobuf, propcache, prometheus-client, pillow, partial-json-parser, packaging, outlines-core, nvidia-nvtx-cu12, nvidia-nvshmem-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufile-cu12, nvidia-cudnn-frontend, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, numpy, ninja, networkx, multidict, msgspec, mdurl, MarkupSafe, loguru, llvmlite, llguidance, lark, jmespath, jiter, interegular, ijson, idna, httpx-sse, httptools, hf-xet, h11, fsspec, frozenlist, flashinfer-cubin, filelock, fastar, einops, docstring-parser, dnspython, distro, diskcache, dill, cuda-pathfinder, cloudpickle, click, charset-normalizer, certifi, cbor2, cachetools, blake3, attrs, astor, annotated-types, annotated-doc, aiohappyeyeballs, yarl, uvicorn, typing-inspection, sentry-sdk, requests, referencing, pydantic_core, opentelemetry-proto, opencv-python-headless, nvidia-cusparse-cu12, nvidia-cufft-cu12, nvidia-cudnn-cu12, numba, markdown-it-py, Jinja2, importlib-metadata, httpcore, grpcio, googleapis-common-protos, email-validator, depyf, cuda-bindings, cffi, apache-tvm-ffi, anyio, aiosignal, watchfiles, tiktoken, starlette, rich, pydantic, opentelemetry-exporter-otlp-proto-common, opentelemetry-api, nvidia-cusolver-cu12, jsonschema-specifications, huggingface-hub, httpx, gguf, cuda-python, cryptography, aiohttp, typer, torch, tokenizers, sse-starlette, rich-toolkit, pydantic-settings, pydantic-extra-types, prometheus-fastapi-instrumentator, opentelemetry-semantic-conventions, openai-harmony, openai, nvidia-cutlass-dsl-libs-base, lm-format-enforcer, jsonschema, fastapi, anthropic, transformers, torchvision, torchaudio, torch-c-dlpack-ext, opentelemetry-sdk, nvidia-cutlass-dsl, model-hosting-container-standards, mcp, fastapi-cloud-cli, fastapi-cli, xgrammar, quack-kernels, opentelemetry-semantic-conventions-ai, opentelemetry-exporter-otlp-proto-http, opentelemetry-exporter-otlp-proto-grpc, mistral_common, flashinfer-python, compressed-tensors, opentelemetry-exporter-otlp, vllm
+
+110.5s	636	Successfully installed Jinja2-3.1.6 MarkupSafe-3.0.3 PyJWT-2.12.1 PyYAML-6.0.3 Pygments-2.20.0 aiohappyeyeballs-2.6.1 aiohttp-3.13.5 aiosignal-1.4.0 annotated-doc-0.0.4 annotated-types-0.7.0 anthropic-0.97.0 anyio-4.13.0 apache-tvm-ffi-0.1.10 astor-0.8.1 attrs-26.1.0 blake3-1.0.8 cachetools-7.0.6 cbor2-6.0.1 certifi-2026.4.22 cffi-2.0.0 charset-normalizer-3.4.7 click-8.3.3 cloudpickle-3.1.2 compressed-tensors-0.14.0.1 cryptography-47.0.0 cuda-bindings-12.9.4 cuda-pathfinder-1.5.4 cuda-python-12.9.4 depyf-0.20.0 dill-0.4.1 diskcache-5.6.3 distro-1.9.0 dnspython-2.8.0 docstring-parser-0.18.0 einops-0.8.2 email-validator-2.3.0 fastapi-0.136.1 fastapi-cli-0.0.24 fastapi-cloud-cli-0.17.1 fastar-0.11.0 filelock-3.29.0 flashinfer-cubin-0.6.6 flashinfer-python-0.6.6 frozenlist-1.8.0 fsspec-2026.4.0 gguf-0.18.0 googleapis-common-protos-1.74.0 grpcio-1.80.0 h11-0.16.0 hf-xet-1.4.3 httpcore-1.0.9 httptools-0.7.1 httpx-0.28.1 httpx-sse-0.4.3 huggingface-hub-0.36.2 idna-3.13 ijson-3.5.0 importlib-metadata-8.7.1 interegular-0.3.3 jiter-0.14.0 jmespath-1.1.0 jsonschema-4.26.0 jsonschema-specifications-2025.9.1 lark-1.2.2 llguidance-1.3.0 llvmlite-0.44.0 lm-format-enforcer-0.11.3 loguru-0.7.3 markdown-it-py-4.0.0 mcp-1.27.0 mdurl-0.1.2 mistral_common-1.11.1 model-hosting-container-standards-0.1.14 mpmath-1.3.0 msgspec-0.21.1 multidict-6.7.1 networkx-3.6.1 ninja-1.13.0 numba-0.61.2 numpy-2.2.6 nvidia-cublas-cu12-12.8.4.1 nvidia-cuda-cupti-cu12-12.8.90 nvidia-cuda-nvrtc-cu12-12.8.93 nvidia-cuda-runtime-cu12-12.8.90 nvidia-cudnn-cu12-9.10.2.21 nvidia-cudnn-frontend-1.18.0 nvidia-cufft-cu12-11.3.3.83 nvidia-cufile-cu12-1.13.1.3 nvidia-curand-cu12-10.3.9.90 nvidia-cusolver-cu12-11.7.3.90 nvidia-cusparse-cu12-12.5.8.93 nvidia-cusparselt-cu12-0.7.1 nvidia-cutlass-dsl-4.5.0.dev0 nvidia-cutlass-dsl-libs-base-4.5.0.dev0 nvidia-ml-py-13.595.45 nvidia-nccl-cu12-2.27.5 nvidia-nvjitlink-cu12-12.8.93 nvidia-nvshmem-cu12-3.4.5 nvidia-nvtx-cu12-12.8.90 openai-2.33.0 openai-harmony-0.0.8 opencv-python-headless-4.13.0.92 opentelemetry-api-1.41.1 opentelemetry-exporter-otlp-1.41.1 opentelemetry-exporter-otlp-proto-common-1.41.1 opentelemetry-exporter-otlp-proto-grpc-1.41.1 opentelemetry-exporter-otlp-proto-http-1.41.1 opentelemetry-proto-1.41.1 opentelemetry-sdk-1.41.1 opentelemetry-semantic-conventions-0.62b1 opentelemetry-semantic-conventions-ai-0.5.1 outlines-core-0.2.11 packaging-26.2 partial-json-parser-0.2.1.1.post7 pillow-12.2.0 prometheus-client-0.25.0 prometheus-fastapi-instrumentator-7.1.0 propcache-0.4.1 protobuf-6.33.6 psutil-7.2.2 py-cpuinfo-9.0.0 pybase64-1.4.3 pycountry-26.2.16 pycparser-3.0 pydantic-2.13.3 pydantic-extra-types-2.11.1 pydantic-settings-2.14.0 pydantic_core-2.46.3 python-dotenv-1.2.2 python-json-logger-4.1.0 python-multipart-0.0.27 pyzmq-27.1.0 quack-kernels-0.4.1 referencing-0.37.0 regex-2026.4.4 requests-2.33.1 rich-15.0.0 rich-toolkit-0.19.7 rignore-0.7.6 rpds-py-0.30.0 safetensors-0.7.0 sentencepiece-0.2.1 sentry-sdk-2.58.0 setproctitle-1.3.7 setuptools-80.10.2 shellingham-1.5.4 six-1.17.0 sniffio-1.3.1 sse-starlette-3.4.1 starlette-0.52.1 supervisor-4.3.0 sympy-1.14.0 tabulate-0.10.0 tiktoken-0.12.0 tokenizers-0.22.2 torch-2.10.0 torch-c-dlpack-ext-0.1.5 torchaudio-2.10.0 torchvision-0.25.0 tqdm-4.67.3 transformers-4.57.6 triton-3.6.0 typer-0.25.1 typing-extensions-4.15.0 typing-inspection-0.4.2 urllib3-2.6.3 uvicorn-0.46.0 uvloop-0.22.1 vllm-0.19.0 watchfiles-1.1.1 websockets-16.0 xgrammar-0.1.34 yarl-1.23.0 zipp-3.23.1
+
+110.7s	637	Successfully installed Jinja2-3.1.6 MarkupSafe-3.0.3 PyJWT-2.12.1 PyYAML-6.0.3 Pygments-2.20.0 aiohappyeyeballs-2.6.1 aiohttp-3.13.5 aiosignal-1.4.0 annotated-doc-0.0.4 annotated-types-0.7.0 anthropic-0.97.0 anyio-4.13.0 apache-tvm-ffi-0.1.10 astor-0.8.1 attrs-26.1.0 blake3-1.0.8 cachetools-7.0.6 cbor2-6.0.1 certifi-2026.4.22 cffi-2.0.0 charset-normalizer-3.4.7 click-8.3.3 cloudpickle-3.1.2 compressed-tensors-0.14.0.1 cryptography-47.0.0 cuda-bindings-12.9.4 cuda-pathfinder-1.5.4 cuda-python-12.9.4 depyf-0.20.0 dill-0.4.1 diskcache-5.6.3 distro-1.9.0 dnspython-2.8.0 docstring-parser-0.18.0 einops-0.8.2 email-validator-2.3.0 fastapi-0.136.1 fastapi-cli-0.0.24 fastapi-cloud-cli-0.17.1 fastar-0.11.0 filelock-3.29.0 flashinfer-cubin-0.6.6 flashinfer-python-0.6.6 frozenlist-1.8.0 fsspec-2026.4.0 gguf-0.18.0 googleapis-common-protos-1.74.0 grpcio-1.80.0 h11-0.16.0 hf-xet-1.4.3 httpcore-1.0.9 httptools-0.7.1 httpx-0.28.1 httpx-sse-0.4.3 huggingface-hub-0.36.2 idna-3.13 ijson-3.5.0 importlib-metadata-8.7.1 interegular-0.3.3 jiter-0.14.0 jmespath-1.1.0 jsonschema-4.26.0 jsonschema-specifications-2025.9.1 lark-1.2.2 llguidance-1.3.0 llvmlite-0.44.0 lm-format-enforcer-0.11.3 loguru-0.7.3 markdown-it-py-4.0.0 mcp-1.27.0 mdurl-0.1.2 mistral_common-1.11.1 model-hosting-container-standards-0.1.14 mpmath-1.3.0 msgspec-0.21.1 multidict-6.7.1 networkx-3.6.1 ninja-1.13.0 numba-0.61.2 numpy-2.2.6 nvidia-cublas-cu12-12.8.4.1 nvidia-cuda-cupti-cu12-12.8.90 nvidia-cuda-nvrtc-cu12-12.8.93 nvidia-cuda-runtime-cu12-12.8.90 nvidia-cudnn-cu12-9.10.2.21 nvidia-cudnn-frontend-1.18.0 nvidia-cufft-cu12-11.3.3.83 nvidia-cufile-cu12-1.13.1.3 nvidia-curand-cu12-10.3.9.90 nvidia-cusolver-cu12-11.7.3.90 nvidia-cusparse-cu12-12.5.8.93 nvidia-cusparselt-cu12-0.7.1 nvidia-cutlass-dsl-4.5.0.dev0 nvidia-cutlass-dsl-libs-base-4.5.0.dev0 nvidia-ml-py-13.595.45 nvidia-nccl-cu12-2.27.5 nvidia-nvjitlink-cu12-12.8.93 nvidia-nvshmem-cu12-3.4.5 nvidia-nvtx-cu12-12.8.90 openai-2.33.0 openai-harmony-0.0.8 opencv-python-headless-4.13.0.92 opentelemetry-api-1.41.1 opentelemetry-exporter-otlp-1.41.1 opentelemetry-exporter-otlp-proto-common-1.41.1 opentelemetry-exporter-otlp-proto-grpc-1.41.1 opentelemetry-exporter-otlp-proto-http-1.41.1 opentelemetry-proto-1.41.1 opentelemetry-sdk-1.41.1 opentelemetry-semantic-conventions-0.62b1 opentelemetry-semantic-conventions-ai-0.5.1 outlines-core-0.2.11 packaging-26.2 partial-json-parser-0.2.1.1.post7 pillow-12.2.0 prometheus-client-0.25.0 prometheus-fastapi-instrumentator-7.1.0 propcache-0.4.1 protobuf-6.33.6 psutil-7.2.2 py-cpuinfo-9.0.0 pybase64-1.4.3 pycountry-26.2.16 pycparser-3.0 pydantic-2.13.3 pydantic-extra-types-2.11.1 pydantic-settings-2.14.0 pydantic_core-2.46.3 python-dotenv-1.2.2 python-json-logger-4.1.0 python-multipart-0.0.27 pyzmq-27.1.0 quack-kernels-0.4.1 referencing-0.37.0 regex-2026.4.4 requests-2.33.1 rich-15.0.0 rich-toolkit-0.19.7 rignore-0.7.6 rpds-py-0.30.0 safetensors-0.7.0 sentencepiece-0.2.1 sentry-sdk-2.58.0 setproctitle-1.3.7 setuptools-80.10.2 shellingham-1.5.4 six-1.17.0 sniffio-1.3.1 sse-starlette-3.4.1 starlette-0.52.1 supervisor-4.3.0 sympy-1.14.0 tabulate-0.10.0 tiktoken-0.12.0 tokenizers-0.22.2 torch-2.10.0 torch-c-dlpack-ext-0.1.5 torchaudio-2.10.0 torchvision-0.25.0 tqdm-4.67.3 transformers-4.57.6 triton-3.6.0 typer-0.25.1 typing-extensions-4.15.0 typing-inspection-0.4.2 urllib3-2.6.3 uvicorn-0.46.0 uvloop-0.22.1 vllm-0.19.0 watchfiles-1.1.1 websockets-16.0 xgrammar-0.1.34 yarl-1.23.0 zipp-3.23.1
+
+114.7s	638	Starting vLLM OpenAI server: /usr/bin/python3 -m vllm.entrypoints.openai.api_server --model /kaggle/input/datasets/driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot --served-model-name vrfai/Qwen3.6-27B-FP8 --host 127.0.0.1 --port 1234 --tensor-parallel-size 1 --enable-auto-tool-choice --tool-call-parser qwen3_coder --generation-config vllm --enable-prefix-caching --default-chat-template-kwargs {"preserve_thinking": true} --reasoning-parser qwen3 --max-model-len 65536
+
+114.9s	639	Starting vLLM OpenAI server: /usr/bin/python3 -m vllm.entrypoints.openai.api_server --model /kaggle/input/datasets/driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot --served-model-name vrfai/Qwen3.6-27B-FP8 --host 127.0.0.1 --port 1234 --tensor-parallel-size 1 --enable-auto-tool-choice --tool-call-parser qwen3_coder --generation-config vllm --enable-prefix-caching --default-chat-template-kwargs {"preserve_thinking": true} --reasoning-parser qwen3 --max-model-len 65536
+
+734.7s	640	vLLM server ready: {'object': 'list', 'data': [{'id': 'vrfai/Qwen3.6-27B-FP8', 'object': 'model', 'created': 1793551636, 'owned_by': 'vllm', 'root': '/kaggle/input/datasets/driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot', 'parent': None, 'max_model_len': 65536, 'permission': [{'id': 'modelperm-8f1b8b0fe539b13a', 'object': 'model_permission', 'created': 1793551636, 'allow_create_engine': False, 'allow_sampling': True, 'allow_logprobs': True, 'allow_search_indices': False, 'allow_view': True, 'allow_fine_tuning': False, 'organization': '*', 'group': None, 'is_blocking': False}]}]}
+
+734.9s	641	vLLM server ready: {'object': 'list', 'data': [{'id': 'vrfai/Qwen3.6-27B-FP8', 'object': 'model', 'created': 1793551636, 'owned_by': 'vllm', 'root': '/kaggle/input/datasets/driessmit1/vrfai-qwen3-6-27b-fp8-hf-snapshot', 'parent': None, 'max_model_len': 65536, 'permission': [{'id': 'modelperm-8f1b8b0fe539b13a', 'object': 'model_permission', 'created': 1793551636, 'allow_create_engine': False, 'allow_sampling': True, 'allow_logprobs': True, 'allow_search_indices': False, 'allow_view': True, 'allow_fine_tuning': False, 'organization': '*', 'group': None, 'is_blocking': False}]}]}
+
+757.4s	642	
+
+757.4s	643	========================================================================================
+
+757.4s	644	VLLM OPENAI SERVER QWEN SMOKE TEST REAL MODEL OUTPUT
+
+757.4s	645	Generated: 2 + 2 equals 4.
+
+757.4s	646	========================================================================================
+
+757.4s	647	
+
+757.4s	648	
+
+757.4s	649	========================================================================================
+
+757.4s	650	VLLM OPENAI SERVER QWEN SMOKE TEST REAL MODEL OUTPUT
+
+757.4s	651	Generated: 2 + 2 equals 4.
+
+757.4s	652	========================================================================================
+
+757.4s	653	
+
+757.7s	654	AION-ARC v2.1 overlay PASS: /kaggle/working/aion_arc_v21_overlay
+
+757.7s	655	AION-ARC v2.2 scientific runtime extension PASS
+
+757.7s	656	ASTRA ACTION-EFFICIENCY Ω runtime governor PASS
+
+757.8s	657	ASTRA HYPOTHESIS TOURNAMENT Ω runtime layer PASS
+
+757.8s	658	AION-ARC v2.5 TEMPORAL CONSISTENCY GATE Ω: PASS
+
+757.8s	659	AION-ARC v2.3 HOST ENFORCEMENT Ω: PASS
+
+757.8s	660	AION-ARC v2.3 HOST ENFORCEMENT Ω: PASS
+
+757.8s	661	AION-ARC v2.4 PERSISTENT HOST MEMORY Ω: PASS
+
+757.8s	662	AION-ARC V2.6 RECOVERY PATCH: PASS (static application only; Kaggle score UNVERIFIED)
+
+757.8s	663	ASTRA_V28_PATCH_COMPILE_PASS
+
+758.9s	664	benchmark.label : duck-harness-kaggle
+
+758.9s	665	benchmark.solver: HarnessSolver(label='duck-harness', runtime_environment=None, job_dir=None, soft_end_time=None, minimal_diagnostics=False, model='local', analyzer_timeout=900.0, max_actions_per_game=None, max_runtime_s_per_game=7920.0, concurrency=28, save_request_logs=False, start_local_server=False, local_server_config='', local_server_api_key_file='', local_server_repo_dir='/Users/jeroencottaar/code/ARC3-Inference', local_server_port=None, local_server_tensor_parallel_size=None, local_server_count=1, cancel_drain_timeout_s=120.0)
+
+758.9s	666	benchmark.passes: 1
+
+758.9s	667	benchmark.games : 25
+
+758.9s	668	git status:
+
+758.9s	669	  ARC3-Inference                   aa69123     DIRTY  add-kaggle-share-flag     Add flag to use shareable notebook
+
+758.9s	670	  tufa-arc-agi-framework           fe9f7c4     clean  submission-share-mode-bugfix  Fix dataset mapping, spell Isaiah's name properly
+
+758.9s	671	  re-arc-3                         57e46d619d  pinned  master                    (non-editable)
+
+758.9s	672	ASTRA_PUBLIC_GAMES ['ls20-9607627b', 'vc33-5430563c']
+
+1359.9s	673	benchmark: regenerated diagnostics in /kaggle/working in 0.44s
+
+1359.9s	674	benchmark: duck-harness-kaggle
+
+1359.9s	675	solver:    duck-harness
+
+1359.9s	676	games:     2
+
+1359.9s	677	passes:    1
+
+1359.9s	678	runs:      2 (won: 0)
+
+1359.9s	679	started:   2026-11-01 16:47:41
+
+1359.9s	680	ended:     in progress
+
+1359.9s	681	mean score:    0.00
+
+1359.9s	682	median score:  0.00
+
+1359.9s	683	total actions: 79
+
+1359.9s	684	total tokens:  32099
+
+1359.9s	685	generated tokens/sec: 53.43 (job wallclock)
+
+1359.9s	686	total wallclock: 1050.6s
+
+1359.9s	687	
+
+1359.9s	688	per-game (mean across passes):
+
+1359.9s	689	  ls20-9607627b: score=0.00, levels=0.0/7, actions=8, tokens=14798
+
+1359.9s	690	  vc33-5430563c: score=0.00, levels=0.0/7, actions=71, tokens=17301
+
+1359.9s	691	
+
+1960.4s	692	benchmark: regenerated diagnostics in /kaggle/working in 0.39s
+
+1960.4s	693	benchmark: duck-harness-kaggle
+
+1960.4s	694	solver:    duck-harness
+
+1960.4s	695	games:     2
+
+1960.4s	696	passes:    1
+
+1960.4s	697	runs:      2 (won: 0)
+
+1960.4s	698	started:   2026-11-01 16:47:41
+
+1960.4s	699	ended:     in progress
+
+1960.4s	700	mean score:    0.00
+
+1960.4s	701	median score:  0.00
+
+1960.4s	702	total actions: 121
+
+1960.4s	703	total tokens:  72512
+
+1960.4s	704	generated tokens/sec: 60.37 (job wallclock)
+
+1960.4s	705	total wallclock: 2364.5s
+
+1960.4s	706	
+
+1960.4s	707	per-game (mean across passes):
+
+1960.4s	708	  ls20-9607627b: score=0.00, levels=0.0/7, actions=42, tokens=36827
+
+1960.4s	709	  vc33-5430563c: score=0.00, levels=0.0/7, actions=79, tokens=35685
+
+1960.4s	710	
+
+2559.0s	711	analyzer request failed at action 50: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=45.70266)
+
+2559.0s	712	
+
+2559.0s	713	analyzer request failed at action 50: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=45.70266)
+
+2559.0s	714	analyzer request failed at action 91: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=37.09774)
+
+2559.0s	715	
+
+2559.0s	716	analyzer request failed at action 91: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=37.09774)
+
+2560.2s	717	[finished] ls20-9607627b state=cancelled level=0/7 score=0.00 actions=49 tokens=54692 per-level=49/22,0/123,0/73,0/84,0/96,0/192,0/186 note="tokens=54692"
+
+2560.2s	718	[finished] vc33-5430563c state=cancelled level=1/7 score=0.02 actions=90 tokens=53208 per-level=90/7,0/18,0/44,0/61,0/131,0/34,0/152 note="tokens=53208"
+
+2561.0s	719	benchmark: regenerated diagnostics in /kaggle/working in 0.94s
+
+2561.0s	720	benchmark: duck-harness-kaggle
+
+2561.0s	721	solver:    duck-harness
+
+2561.0s	722	games:     2
+
+2561.0s	723	passes:    1
+
+2561.0s	724	runs:      2 (won: 0)
+
+2561.0s	725	started:   2026-11-01 16:47:41
+
+2561.0s	726	ended:     2026-11-01 17:17:42
+
+2561.0s	727	duration:  30m 1s
+
+2561.0s	728	mean score:    0.01
+
+2561.0s	729	median score:  0.01
+
+2561.0s	730	total actions: 139
+
+2561.0s	731	total tokens:  107900
+
+2561.0s	732	generated tokens/sec: 59.91 (job wallclock)
+
+2561.0s	733	total wallclock: 3601.8s
+
+2561.0s	734	
+
+2561.0s	735	per-game (mean across passes):
+
+2561.0s	736	  ls20-9607627b: score=0.00, levels=0.0/7, actions=49, tokens=54692
+
+2561.0s	737	  vc33-5430563c: score=0.02, levels=1.0/7, actions=90, tokens=53208
+
+2561.0s	738	
+
+2561.0s	739	diagnostics: /kaggle/working/diagnostics.html
+
+2561.0s	740	taaf.kaggle: teardown command: "$PYTHON" - <<'PYTEARDOWN'
+
+2561.0s	741	import os
+
+2561.0s	742	import shutil
+
+2561.0s	743	import signal
+
+2561.0s	744	import time
+
+2561.0s	745	from pathlib import Path
+
+2561.0s	746	
+
+2561.0s	747	WORKING_DIR = Path(os.environ['TAAF_KAGGLE_WORKING_DIR'])
+
+2561.0s	748	pid_path = WORKING_DIR / 'vllm-openai-server.pid'
+
+2561.0s	749	site_packages = WORKING_DIR / 'vllm-site-packages'
+
+2561.0s	750	if pid_path.exists():
+
+2561.0s	751	    try:
+
+2561.0s	752	        pid = int(pid_path.read_text(encoding='utf-8').strip())
+
+2561.0s	753	        print('Stopping vLLM server', flush=True)
+
+2561.0s	754	        os.kill(pid, signal.SIGTERM)
+
+2561.0s	755	        deadline = time.monotonic() + 30
+
+2561.0s	756	        while time.monotonic() < deadline:
+
+2561.0s	757	            try:
+
+2561.0s	758	                os.kill(pid, 0)
+
+2561.0s	759	            except OSError:
+
+2561.0s	760	                break
+
+2561.0s	761	            time.sleep(1)
+
+2561.0s	762	        else:
+
+2561.0s	763	            os.kill(pid, signal.SIGKILL)
+
+2561.0s	764	    except Exception as exc:
+
+2561.0s	765	        print(f'Could not stop vLLM server cleanly: {exc!r}', flush=True)
+
+2561.0s	766	    pid_path.unlink(missing_ok=True)
+
+2561.0s	767	shutil.rmtree(site_packages, ignore_errors=True)
+
+2561.0s	768	print(f'Removed temporary vLLM install at {site_packages}', flush=True)
+
+2561.0s	769	
+
+2561.0s	770	PYTEARDOWN
+
+2561.0s	771	Stopping vLLM server
+
+2561.2s	772	Stopping vLLM server
+
+2563.7s	773	Removed temporary vLLM install at /kaggle/working/vllm-site-packages
+
+2563.8s	774	Removed temporary vLLM install at /kaggle/working/vllm-site-packages
+
+2564.1s	775	Traceback (most recent call last):
+
+2564.1s	776	  File "<string>", line 1, in <module>
+
+2564.1s	777	  File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 131, in execute_notebook
+
+2564.1s	778	    raise_for_execution_errors(nb, output_path)
+
+2564.1s	779	  File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 251, in raise_for_execution_errors
+
+2564.1s	780	    raise error
+
+2564.1s	781	papermill.exceptions.PapermillExecutionError: 
+
+2564.1s	782	---------------------------------------------------------------------------
+
+2564.1s	783	Exception encountered at "In [19]":
+
+2564.1s	784	---------------------------------------------------------------------------
+
+2564.1s	785	RuntimeError                              Traceback (most recent call last)
+
+2564.1s	786	/tmp/ipykernel_65/884229894.py in <cell line: 1>()
+
+2564.1s	787	----> 1 await eval(compile("# Build the live competition game list from the gateway's available environments.\ndef _competition_games():\n    import arc_agi\n\n    import taaf.game_api\n\n    spec = taaf.game_api.ArcadeSpec(\n        operation_mode=arc_agi.OperationMode.COMPETITION,\n        arc_base_url=os.environ[\"ARC_BASE_URL\"],\n        environments_dir=\"\",\n    )\n    arcade = arc_agi.Arcade(\n        operation_mode=arc_agi.OperationMode.COMPETITION,\n        arc_base_url=spec.arc_base_url,\n        environments_dir=\"\",\n    )\n    game_ids = [env_info.game_id for env_info in arcade.available_environments]\n    if not game_ids:\n        raise RuntimeError(\"Competition Arcade exposed zero environments.\")\n    return [taaf.game_api.GameAPI(env_name=game_id, arcade_spec=spec) for game_id in game_ids]\n\n\n# Build the offline game list from the competition's bundled environment files.\ndef _offline_games(env_dir: str):\n    import arc_agi\n\n    import taaf.game_api\n\n    spec = taaf.game_api.ArcadeSpec(operation_mode=arc_agi.OperationMode.OFFLINE, environments_dir=env_dir)\n    arcade = arc_agi.Arcade(operation_mode=arc_agi.OperationMode.OFFLINE, environments_dir=env_dir)\n    game_ids = [env_info.game_id for env_info in arcade.available_environments]\n    if not game_ids:\n        raise RuntimeError(f\"No offline environments found under {env_dir}.\")\n    return [taaf.game_api.GameAPI(env_name=game_id, arcade_spec=spec) for game_id in game_ids]\n\n\n# The gateway can take a while to come up; poll until it answers.\ndef _wait_for_gateway(base_url: str, timeout_s: float = 600.0) -> None:\n    deadline = time.monotonic() + timeout_s\n    last_error = \"\"\n    while time.monotonic() < deadline:\n        try:\n            with urlopen(f\"{base_url}api/games\", timeout=10) as response:\n                if response.status < 500:\n                    return\n        except Exception as exc:\n            last_error = repr(exc)\n        time.sleep(5)\n    raise RuntimeError(f\"Kaggle gateway did not become ready: {last_error}\")\n\n\n# Print the run preamble and persist the launcher's git status for diagnostics.\nprint((BUNDLE_DIR / \"preamble.txt\").read_text())\n(WORKING_DIR / \"git_status.txt\").write_text((BUNDLE_DIR / \"git_status.txt\").read_text())\n\n# arc_agi reads RECORDINGS_DIR and ARC_API_KEY from env (ArcadeSpec carries neither); operation\n# mode, environments dir, and base url are all passed explicitly via the spec, so no env is needed.\nos.environ.setdefault(\"RECORDINGS_DIR\", str(WORKING_DIR / \"server_recording\"))\n\nif TRUE_SUBMISSION:\n    # Real submission: play the live competition Arcade served by the Kaggle gateway.\n    os.environ.setdefault(\"ARC_API_KEY\", \"test-key-123\")\n    os.environ.setdefault(\"ARC_BASE_URL\", \"http://gateway:8001/\")\n    # The gateway boots asynchronously; wait before swapping in its game list.\n    _wait_for_gateway(os.environ[\"ARC_BASE_URL\"])\n    bm.games = _competition_games()\nelse:\n    # Interactive run: play the bundled competition environments offline (no gateway).\n    # The competition's environment files ship alongside the wheelhouse in the competition dataset.\n    competition_env_files = str(Path(str(ASTRA_COMPETITION_ROOT / \"arc_agi_3_wheels\")).parent / \"environment_files\")\n    bm.games = _offline_games(competition_env_files)\n\nif not TRUE_SUBMISSION:\n    wanted = set(ASTRA_PUBLIC_GAMES)\n    bm.games = sorted((g for g in bm.games if g.env_name.split(\"-\", 1)[0] in wanted), key=lambda g: g.env_name)\n    if {g.env_name.split(\"-\", 1)[0] for g in bm.games} != wanted:\n        raise RuntimeError(\"One or more requested public validation games are missing\")\n    print(\"ASTRA_PUBLIC_GAMES\", [g.env_name for g in bm.games], flush=True)\n\nbm.n_passes = 1\nbm.game_weights = None\n\n# Outside a real submission, stop ~10 min before the wall-clock budget for a graceful exit.\nsoft_end = None\nif not TRUE_SUBMISSION:\n    budget = float(ASTRA_PUBLIC_BUDGET_S + 600)\n    if budget > 0:\n        soft_end = datetime.now() + timedelta(seconds=budget - min(600.0, budget / 2))\n\n# Play the benchmark; teardown commands run even if the run raises.\ntry:\n    await bm.run(soft_end_time=soft_end, runtime_environment=target, minimal_diagnostics=TRUE_SUBMISSION)\n    _astra_validate(bm)\n    if not TRUE_SUBMISSION:\n        # An offline run isn't scored, but Kaggle still expects a submission.parquet output.\n        import pandas as pd\n\n        pd.DataFrame(\n            [[\"1_0\", \"1\", True, 1]],\n            columns=[\"row_id\", \"game_id\", \"end_of_game\", \"score\"],\n        ).to_parquet(WORKING_DIR / \"submission.parquet\", index=False)\nfinally:\n    for command in json.loads((BUNDLE_DIR / \"teardown_commands.json\").read_text()):\n        print(f\"taaf.kaggle: teardown command: {command}\", flush=True)\n        subprocess.run(command, shell=True, check=False, cwd=WORKING_DIR, env=_command_env())", 'astra-v28-original-24', "exec", flags=__import__("ast").PyCF_ALLOW_TOP_LEVEL_AWAIT), globals())
+
+2564.1s	788	
+
+2564.1s	789	astra-v28-original-24 in <module>
+
+2564.1s	790	
+
+2564.1s	791	astra-v28-instrumentation in _astra_validate(benchmark)
+
+2564.1s	792	
+
+2564.1s	793	RuntimeError: ASTRA gameplay gate failed; see astra_runtime_evidence.json
+
+2564.1s	794	
+
+2565.2s	795	/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+
+2565.2s	796	  cells[i][c] = re.sub('\\\\\|', '|', cell)
+
+2565.3s	797	/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+
+2565.3s	798	  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+
+2565.7s	799	[NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+
+2565.8s	800	[NbConvertApp] Writing 199267 bytes to __notebook__.ipynb
+
+2567.0s	801	[NbConvertApp] Converting notebook __notebook__.ipynb to html
+
+2567.4s	802	[NbConvertApp] Writing 645745 bytes to __results__.html

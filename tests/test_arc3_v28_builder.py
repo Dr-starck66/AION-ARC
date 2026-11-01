@@ -137,12 +137,13 @@ class RuntimeEvidenceTests(unittest.TestCase):
                 self.assertEqual(evidence["model_responses"], 0)
                 self.assertEqual(evidence["errors"], ["model:EmptyAssistantResponse"])
 
-    def validate(self, actions, responses, state="gave_up", errors=None):
+    def validate(self, actions, responses, state="gave_up", errors=None, *, hidden=False, budget_timeouts=None):
         with tempfile.TemporaryDirectory() as tmp:
             work = pathlib.Path(tmp)
             (work / "submission.parquet").write_bytes(b"demo file is not evidence")
-            scope = {"json":json, "WORKING_DIR":work, "ASTRA_PROFILE":"recovery", "TRUE_SUBMISSION":False,
-                     "ASTRA_EVIDENCE":{"environment_actions":actions, "model_responses":responses, "errors":errors or []}}
+            scope = {"json":json, "WORKING_DIR":work, "ASTRA_PROFILE":"recovery", "TRUE_SUBMISSION":hidden,
+                     "ASTRA_EVIDENCE":{"environment_actions":actions, "model_responses":responses,
+                                       "errors":errors or [], "budget_timeouts":budget_timeouts or []}}
             validate = self.extract("_astra_validate", scope)
             run = types.SimpleNamespace(to_json_dict=lambda:{"game_id":"unit-control", "state":state})
             try:
@@ -171,6 +172,51 @@ class RuntimeEvidenceTests(unittest.TestCase):
         self.assertFalse(raised)
         self.assertEqual(report["official_score"], "UNVERIFIED")
         self.assertIn("not an official Kaggle score", report["scope"])
+
+    def test_expected_public_budget_stop_is_partial_never_full_pass(self):
+        raised, report = self.validate(99, 50, state="cancelled", budget_timeouts=["ReadTimeout"])
+        self.assertFalse(raised)
+        self.assertEqual(report["status"], "PARTIAL")
+        self.assertEqual(report["budget_timeouts"], ["ReadTimeout"])
+
+    def test_early_public_timeout_still_blocks_validation(self):
+        raised, report = self.validate(99, 50, state="cancelled", errors=["model:ReadTimeout"])
+        self.assertTrue(raised)
+        self.assertEqual(report["status"], "FAIL")
+
+    def test_hidden_failures_are_preserved_and_not_relabelled_pass(self):
+        raised, report = self.validate(99, 50, state="crashed", errors=["model:ReadTimeout"], hidden=True)
+        self.assertFalse(raised)
+        self.assertEqual(report["status"], "PARTIAL")
+        self.assertEqual(report["crashed_games"], ["unit-control"])
+        self.assertEqual(report["errors"], ["model:ReadTimeout"])
+        self.assertEqual(report["official_score"], "UNVERIFIED")
+
+    def test_hidden_no_real_gameplay_still_fails(self):
+        raised, report = self.validate(0, 0, hidden=True)
+        self.assertTrue(raised)
+        self.assertEqual(report["status"], "FAIL")
+
+    def test_budget_timeout_classifier_requires_expired_public_deadline(self):
+        class ReadTimeout(Exception):
+            pass
+        def timeout(*args, **kwargs):
+            raise ReadTimeout()
+        agent = types.SimpleNamespace(_model=types.SimpleNamespace(base_url="http://127.0.0.1:8001/v1"))
+        for hidden, deadline, expected in ((False, 99, True), (False, 101, False), (False, None, False), (True, 99, False)):
+            with self.subTest(hidden=hidden, deadline=deadline):
+                events = []
+                evidence = {"model_responses":0,"errors":[]}
+                scope = {"functools":functools, "urlparse":urlparse, "_astra_original_chat":timeout,
+                         "ASTRA_TRACE_LOCK":threading.Lock(), "ASTRA_EVIDENCE":evidence,
+                         "TRUE_SUBMISSION":hidden,"ASTRA_PUBLIC_STOP_DEADLINE":deadline,
+                         "time":types.SimpleNamespace(monotonic=lambda:100), "_astra_event":events.append}
+                call = self.extract("_astra_chat", scope)
+                with self.assertRaises(ReadTimeout):
+                    call(agent)
+                self.assertEqual(bool(evidence.get("budget_timeouts")), expected)
+                self.assertEqual(events[0]["expected_public_budget_stop"], expected)
+                self.assertEqual(bool(evidence["errors"]), not expected)
 
 
 if __name__ == "__main__":

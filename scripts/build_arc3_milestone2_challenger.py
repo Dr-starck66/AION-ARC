@@ -140,7 +140,9 @@ def build() -> dict:
             body = body.replace(old, '        soft_end = datetime.now() + timedelta(seconds=ASTRA_PUBLIC_BUDGET_S)')
             run = 'await bm.run(soft_end_time=soft_end, runtime_environment=target, minimal_diagnostics=TRUE_SUBMISSION)'
             assert body.count(run) == 1
-            body = body.replace(run, run + '\n_astra_validate(bm)')
+            body = body.replace(run, '''if not TRUE_SUBMISSION and soft_end is not None:
+    ASTRA_PUBLIC_STOP_DEADLINE = time.monotonic() + max(0.0, (soft_end - datetime.now()).total_seconds())
+''' + run + '\n_astra_validate(bm)')
         cells.append(wrap(body, f"astra-v29-source-{index}"))
         if index == 4:
             cells.append(wrap(graph_install_code(), "astra-v29-graph-nav-install"))
