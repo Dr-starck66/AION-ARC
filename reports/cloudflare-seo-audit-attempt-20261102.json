@@ -44,5 +44,36 @@
   "monitoring_worker_modified": false,
   "secrets_exposed": false,
   "money_spent": 0,
-  "next_blocker": "An authorized Cloudflare connection or already-provisioned RUN_TOKEN must become available to this execution environment; then issue one read-only POST /v1/mission and store its actual JSON response."
+  "next_blocker": "An authorized Cloudflare connection or already-provisioned RUN_TOKEN must become available to this execution environment; then issue one read-only POST /v1/mission and store its actual JSON response.",
+  "authorized_access_recovery_20261102": {
+    "status": "PARTIAL",
+    "verified_at_local": "2026-11-02T15:58:00+01:00",
+    "discovered_existing_infrastructure": {
+      "repository": "Dr-starck66/indexation",
+      "isolated_worker_config": "tools/astra-cloud-browser/wrangler.toml",
+      "isolated_worker_procedure": "tools/astra-cloud-browser/CLOUDFLARE_DEPLOY.md",
+      "existing_live_proof_script": "tools/astra-cloud-browser/verify-live.mjs",
+      "existing_shared_worker_bridge": "tools/astra-free-workers/browser-bridge.mjs",
+      "target_domain": "https://betgpt.live/",
+      "isolation_requirement": "Never alter the existing monitoring Worker"
+    },
+    "authorized_access_probe": {
+      "cf_connector_available": false,
+      "cloudflare_plugin_found": false,
+      "env_credential_names_present": [],
+      "persisted_wrangler_login_found": false,
+      "wrangler_cli_found": false,
+      "public_endpoint_http_verified": false,
+      "dns_test": "DNS resolution unavailable for worker hostnames AND example.com; network egress cannot establish deployment status"
+    },
+    "historical_deployment_evidence": {
+      "independent_isolated_worker_production": "UNVERIFIED",
+      "existing_shared_worker_historical_url": "https://astra-free-workers-omega.dr-starck66.workers.dev",
+      "caution": "Previous browser code commits and local Chromium tests do not prove isolated Worker deployed or RUN_TOKEN provisioned."
+    },
+    "action_taken": "Reused the existing deployment proof procedure and retained the existing failed-attempt receipt; no duplicate Worker, token, task or paid resource created.",
+    "authenticated_request_sent": false,
+    "actual_chromium_cloudflare_mission": "UNVERIFIED",
+    "single_blocker": "An authorized Cloudflare control-plane session or API credential is needed to deploy or verify the isolated Worker and provision/read RUN_TOKEN through an approved secret workflow."
+  }
 }
