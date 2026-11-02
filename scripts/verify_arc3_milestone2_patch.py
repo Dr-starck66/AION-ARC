@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import importlib.util
 import json
 import shutil
 import subprocess
@@ -38,8 +39,29 @@ def verify(upstream: Path) -> dict:
         bootstrap = next(n.value for n in ast.walk(assignment.value)
             if isinstance(n, ast.Constant) and isinstance(n.value, str) and "def main():" in n.value)
         compile(textwrap.dedent(bootstrap), "milestone2-embedded-bootstrap", "exec")
+        guard_file = root / "ARC3-Inference/inference/agent/noop_repeat_guard.py"
+        spec = importlib.util.spec_from_file_location("astra_reviewed_noop_guard", guard_file)
+        guard_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(guard_module)
+        guard = guard_module.NoopRepeatGuard()
+        guard.note_level(1)
+        guard.observe("same", "UP", gameplay_changed=False)
+        assert guard.should_block("same", "UP")
+        assert not guard.should_block("same", "UP"), "Insistence must remain possible"
+        guard.observe("same", "UP", gameplay_changed=True)
+        assert not guard.should_block("same", "UP"), "Contradictory evidence must clear a verdict"
+        guard.observe("same", "UP", gameplay_changed=False)
+        guard.note_level(2)
+        assert not guard.should_block("same", "UP"), "No verdict may leak across levels"
+        assert guard_module.action_signature({"action": "MOUSE", "row": 4, "col": 7}) == guard_module.action_signature("MOUSE(row=4, col=7)")
+        guard.observe("same", "MOUSE(4,7)", gameplay_changed=False)
+        assert not guard.should_block("same", "MOUSE(4,8)"), "Different click must remain possible"
+        assert guard.should_block("same", "MOUSE(4,7)")
+        assert not guard.should_block_death("same", "MOUSE(4,7)", lambda *_: False)
+        assert not guard.should_block("same", "MOUSE(4,7)"), "Death checks must not consume the no-op override"
         return {"status": "PASS", "python_files_compiled": len(files), "embedded_bootstrap": "PASS",
-                "negative_control_corrupt_eof": "PASS", "scope": "CPU integration only; Kaggle gameplay UNVERIFIED"}
+                "negative_control_corrupt_eof": "PASS", "recovery_guard_contracts": 6,
+                "scope": "CPU integration only; Kaggle gameplay UNVERIFIED"}
 
 
 if __name__ == "__main__":

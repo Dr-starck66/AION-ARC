@@ -1,0 +1,37 @@
+{
+  "observed_at_utc": "2026-11-02T12:04:32.893613+00:00",
+  "source": "Authenticated Kaggle submissions UI and leaderboard",
+  "account": "drstarck",
+  "submission_id": 57886365,
+  "notebook": "drstarck/astra-aion-arc3-v2-9-milestone2",
+  "version": 4,
+  "script_version_id": 364690053,
+  "status": "Succeeded",
+  "official_public_score": 24.58,
+  "official_private_score": "UNVERIFIED",
+  "observed_public_rank": 2103,
+  "observed_team_count": 5048,
+  "old_submission": {
+    "id": 57848621,
+    "score": 0.07
+  },
+  "top_three_observed": [
+    {
+      "rank": 1,
+      "team": "Yi-Chia Chen @ Fields Model",
+      "score": 75.56
+    },
+    {
+      "rank": 2,
+      "team": "Tufa Labs",
+      "score": 70.24
+    },
+    {
+      "rank": 3,
+      "team": "xz",
+      "score": 58.59
+    }
+  ],
+  "hidden_rerun_logs": "Not exposed by the observed successful-submission details dialog",
+  "goal_100": "NOT_REACHED"
+}

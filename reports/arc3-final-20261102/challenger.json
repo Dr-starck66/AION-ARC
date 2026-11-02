@@ -1,0 +1,27 @@
+{
+  "candidate": "v30 recovery",
+  "phase_a_version": 5,
+  "script_version_id": 364868478,
+  "phase_a_status": "RUNNING",
+  "official_submission_status": "NOT_SENT",
+  "official_score": "UNVERIFIED",
+  "local_notebook_sha256": "0bf45bc1a282e0c3969276ac98164ec07055242fa6628a1c1d05c9a4d118f3bd",
+  "export_sha256": "d785d3f2162cb8f2ab2001cf9866580aac9404399f6c1bcbf52063008afef84d",
+  "export_code_cells_matched": 14,
+  "input_sources_preserved": 5,
+  "observed_free_gpu_quota_label": "Quota: 01:56 / 30 hrs",
+  "observed_official_slots_remaining": 1,
+  "changes": {
+    "EXPOSE_RESET": "on",
+    "ARC3_NOOP_REPEAT_GUARD": "1",
+    "ARC3_NOOP_GUARD_BORDER": "0"
+  },
+  "unchanged": [
+    "model weights",
+    "priority scheduler",
+    "hidden runtime budget",
+    "gateway game selection",
+    "upstream attribution"
+  ],
+  "hypothesis": "Reduce repeated no-op actions while allowing an immediate insistence override, and expose current-level restart. Improvement remains unproven."
+}
