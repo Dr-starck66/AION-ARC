@@ -2,8 +2,8 @@
   "candidate": "v30 recovery",
   "phase_a_version": 5,
   "script_version_id": 364868478,
-  "phase_a_status": "RUNNING",
-  "official_submission_status": "NOT_SENT",
+  "phase_a_status": "SUCCEEDED",
+  "official_submission_status": "NOT_SENT_PUBLIC_COMPARISON_LOWER",
   "official_score": "UNVERIFIED",
   "local_notebook_sha256": "0bf45bc1a282e0c3969276ac98164ec07055242fa6628a1c1d05c9a4d118f3bd",
   "export_sha256": "d785d3f2162cb8f2ab2001cf9866580aac9404399f6c1bcbf52063008afef84d",
@@ -23,5 +23,17 @@
     "gateway game selection",
     "upstream attribution"
   ],
-  "hypothesis": "Reduce repeated no-op actions while allowing an immediate insistence override, and expose current-level restart. Improvement remains unproven."
+  "hypothesis": "Reduce repeated no-op actions while allowing an immediate insistence override, and expose current-level restart. Improvement remains unproven.",
+  "phase_a_seconds": 883.6,
+  "public_smoke_mean": 6.77,
+  "model_responses": 53,
+  "environment_actions": 60,
+  "public_levels": 3,
+  "crashed_games": [],
+  "errors": [],
+  "budget_timeouts": [
+    "ReadTimeout",
+    "ReadTimeout"
+  ],
+  "decision": "Retain negative result; test a perception variant before using the final official slot. One stochastic run does not establish causality."
 }

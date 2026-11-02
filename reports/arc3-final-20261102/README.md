@@ -10,6 +10,10 @@ Génération : `python scripts/build_arc3_recovery_challenger.py`. Candidat : `k
 
 Exécution Kaggle réelle lancée : version **5**, `scriptVersionId=364868478`, RTX PRO 6000, Python 3.12.13 confirmé par le journal. Son résultat et son éventuelle soumission officielle seront consignés dans [challenger.json](challenger.json). Au lancement, une soumission officielle reste autorisée aujourd'hui. La version 4 et son score sont préservés.
 
+**Résultat de la version 5 :** exécution réussie en **883,6 s**, mais comparaison publique inférieure : **6,77**, trois niveaux, 53 réponses et 60 actions ; zéro panne et zéro erreur prématurée, deux délais à l'arrêt programmé conservés en PARTIAL. Contre 12,22 et quatre niveaux pour v29. Ce résultat négatif reste conservé dans [le journal intégral](v30-version5-browser-log.txt) ; cette variante n'est pas envoyée au dernier quota officiel. Un passage stochastique ne prouve pas la causalité de la baisse.
+
+Un second essai **v31**, notebook version **6**, repart de v29 sans les réglages de reprise v30. Il active seulement les images `peak` des animations ordinaires et fatales : une véritable image intermédiaire, plutôt qu'un composite. Cette piste répond à une limite documentée de perception ; elle n'est pas une amélioration démontrée. Le brouillon exporté correspond aux 14 cellules de code et aux cinq sources. Le vérificateur CPU teste aussi l'image choisie (couleurs et dimensions), l'absence de transition, l'absence de pixels transitoires et le rejet d'une valeur booléenne invalide. Détails : [animation-challenger.json](animation-challenger.json).
+
 Voir [comparaison des trois premiers](top-three-review.md). Aucun accès à un code privé, achat, nouveau compte, service payant ou secret publié.
 
 Liens officiels :

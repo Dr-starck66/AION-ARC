@@ -1,1 +1,1 @@
-{"status": "PASS", "python_files_compiled": 34, "embedded_bootstrap": "PASS", "negative_control_corrupt_eof": "PASS", "recovery_guard_contracts": 6, "scope": "CPU integration only; Kaggle gameplay UNVERIFIED"}
+{"status": "PASS", "python_files_compiled": 34, "embedded_bootstrap": "PASS", "negative_control_corrupt_eof": "PASS", "recovery_guard_contracts": 6, "animation_helper_contracts": 6, "scope": "CPU integration only; Kaggle gameplay UNVERIFIED"}

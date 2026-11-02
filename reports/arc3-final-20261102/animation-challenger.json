@@ -1,0 +1,25 @@
+{
+  "candidate": "v31 actual animation frames",
+  "phase_a_version": 6,
+  "phase_a_status": "RUNNING",
+  "official_submission_status": "NOT_SENT",
+  "official_score": "UNVERIFIED",
+  "local_notebook_sha256": "e69c30312d897c284db239345f9e29c6a20e4c8eccffaf00e8acc7aa975ab746",
+  "export_sha256": "295a840013edbfd209866fe0ce3dc2a9ffcd635d3e6a7a84f078cc34fc976992",
+  "export_code_cells_matched": 14,
+  "input_sources_preserved": 5,
+  "changes": {
+    "ARC3_ANIMATION_IMAGE": "peak",
+    "ARC3_ANIMATION_DEATH_IMAGE": "peak"
+  },
+  "baseline_controls_restored": true,
+  "unchanged": [
+    "model weights",
+    "priority scheduler",
+    "hidden runtime budget",
+    "game selection",
+    "original reset/noop settings"
+  ],
+  "hypothesis": "Show a real transient animation frame that disappeared from the final observation; no synthetic composite. Perception benefit and additional image cost require actual evaluation.",
+  "script_version_id": 364873927
+}

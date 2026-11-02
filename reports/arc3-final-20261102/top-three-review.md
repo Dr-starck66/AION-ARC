@@ -20,6 +20,8 @@ La base Duck de Tufa et les améliorations publiques de Daniel Franzen sont déj
 
 Le candidat v30 teste une variation limitée : rendre un redémarrage de niveau explicite et éviter de répéter une action observée sans effet, avec une possibilité d'insister. Il conserve le modèle, le scheduler et le budget caché pour limiter les facteurs qui changent. Les deux jeux publics et leur budget de cinq minutes restent identiques ; un seul passage aléatoire ne suffit pas à établir une supériorité scientifique. La soumission 24,58 est conservée comme référence pendant l'essai.
 
+Le test v30 a donné 6,77 contre 12,22 pour v29 : il reste un résultat négatif, sans soumission officielle. V31 revient aux contrôles initiaux et teste des images réelles au pic des animations. Franzen décrit des essais non concluants avec des composites ; une image réelle n'est pas cette même représentation et son bénéfice reste à mesurer. Le coût supplémentaire en images peut aussi nuire au débit. La décision repose sur les tests réels, pas sur une promesse x10.
+
 ## Sources primaires consultées
 
 - Classement Kaggle : https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-3/leaderboard

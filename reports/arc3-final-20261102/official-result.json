@@ -33,5 +33,7 @@
     }
   ],
   "hidden_rerun_logs": "Not exposed by the observed successful-submission details dialog",
-  "goal_100": "NOT_REACHED"
+  "goal_100": "NOT_REACHED",
+  "selected_for_final_score": true,
+  "selection_observed_at_utc": "2026-11-02T12:08:55.509043+00:00"
 }

@@ -1,5 +1,7 @@
 # ASTRA AION-ARC — exécution Kaggle finale
 
+**Actualisation du 2 novembre vers midi UTC :** le rerun décrit ci-dessous a réussi : soumission **57886365**, score officiel public **24,58/100**, rang observé **2103/5048**. Voir le [dossier actualisé](../arc3-final-20261102/README.md). Le reste de ce fichier conserve le constat historique de la nuit du 1 au 2 novembre.
+
 État global : **PARTIAL**. **Nouvelle soumission officielle enregistrée**, rerun caché en cours. Aucun nouveau score officiel n'est affirmé.
 
 ## Travail repris
