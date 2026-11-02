@@ -1,0 +1,48 @@
+{
+  "date_utc": "2026-11-02",
+  "kind": "authenticated_cloudflare_seo_audit_attempt",
+  "requested_mission": {
+    "goal": "seo-audit",
+    "url": "https://betgpt.live/",
+    "read_only": true
+  },
+  "isolated_worker_url_candidate": "https://astra-cloud-browser-omega.dr-starck66.workers.dev/v1/mission",
+  "shared_worker_health_candidate": "https://astra-free-workers-omega.dr-starck66.workers.dev/browser/healthz",
+  "status": "BLOCKED",
+  "authenticated_post_sent": false,
+  "reason_codes": [
+    "RUN_TOKEN_UNAVAILABLE",
+    "NO_CLOUDFLARE_CONNECTOR",
+    "OUTBOUND_DNS_UNAVAILABLE"
+  ],
+  "credential_probe": {
+    "RUN_TOKEN": "ABSENT",
+    "BROWSER_RUN_TOKEN": "ABSENT",
+    "CLOUDFLARE_API_TOKEN": "ABSENT",
+    "CF_API_TOKEN": "ABSENT",
+    "wrangler_cli": "ABSENT",
+    "local_wrangler_session": "ABSENT"
+  },
+  "network_probe": {
+    "isolated_worker_dns": "UNAVAILABLE",
+    "shared_worker_dns": "UNAVAILABLE",
+    "example_com_dns_control": "UNAVAILABLE",
+    "interpretation": "This execution environment could not resolve normal public domains either; this does not prove Cloudflare Worker downtime."
+  },
+  "remote_http_status": null,
+  "remote_chromium_proof": "UNVERIFIED",
+  "remote_browser_receipt": "NOT_CREATED",
+  "local_tests": {
+    "command": "python -m unittest discover -s tests -p 'test_astra*.py' -v",
+    "executed": 27,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1,
+    "scope": "LOCAL_ONLY"
+  },
+  "remote_worker_modified": false,
+  "monitoring_worker_modified": false,
+  "secrets_exposed": false,
+  "money_spent": 0,
+  "next_blocker": "An authorized Cloudflare connection or already-provisioned RUN_TOKEN must become available to this execution environment; then issue one read-only POST /v1/mission and store its actual JSON response."
+}
