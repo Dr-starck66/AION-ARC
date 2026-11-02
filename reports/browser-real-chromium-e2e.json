@@ -1,0 +1,41 @@
+{
+  "at_utc": "2026-11-02T14:00:06.051030+00:00",
+  "status": "PASS_LOCAL_REAL_CHROMIUM_E2E",
+  "aion_engine_execution": true,
+  "browser_runtime": "/usr/bin/chromium via Playwright",
+  "existing_astra_browser_api_contract": "POST /v1/mission read-only text-proof and seo-audit",
+  "endpoint_kind": "loopback_test_double_with_REAL_CHROMIUM",
+  "cloudflare_worker_deployment": "UNVERIFIED",
+  "remote_token": "NOT_AVAILABLE",
+  "positive": {
+    "aion_status": "PASS",
+    "actions": 1,
+    "reason": "goal_confirmed_by_executor",
+    "http_status": 200,
+    "proof": {
+      "http_status": 200,
+      "browser_status": "PASS",
+      "proof_level": "BROWSER_EXECUTION_ONLY",
+      "dom_assertion": true
+    }
+  },
+  "seo_audit": {
+    "aion_status": "PASS",
+    "http_status": 200,
+    "proof": {
+      "http_status": 200,
+      "browser_status": "PASS",
+      "proof_level": "BROWSER_EXECUTION_ONLY",
+      "title": "ASTRA AION Chromium E2E",
+      "h1_count": 1
+    }
+  },
+  "negative_control": {
+    "aion_status": "FAIL",
+    "http_status": 502
+  },
+  "screenshot": {
+    "sha256": "7210256bc9dab52c3d63d70f9b325376d7bc60bf05452e49624970e8d27620c8",
+    "bytes": 12890
+  }
+}
