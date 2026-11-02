@@ -2,6 +2,8 @@
 
 Procédure issue des exécutions réelles de la nuit du 1 au 2 novembre 2026. Aucun jeton, cookie, lien signé ou mot de passe ne doit être copié dans ce dépôt. Cette procédure ne crée pas de service permanent.
 
+**Actualisation du 2 novembre à midi UTC :** la version 4 a obtenu officiellement **24,58**, soumission **57886365**, sélectionnée pour le score final. Le candidat expérimental courant est `kaggle/v31-animation/submission.ipynb`, construit par `scripts/build_arc3_animation_challenger.py`. Il a été exécuté avec succès puis envoyé officiellement comme **version 6**, `scriptVersionId=364873927`, le 2 novembre à 12:41:40 UTC ; son score est en attente. Le programme CLI ci-dessous reste par défaut celui de v29 : ne pas l'exécuter pour renvoyer aveuglément cette ancienne configuration. Reprendre d'abord les faits actuels dans `reports/arc3-final-20261102/`. Aucun gain public n'a été démontré par les deux variantes essayées ; ne pas les appeler des améliorations prouvées.
+
 ## Reprise et intégrité
 
 1. Lire le dernier état dans `reports/arc3-final-20261101/` et reprendre la branche `astra/arc3-emergency-20261031`. Ne pas réécrire le notebook historique `drstarck/notebook2700e63354` : version 6, résultat officiel 0,07.

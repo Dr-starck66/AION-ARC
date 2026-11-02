@@ -1,0 +1,12 @@
+{
+  "automation_id": "6ae5fe6216e0819197eddcfe2786a44e",
+  "existing_task_reused": true,
+  "enabled": true,
+  "ordinary_schedule_preserved": "09:00,14:00,19:00 Europe/Paris",
+  "additional_once": "2026-11-02T23:30:00+01:00",
+  "additional_once_utc": "2026-11-02T22:30:00Z",
+  "update_tool_success": true,
+  "future_execution": "UNVERIFIED",
+  "no_new_task": true,
+  "no_added_paid_service": true
+}

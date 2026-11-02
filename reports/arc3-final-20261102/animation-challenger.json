@@ -1,8 +1,8 @@
 {
   "candidate": "v31 actual animation frames",
   "phase_a_version": 6,
-  "phase_a_status": "RUNNING",
-  "official_submission_status": "NOT_SENT",
+  "phase_a_status": "SUCCEEDED",
+  "official_submission_status": "REGISTERED",
   "official_score": "UNVERIFIED",
   "local_notebook_sha256": "e69c30312d897c284db239345f9e29c6a20e4c8eccffaf00e8acc7aa975ab746",
   "export_sha256": "295a840013edbfd209866fe0ce3dc2a9ffcd635d3e6a7a84f078cc34fc976992",
@@ -21,5 +21,22 @@
     "original reset/noop settings"
   ],
   "hypothesis": "Show a real transient animation frame that disappeared from the final observation; no synthetic composite. Perception benefit and additional image cost require actual evaluation.",
-  "script_version_id": 364873927
+  "script_version_id": 364873927,
+  "phase_a_seconds": 977.4,
+  "public_smoke_mean": 7.14,
+  "model_responses": 43,
+  "environment_actions": 74,
+  "public_levels": 3,
+  "crashed_games": [],
+  "errors": [],
+  "budget_timeouts": [
+    "ReadTimeout",
+    "ReadTimeout",
+    "ReadTimeout"
+  ],
+  "public_benchmark_duration_seconds": 315,
+  "decision": "No demonstrated public improvement. Use the last official slot for an exploratory hidden-game evaluation while preserving the selected 24.58 baseline. Peak-frame perception may affect other games; its hidden benefit remains unproven.",
+  "official_ui_status": "Notebook Running",
+  "registered_at_utc": "2026-11-02T12:41:40Z",
+  "submission_id": null
 }

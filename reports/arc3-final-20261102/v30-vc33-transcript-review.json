@@ -1,0 +1,15 @@
+{
+  "source": "Kaggle version 5 output transcripts/vc33-5430563c_p0.txt, rendered full text through official download UI",
+  "transcript_sha256": "187a2a677d2785d0f45ff768f55f1470e2deddaf639dcad10164fc502f584ab7",
+  "bytes": 588539,
+  "tool_result_blocks": 31,
+  "exploratory_python_error_blocks": 3,
+  "error_excerpts": [
+    "[action] MOUSE(row=46, col=50) -> effect\n\nerror:\nTraceback (most recent call last):\n  File \"<python_tool>\", line 2, in <module>\nKeyError: 0\n",
+    "[action] MOUSE(row=46, col=48) -> effect\n\nerror:\nTraceback (most recent call last):\n  File \"<python_tool>\", line 9, in <module>\n  File \"<python_tool>\", line 5, in probe\nIndexError: string index out of range\n",
+    "Traceback (most recent call last):\n  File \"<python_tool>\", line 3, in <module>\nIndexError: list index out of range\n"
+  ],
+  "observed_guard_refusal_phrase_matches": 0,
+  "python_call_blocks_containing_RESET_literal": 0,
+  "conclusion": "This vc33 trace does not demonstrate a no-op guard refusal. Three model-generated Python errors occurred while exploring. They differ from a model-server crash or a harness validation error. Do not attribute the lower public score causally to a guard from this single run."
+}
