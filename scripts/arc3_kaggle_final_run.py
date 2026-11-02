@@ -87,6 +87,22 @@ def main():
             evidence(private_kernel_auth="FAIL", auth_probe=AUTH_PROBE_KERNEL)
             raise RuntimeError("Authenticated access to the historic Kaggle kernel failed")
         evidence(private_kernel_auth="PASS", auth_probe=AUTH_PROBE_KERNEL)
+        # The official history is authoritative: it prevents relying on
+        # obsolete 0.07-score reports or repeating a daily submission.
+        history = command(["kaggle", "competitions", "submissions", COMP, "-v", "-q"],
+                          timeout=60, check=False)
+        if history.returncode == 0:
+            import csv
+            import io
+            submissions = list(csv.DictReader(io.StringIO(history.stdout)))
+            recent = submissions[:12]
+            evidence(submissions_read="PASS", submissions_returned=len(submissions),
+                     recent_submissions=recent)
+            print("ASTRA_KAGGLE_HISTORY", json.dumps(recent, ensure_ascii=False), flush=True)
+        else:
+            evidence(submissions_read="PARTIAL", official_score="UNVERIFIED",
+                     reason="SUBMISSIONS_CLI_READ_FAILED")
+        print("ASTRA_KAGGLE_READONLY_AUTH_PASS", flush=True)
         return
     validate()
     if not args.execute:
