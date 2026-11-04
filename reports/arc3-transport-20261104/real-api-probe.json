@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "scope": "public_api_transport_one_real_action_only",
+  "official_kaggle_score_status": "UNVERIFIED",
+  "aion_v25_v26_score_comparison": "UNVERIFIED",
+  "source": "https://three.arcprize.org",
+  "timestamp_utc": "2026-11-04T19:38:34.468368+00:00",
+  "game_id": "ls20-9607627b",
+  "available_game_count": 25,
+  "scorecard_open": true,
+  "scorecard_closed": true,
+  "reset_http": 200,
+  "action_http": 200,
+  "action": "ACTION1",
+  "start_state": "NOT_FINISHED",
+  "end_state": "NOT_FINISHED",
+  "start_levels_completed": 0,
+  "end_levels_completed": 0,
+  "raw_scorecard_score": 0.0,
+  "seed_provenance": "UNVERIFIED_NOT_EXPOSED",
+  "cookie_session_used": true,
+  "elapsed_seconds": 1.142
+}
