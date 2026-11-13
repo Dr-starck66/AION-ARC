@@ -285,7 +285,11 @@ def run_job(job):
         if receipt and receipt.get("status") in ("PARTIAL", "PASS"):
             print("Existing verified data receipt reused: " + location, flush=True)
             return {"status": receipt["status"], "stage": "reused_receipt",
-                    "receipt": location, "gate": receipt.get("gate")}
+                    "receipt": location, "gate": receipt.get("gate"),
+                    "sample_columns": receipt.get("sample_columns"),
+                    "gene_rows": receipt.get("gene_rows"),
+                    "input_sha256": receipt.get("input_sha256"),
+                    "source": receipt.get("source")}
     if state not in ("RUNNING", "QUEUED", "PENDING"):
         code, out = invoke(job["preflight"], timeout=90)
         if code != 0:
@@ -363,6 +367,11 @@ def main():
         summary["jobs"][job["name"]] = result
         print("ASTRA_RESULT " + job["name"].upper() + " " + result["status"],
               result.get("gate", result.get("stage", "")), flush=True)
+        if job["name"] == "bio" and result.get("status") == "PARTIAL":
+            print("ASTRA_BIO_REAL_MATRIX_METRICS samples="
+                  + str(result.get("sample_columns")) + " genes="
+                  + str(result.get("gene_rows")) + " sha256="
+                  + str(result.get("input_sha256")), flush=True)
         if result.get("status") == "FAIL" and result.get("reason"):
             print("ASTRA_FAILURE_REASON " + job["name"].upper() + " "
                   + str(result["reason"])[-800:], flush=True)
