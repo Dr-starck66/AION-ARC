@@ -87,7 +87,9 @@ class PreflightTests(unittest.TestCase):
                 calls.append(args)
                 if args[1]=='files':return 0,self.listing(),''
                 self.assertEqual(args[:3],['competitions','download',a.COMPETITION])
-                fname=args[args.index('-f')+1];out=Path(args[args.index('-p')+1])
+                full=args[args.index('-f')+1]
+                self.assertTrue(full.startswith(a.COMPETITION+'/'))
+                fname=full.removeprefix(a.COMPETITION+'/');out=Path(args[args.index('-p')+1])
                 (out/fname).write_bytes(fixtures[fname]);return 0,'Success',''
             with patch.object(a,'invoke',fake):
                 files=a.download_small_files(Path(d))
@@ -95,11 +97,29 @@ class PreflightTests(unittest.TestCase):
                 self.assertTrue(all(f['rows']>0 for f in files))
                 self.assertEqual(len(calls),5)
                 self.assertEqual([x[1] for x in calls],['files']+['download']*4)
+                self.assertEqual([x[x.index('-f')+1] for x in calls[1:]],
+                                 [a.COMPETITION+'/'+name for name in a.SMALL_FILES])
 
     def test_transport_failure_preserved(self):
         with tempfile.TemporaryDirectory() as d:
             with patch.object(a,'invoke',lambda *args,**kwargs:(1,'','Permission denied')):
                 with self.assertRaisesRegex(RuntimeError,'Permission denied'):
                     a.download_small_files(Path(d))
+
+
+    def test_404_on_full_path_no_bulk_fallback(self):
+        with tempfile.TemporaryDirectory() as d:
+            calls=[]
+            def fake(args,timeout=120):
+                calls.append(args)
+                if args[1]=='files':return 0,self.listing(),''
+                return 1,'','404 Not Found'
+            with patch.object(a,'invoke',fake):
+                with self.assertRaisesRegex(RuntimeError,'listed path'):
+                    a.download_small_files(Path(d))
+            self.assertEqual(len(calls),2)
+            self.assertEqual(calls[1][calls[1].index('-f')+1],
+                             a.COMPETITION+'/combine_results.csv')
+            self.assertFalse(any(c[1]=='download' and '-f' not in c for c in calls))
 
 if __name__=='__main__':unittest.main(verbosity=2)
