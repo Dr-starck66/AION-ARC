@@ -16,7 +16,7 @@ from pathlib import Path
 PROJECT = "bio-mimic-x"
 SLUG = "lachmann12/human-liver-rnaseq-gene-expression-903-samples"
 SOURCE = "https://www.kaggle.com/datasets/" + SLUG
-ROOT = Path(os.environ.get("ASTRA_INPUT", "/kaggle/input/human-liver-rnaseq-gene-expression-903-samples"))
+ROOT = Path(os.environ.get("ASTRA_INPUT", "/kaggle/input"))
 OUTPUT = Path(os.environ.get("ASTRA_OUTPUT", "/kaggle/working/astra_bio_expression_report.json"))
 
 def sha256_file(path):
@@ -29,9 +29,12 @@ def sha256_file(path):
 def audit(root):
     if not root.is_dir() or root.is_symlink():
         raise ValueError("Kaggle public expression dataset is not mounted")
-    paths = [p for p in root.rglob("*.tsv") if p.is_file() and not p.is_symlink()]
+    # Kaggle decides the mount subdirectory; never assume it matches the dataset slug.
+    # The named file is grounded by the ARCHS4 Kaggle data card.
+    paths = [p for p in root.rglob("human_liver.tsv") if p.is_file() and not p.is_symlink()]
     if len(paths) != 1:
-        raise ValueError("Expected exactly one readable public ARCHS4 TSV file")
+        mounted = sorted(p.name for p in root.iterdir() if p.is_dir())[:30]
+        raise ValueError("ARCHS4 human_liver.tsv absent/ambiguous; Kaggle mounts=" + repr(mounted))
     path = paths[0]
     if path.stat().st_size == 0:
         raise ValueError("Empty gene expression matrix")
@@ -44,7 +47,6 @@ def audit(root):
         if len(set(header[1:])) != n_samples or not all(header[1:]):
             raise ValueError("Duplicate or missing sample identifiers")
         seen_genes = set()
-        min_detected = [10**9] * n_samples
         detected = [0] * n_samples
         totals = [0.0] * n_samples
         n_genes = 0
