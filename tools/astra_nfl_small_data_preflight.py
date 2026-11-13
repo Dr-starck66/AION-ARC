@@ -31,6 +31,7 @@ HOME = Path(os.environ.get('LOCALAPPDATA', str(Path.home()))) / 'ASTRA-Kaggle'
 KAGGLE = HOME / '.venv' / 'Scripts' / 'kaggle.exe'
 MAX_BYTES = 2_000_000
 ALLOWED = {'files', 'download'}
+RULES_URL = 'https://www.kaggle.com/competitions/' + COMPETITION + '/rules'
 
 
 def safe_error(s: str) -> str:
@@ -147,7 +148,15 @@ def download_small_files(dest: Path) -> list[dict]:
         code, output, err = invoke(['competitions', 'download', COMPETITION,
                                     '-f', COMPETITION + '/' + filename, '-p', str(subdir)], timeout=150)
         if code:
-            raise RuntimeError('Download failed for listed path ' + COMPETITION + '/' + filename + ': ' + (err or safe_error(output)) + '; possible rights/rules restriction or Kaggle API path issue; no bulk fallback')
+            details = err or safe_error(output)
+            if (re.search(r'\b403\b', details) or
+                'you don\'t have access' in details.lower() or
+                'accept its rules' in details.lower()):
+                raise PermissionError('Kaggle download denied (HTTP 403 / participation rules); '
+                                      'the account owner must review and accept rules on the website: '
+                                      + RULES_URL + '; no automatic retry or acceptance')
+            raise RuntimeError('Download failed for listed path ' + COMPETITION + '/' + filename
+                               + ': ' + details + '; no bulk fallback')
         result = inspect_csv(_resolve_csv(subdir, filename), filename)
         results.append(result)
         print('ASTRA_NFL_OFFICIAL_FILE_PASS ' + filename + ' rows=' + str(result['rows'])
@@ -178,6 +187,12 @@ def main() -> int:
                         'total_bytes': sum(f['bytes'] for f in items)})
         print('ASTRA_NFL_DATA_PARTIAL gate=OFFICIAL_SMALL_CSV_QC_PASS count=4', flush=True)
         return 0
+    except PermissionError as exc:
+        receipt.update({'status': 'FAIL', 'gate': 'KAGGLE_COMPETITION_RULES_OR_PERMISSION_REQUIRED',
+                        'error_type': type(exc).__name__, 'error': safe_error(str(exc)),
+                        'rules_url': RULES_URL, 'rules_accepted_by_user': 'NOT_CONFIRMED'})
+        print('ASTRA_NFL_ACCESS_FAIL gate=' + receipt['gate'] + ' ' + receipt['error'], flush=True)
+        return 1
     except Exception as exc:
         receipt.update({'status': 'FAIL', 'gate': 'OFFICIAL_SMALL_CSV_QC_FAILED',
                         'error_type': type(exc).__name__, 'error': safe_error(str(exc))})
