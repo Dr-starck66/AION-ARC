@@ -46,6 +46,12 @@ JOBS = (
          competition_sources=[],
          dataset_sources=["lachmann12/human-liver-rnaseq-gene-expression-903-samples"]),
 )
+# User decision 2026-11-13: NO participation in Kaggle/NFL competitions.
+# Keep the historical NFL configuration for audit only; never execute it.
+NFL_COMPETITION_DISABLED_BY_OWNER = True
+if NFL_COMPETITION_DISABLED_BY_OWNER:
+    JOBS = tuple(job for job in JOBS if job["name"] != "nfl")
+
 OTHER_PROJECTS = {
     "aion-arc": "Competition 2026 submissions closed; existing ARC notebooks retained; no new official score.",
     "splatforge": "Prior GPU proof reused, real licensed COLMAP/image inputs not mounted, native 3D training UNVERIFIED.",
