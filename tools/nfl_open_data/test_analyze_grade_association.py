@@ -66,7 +66,7 @@ class GradeTests(unittest.TestCase):
             grade.analyze(d.encode(), permutations=5)
 
     def test_zero_permutations_rejected(self):
-        with self.assertRaisesRegex(ValueError, "Invalid permutation count"):
+        with self.assertRaisesRegex(ValueError, "invalid permutation count"):
             grade.analyze(FIXTURE.encode(), permutations=0)
 
 
