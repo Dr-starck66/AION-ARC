@@ -327,7 +327,11 @@ def run_job(job):
                     "source": job["source"],
                     "file_count":receipt.get("file_count"),
                     "sample_columns":receipt.get("sample_columns"),
-                    "gene_rows":receipt.get("gene_rows")}
+                    "gene_rows":receipt.get("gene_rows"),
+                    "input_sha256":receipt.get("input_sha256"),
+                    "zero_library_samples":receipt.get("zero_library_samples"),
+                    "min_detected_genes_per_sample":receipt.get("min_detected_genes_per_sample"),
+                    "max_detected_genes_per_sample":receipt.get("max_detected_genes_per_sample")}
         if state in ("ERROR", "FAILED", "CANCELLED", "CANCELED"):
             return remote_failure_details(job, digest, msg)
         if state in ("MISSING", "DENIED"):
