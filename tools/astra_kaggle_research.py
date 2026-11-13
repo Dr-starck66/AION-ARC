@@ -153,6 +153,30 @@ def validated_receipt(job, script_hash):
         return None, "invalid receipt: " + str(exc)
 
 
+def remote_failure_details(job, digest, status_output):
+    """Collect a verifiable negative receipt and bounded Kaggle logs immediately."""
+    code, logs = invoke(("kernels", "logs", job["slug"]), timeout=120)
+    receipt, receipt_path = validated_receipt(job, digest)
+    details = {
+        "status": "FAIL", "stage": "remote_execution_error",
+        "kernel_slug": job["slug"],
+        "kernel_status_message": status_output[-700:],
+        "logs_exit_code": code,
+        "logs_tail": logs[-1800:],
+    }
+    if receipt is not None:
+        details["data_gate"] = receipt.get("gate")
+        details["data_error"] = receipt.get("error")
+        details["receipt"] = receipt_path
+        details["receipt_status"] = receipt.get("status")
+        print("ASTRA_REMOTE_FAIL_WITH_RECEIPT " + job["name"]
+              + " " + str(receipt.get("error", ""))[-500:], flush=True)
+    else:
+        details["receipt_unavailable_reason"] = receipt_path
+        print("ASTRA_REMOTE_FAIL_LOGS " + job["name"] + " " + logs[-500:], flush=True)
+    return details
+
+
 def local_selftest(job, blob, digest):
     """Two reproducible local fixtures before any remote Kaggle write."""
     compile(blob, job["filename"], "exec")
@@ -276,8 +300,7 @@ def run_job(job):
                     "sample_columns":receipt.get("sample_columns"),
                     "gene_rows":receipt.get("gene_rows")}
         if state in ("ERROR", "FAILED", "CANCELLED", "CANCELED"):
-            return {"status":"FAIL", "stage":"kernel_error",
-                    "reason":"Kaggle status: " + msg[-600:]}
+            return remote_failure_details(job, digest, msg)
         if state in ("MISSING", "DENIED"):
             return {"status": "FAIL", "stage": "kernel_inaccessible",
                     "reason": "Kaggle status failed: " + msg[-700:]}
@@ -302,6 +325,7 @@ def main():
         print("ASTRA_FAIL: Windows Kaggle OAuth not authenticated. " + proof[-500:])
         return 2
     print("ASTRA_KAGGLE_AUTH_PASS: " + version)
+    print("ASTRA_KAGGLE_RESEARCH_REVISION: 20261113-recovery-v2")
     summary = {"kind":"astra_kaggle_real_data_v1", "auth":"PASS",
                "timestamp_utc":dt.datetime.now(dt.timezone.utc).isoformat(),
                "remote_script_commit":SOURCE_REV, "jobs":{}, "other_projects":OTHER_PROJECTS,
