@@ -1,0 +1,161 @@
+{
+  "kind": "ASTRA_NFL_OPEN_COMBINE_DESCRIPTIVE_QC",
+  "source_url": "https://github.com/array-carpenter/nfl-draft-data/blob/master/data/combine_official.csv",
+  "source_git_blob_sha1": "dcc6532ba88038cad3d9f974ea7654b2a6e5988a",
+  "data_source": "public independent GitHub repository, official NFL Combine measurements derived from NFL API",
+  "analysis_date_utc": "2026-11-13",
+  "status": "PARTIAL",
+  "data_qc": "PASS",
+  "row_count": 6568,
+  "column_count": 24,
+  "malformed_rows": 0,
+  "duplicates_player_year": 0,
+  "unclassified_position": 2,
+  "valid_40": 5078,
+  "valid_vertical": 4992,
+  "valid_both": 4699,
+  "year_counts": {
+    "2006": 330,
+    "2007": 326,
+    "2008": 333,
+    "2009": 328,
+    "2010": 327,
+    "2011": 329,
+    "2012": 324,
+    "2013": 331,
+    "2014": 334,
+    "2015": 320,
+    "2016": 330,
+    "2017": 330,
+    "2018": 336,
+    "2019": 337,
+    "2020": 337,
+    "2022": 324,
+    "2023": 319,
+    "2024": 321,
+    "2025": 329,
+    "2026": 323
+  },
+  "position_groups": [
+    {
+      "group": "DB",
+      "rows": 1177,
+      "forty_n": 967,
+      "forty_median_seconds": 4.52,
+      "vertical_n": 922,
+      "vertical_median_inches": 35.5
+    },
+    {
+      "group": "DL",
+      "rows": 1147,
+      "forty_n": 883,
+      "forty_median_seconds": 4.91,
+      "vertical_n": 879,
+      "vertical_median_inches": 31.5
+    },
+    {
+      "group": "OL",
+      "rows": 1068,
+      "forty_n": 836,
+      "forty_median_seconds": 5.24,
+      "vertical_n": 820,
+      "vertical_median_inches": 28
+    },
+    {
+      "group": "WR",
+      "rows": 927,
+      "forty_n": 784,
+      "forty_median_seconds": 4.51,
+      "vertical_n": 767,
+      "vertical_median_inches": 35.5
+    },
+    {
+      "group": "LB",
+      "rows": 658,
+      "forty_n": 507,
+      "forty_median_seconds": 4.7,
+      "vertical_n": 501,
+      "vertical_median_inches": 34
+    },
+    {
+      "group": "RB",
+      "rows": 638,
+      "forty_n": 518,
+      "forty_median_seconds": 4.57,
+      "vertical_n": 527,
+      "vertical_median_inches": 34.5
+    },
+    {
+      "group": "TE",
+      "rows": 385,
+      "forty_n": 282,
+      "forty_median_seconds": 4.74,
+      "vertical_n": 288,
+      "vertical_median_inches": 33.5
+    },
+    {
+      "group": "QB",
+      "rows": 350,
+      "forty_n": 258,
+      "forty_median_seconds": 4.8149999999999995,
+      "vertical_n": 265,
+      "vertical_median_inches": 31
+    },
+    {
+      "group": "SPEC",
+      "rows": 216,
+      "forty_n": 42,
+      "forty_median_seconds": 4.9,
+      "vertical_n": 22,
+      "vertical_median_inches": 30
+    },
+    {
+      "group": "UNCLASSIFIED",
+      "rows": 2,
+      "forty_n": 1,
+      "forty_median_seconds": 4.65,
+      "vertical_n": 1,
+      "vertical_median_inches": 31
+    }
+  ],
+  "limitations": [
+    "Both CSV and Parquet metadata contain 6568 records; third-party README declares 6883, i.e. an inconsistent documentation count; reason unknown",
+    "2021 absent from source years; cannot infer a contiguous 2006-2026 population",
+    "descriptive summaries by position only; no player-to-match outcome join, no prediction, no causal inference",
+    "source repository does not provide verified authorization for redistributing raw records; aggregated metrics only",
+    "2021 in-person Combine workouts were canceled due to COVID; NFL official report confirms pro days instead; no 2021 Combine measurements imputed",
+    "draft_grade is a scouting grade that may itself incorporate athletic tests; association cannot be interpreted as an independent prediction of career performance"
+  ],
+  "competition": "NOT_USED",
+  "kaggle_private_data": "NOT_USED",
+  "scientific_validation": "UNVERIFIED",
+  "tests": "11/11 PASS, offline Python fixtures; real data aggregated independently via connected GitHub read",
+  "source_cross_format_reconciliation": {
+    "csv_data_rows": 6568,
+    "csv_git_blob_sha1": "dcc6532ba88038cad3d9f974ea7654b2a6e5988a",
+    "parquet_metadata_num_rows": 6568,
+    "parquet_git_blob_sha1": "5093bc4b2751b77f80d2f3eedba5848501793292",
+    "parquet_metadata_method": "Decode GitHub Base64 Parquet raw bytes, verify PAR1 magic, footer length, parse Thrift compact FileMetaData field 3 num_rows; confirmed footer terminates exactly at expected metadata boundary",
+    "readme_declared_rows": 6883,
+    "readme_vs_verified_data_difference": 315,
+    "status": "PASS_CSV_PARQUET_CONCORDANT_DOCUMENTATION_DISAGREES",
+    "cause_of_documentation_discrepancy": "UNVERIFIED"
+  },
+  "pilot_draft_grade_association": {
+    "rows_with_grade_and_40yd_and_classified_group": 4986,
+    "outcome": "draft_grade, scouting draft grade recorded in same data source, not an independent NFL match outcome",
+    "exposure": "forty_yard_dash in seconds",
+    "method": "Pearson correlation after subtracting means within (year,position_group) strata",
+    "within_strata_pearson_r": -0.46130699580173007,
+    "strata_count": 162,
+    "negative_control": "300 deterministic within-stratum permutations of draft_grade, 0 reaching absolute observed r",
+    "permutations": 300,
+    "exceedances": 0,
+    "predictive_validity": "UNVERIFIED",
+    "causal_validity": "UNVERIFIED",
+    "status": "EXPLORATORY_JS_ON_REAL_SOURCE",
+    "monte_carlo_two_sided_p_corrected": 0.0033222591362126247,
+    "note": "Monte Carlo corrected two-sided p-value is minimum resolution at 300 permutations; this is not an upper confidence bound and not an NFL-match predictive validation.",
+    "tests": "10/10 PASS on offline Python synthetic fixtures; 300 permutations evaluated via JS on GitHub-connected real CSV. Python real-source rerun UNVERIFIED."
+  }
+}
