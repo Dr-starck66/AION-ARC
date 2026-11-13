@@ -151,9 +151,11 @@
     "negative_control": "300 deterministic within-stratum permutations of draft_grade, 0 reaching absolute observed r",
     "permutations": 300,
     "exceedances": 0,
-    "randomization_p_two_sided_upper_bound": 0.0033222591362126247,
     "predictive_validity": "UNVERIFIED",
     "causal_validity": "UNVERIFIED",
-    "status": "EXPLORATORY_JS_ON_REAL_SOURCE"
+    "status": "EXPLORATORY_JS_ON_REAL_SOURCE",
+    "monte_carlo_two_sided_p_corrected": 0.0033222591362126247,
+    "note": "Monte Carlo corrected two-sided p-value is minimum resolution at 300 permutations; this is not an upper confidence bound and not an NFL-match predictive validation.",
+    "tests": "10/10 PASS on offline Python synthetic fixtures; 300 permutations evaluated via JS on GitHub-connected real CSV. Python real-source rerun UNVERIFIED."
   }
 }
