@@ -36,3 +36,22 @@ La procédure est **séquentielle**, préserve le quota GPU (`enable_gpu=false`)
 - `FAIL` / `UNVERIFIED` : échec ou absence de preuve. Ne pas confondre un notebook marqué COMPLETE et une validation scientifique.
 
 Statut **actuel avant exécution du nouveau lanceur** : code ajouté à une PR brouillon ; **aucun nouveau résultat Kaggle scientifique encore observé**.
+
+## Incident Kaggle observé et reprise v2 (13/11/2026)
+
+**PASS** : compte `drstarck`, preuve GPU historique 2 × T4 et tests locaux synthétiques NFL/BIO.
+
+**FAIL sur les données réelles** :
+- NFL : `kernels.get denied` pour le slug attendu. Il faut retrouver le slug réel dans la liste des notebooks du compte.
+- BIO : reçu `PUBLIC_ARCHS4_EXPRESSION_QC_FAILED` : `Kaggle public expression dataset is not mounted`.
+
+**Remédiation versionnée** :
+- BIO recherche uniquement `human_liver.tsv` dans les sous-répertoires montés de `/kaggle/input`, sans supposer un nom de répertoire.
+- NFL découvre le montage officiel du concours et refuse les montages absents ou ambigus.
+- Le lanceur lit `kernels list --mine -v`, choisit une seule correspondance et refuse les doublons ou une permission refusée.
+- En cas de `KernelWorkerStatus.ERROR`, le lanceur récupère les journaux Kaggle et le reçu d'échec dans la même exécution.
+- Les scripts scientifiques sont figés au commit `3bedfdb957e225684f13eadeb41e9547f250ccac` et les reçus sont validés par leur SHA-256.
+
+Audit local ciblé du 13/11 : sept contrôles reproduits sur l'algorithme de résolution des slugs et de découverte des montages : `7/7 PASS`. Ce n'est pas une validation intégrale du nouveau lanceur ou une exécution scientifique sur Kaggle. Ces exécutions distantes restent `UNVERIFIED`.
+
+Sources : [NFL Big Data Bowl 2027](https://www.kaggle.com/competitions/nfl-big-data-bowl-2027) ; [ARCHS4 human liver samples](https://www.kaggle.com/datasets/lachmann12/human-liver-rnaseq-gene-expression-903-samples).
