@@ -350,7 +350,7 @@ def main():
         print("ASTRA_FAIL: Windows Kaggle OAuth not authenticated. " + proof[-500:])
         return 2
     print("ASTRA_KAGGLE_AUTH_PASS: " + version)
-    print("ASTRA_KAGGLE_RESEARCH_REVISION: 20261113-recovery-v2")
+    print("ASTRA_KAGGLE_RESEARCH_REVISION: 20261113-recovery-v3")
     summary = {"kind":"astra_kaggle_real_data_v1", "auth":"PASS",
                "timestamp_utc":dt.datetime.now(dt.timezone.utc).isoformat(),
                "remote_script_commit":SOURCE_REV, "jobs":{}, "other_projects":OTHER_PROJECTS,
@@ -363,6 +363,9 @@ def main():
         summary["jobs"][job["name"]] = result
         print("ASTRA_RESULT " + job["name"].upper() + " " + result["status"],
               result.get("gate", result.get("stage", "")), flush=True)
+        if result.get("status") == "FAIL" and result.get("reason"):
+            print("ASTRA_FAILURE_REASON " + job["name"].upper() + " "
+                  + str(result["reason"])[-800:], flush=True)
     report = HOME / "astra_kaggle_research_summary.json"
     report.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print("\nASTRA_RESEARCH_SUMMARY " + str(report), flush=True)
