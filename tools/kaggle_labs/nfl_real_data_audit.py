@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 
 PROJECT = "nfl-big-data-bowl-2027"
 SOURCE = "https://www.kaggle.com/competitions/nfl-big-data-bowl-2027"
-ROOT = Path(os.environ.get("ASTRA_INPUT", "/kaggle/input/nfl-big-data-bowl-2027"))
+ROOT = Path(os.environ.get("ASTRA_INPUT", "/kaggle/input"))
 OUTPUT = Path(os.environ.get("ASTRA_OUTPUT", "/kaggle/working/astra_nfl_official_report.json"))
 MAX_FILES = 100
 MAX_PREVIEW_ROWS = 2000
@@ -32,7 +32,16 @@ def sha256_file(path):
 def scan(root):
     if not root.is_dir() or root.is_symlink():
         raise ValueError("Official competition folder is not mounted: " + str(root))
-    candidates = sorted(p for p in root.rglob("*")
+    # Official Kaggle mount may differ from the competition slug. Fail closed
+    # unless a single official competition directory can be identified.
+    dirs = [p for p in root.iterdir() if p.is_dir() and "nfl-big-data-bowl-2027" in p.name.lower()]
+    if os.environ.get("ASTRA_INPUT"):
+        selected = root  # test fixture or explicitly selected trusted input
+    elif len(dirs) == 1:
+        selected = dirs[0]
+    else:
+        raise ValueError("Competition data mount missing/ambiguous; mounts=" + repr(sorted(p.name for p in root.iterdir() if p.is_dir())[:30]))
+    candidates = sorted(p for p in selected.rglob("*")
                         if p.is_file() and p.suffix.lower() in {".csv", ".parquet"})
     if not candidates:
         raise ValueError("Official competition files (.csv/.parquet) are missing")
@@ -42,7 +51,7 @@ def scan(root):
     for path in candidates:
         if path.is_symlink():
             raise ValueError("Symlink forbidden")
-        name = str(path.relative_to(root)).replace("\\", "/")
+        name = str(path.relative_to(selected)).replace("\\", "/")
         low = name.lower()
         size = path.stat().st_size
         if size <= 0:
