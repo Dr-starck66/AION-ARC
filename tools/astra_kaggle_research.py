@@ -19,7 +19,7 @@ import time
 from urllib.request import urlopen
 
 ACCOUNT = "drstarck"
-SOURCE_REV = "b85def14b243c45a2ee204c07dfc8875e25b4445"
+SOURCE_REV = "3bedfdb957e225684f13eadeb41e9547f250ccac"
 BASE_URL = ("https://raw.githubusercontent.com/Dr-starck66/AION-ARC/" +
             SOURCE_REV + "/tools/kaggle_labs/")
 HOME = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "ASTRA-Kaggle"
@@ -69,9 +69,50 @@ def remote_file(name):
         raise ValueError("Unexpected code artifact")
     return blob
 
+
+def find_owned_kernel(job):
+    """Resolve ONE exact existing private notebook from Kaggle authenticated list.
+
+    Ambiguous or absent slugs do not authorize another remote push.
+    """
+    refs = set()
+    snapshots = []
+    for page in (1, 2, 3, 4):
+        code, out = invoke(("kernels", "list", "--mine", "-v", "--page", str(page),
+                            "--page-size", "50"), timeout=100)
+        if code != 0:
+            raise RuntimeError("Cannot list owned Kaggle notebooks: " + out[-500:])
+        snapshots.append(out[-400:])
+        refs.update(re.findall(r"(?i)drstarck/[a-z0-9][a-z0-9_-]+", out))
+        if len(out.splitlines()) < 3:
+            break
+    wanted = job["slug"].lower()
+    if wanted in {r.lower() for r in refs}:
+        return wanted
+    stem = "astra-nfl-2027" if job["name"] == "nfl" else "astra-bio-mimic-x"
+    candidates = sorted(r.lower() for r in refs if r.lower().startswith("drstarck/" + stem))
+    if len(candidates) > 1:
+        raise RuntimeError("Ambiguous existing private notebooks: " + repr(candidates))
+    if candidates:
+        return candidates[0]
+    raise RuntimeError("No owned Kaggle notebook found for "
+                       + job["name"] + "; refusing duplicate push. "
+                       + "Last listing: " + repr(snapshots[-1])[:200])
+
+
+def slug_from_push_output(output):
+    matches = re.findall(
+        r"(?i)https?://(?:www[.])?kaggle[.]com/code/(drstarck/[a-z0-9_-]+)",
+        output,
+    )
+    return matches[-1].lower() if matches else None
+
+
 def kernel_status(slug):
     code, output = invoke(("kernels", "status", slug))
     if code != 0:
+        if "permission" in output.lower() or "denied" in output.lower():
+            return "DENIED", output
         return "MISSING", output
     found = re.search(r"KernelWorkerStatus[.]([A-Z_]+)", output)
     if found:
@@ -87,7 +128,11 @@ def kernel_status(slug):
     return state, output
 
 def validated_receipt(job, script_hash):
-    out_dir = HOME / "research" / job["name"] / "output"
+    out_dir = HOME / "research" / job["name"] / (
+        "output-" + hashlib.sha256(
+            (job["slug"] + str(time.time_ns())).encode("utf-8")
+        ).hexdigest()[:12]
+    )
     out_dir.mkdir(parents=True, exist_ok=True)
     code, msg = invoke(("kernels", "output", job["slug"], "-p", str(out_dir),
                         "-o", "--file-pattern", ".*" + re.escape(job["receipt"]) + "$"),
@@ -175,7 +220,17 @@ def run_job(job):
         local_selftest(job, blob, digest)
     except Exception as exc:
         return {"status":"FAIL", "stage":"local_selftest", "reason":str(exc)}
+    # Resolve actual slug BEFORE any new remote write. Kaggle may rename it.
+    try:
+        job = dict(job)
+        job["slug"] = find_owned_kernel(job)
+    except RuntimeError as exc:
+        return {"status": "FAIL", "stage": "owned_kernel_discovery",
+                "reason": str(exc)}
     state, msg = kernel_status(job["slug"])
+    if state in ("DENIED", "MISSING", "UNKNOWN"):
+        return {"status": "FAIL", "stage": "status_access",
+                "reason": "Owned kernel unreadable: " + msg[-700:]}
     if state == "COMPLETE":
         receipt, location = validated_receipt(job, digest)
         if receipt and receipt.get("status") in ("PARTIAL", "PASS"):
@@ -195,7 +250,13 @@ def run_job(job):
                            timeout=240)
         if code != 0:
             print("KAGGLE_PUSH_FAIL: " + out[-600:], flush=True)
-            return {"status": "FAIL", "stage":"push", "reason":out[-900:]}
+            return {"status": "FAIL", "stage": "push", "reason": out[-900:]}
+        actual = slug_from_push_output(out)
+        if actual is not None and actual != job["slug"]:
+            return {"status": "FAIL", "stage": "unexpected_slug",
+                    "reason": "Kaggle push returned " + actual
+                             + ", expected " + job["slug"]}
+        print("KAGGLE_PUSH_ACCEPTED_NOT_SCIENTIFIC_PASS " + job["slug"], flush=True)
     else:
         print("Existing kernel running; no duplicate pushed.", flush=True)
 
@@ -217,8 +278,9 @@ def run_job(job):
         if state in ("ERROR", "FAILED", "CANCELLED", "CANCELED"):
             return {"status":"FAIL", "stage":"kernel_error",
                     "reason":"Kaggle status: " + msg[-600:]}
-        if state == "MISSING" and i > 3:
-            return {"status":"FAIL", "stage":"kernel_missing", "reason":msg[-500:]}
+        if state in ("MISSING", "DENIED"):
+            return {"status": "FAIL", "stage": "kernel_inaccessible",
+                    "reason": "Kaggle status failed: " + msg[-700:]}
         print("Checking " + job["name"] + " " + str(i+1) + "/" + str(MAX_POLLS) +
               " : " + state, flush=True)
         time.sleep(POLL_SEC)
