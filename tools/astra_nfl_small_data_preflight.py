@@ -164,7 +164,12 @@ def download_small_files(dest: Path) -> list[dict]:
     return results
 
 
+NFL_COMPETITION_DISABLED_BY_OWNER = True
+
 def main() -> int:
+    if NFL_COMPETITION_DISABLED_BY_OWNER:
+        print('ASTRA_NFL_SKIPPED: competition work explicitly disabled by owner; no download')
+        return 0
     if not KAGGLE.is_file():
         print('ASTRA_NFL_FAIL Kaggle CLI missing at the existing local path', flush=True)
         return 2
