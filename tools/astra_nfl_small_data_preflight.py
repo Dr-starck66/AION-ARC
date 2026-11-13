@@ -4,7 +4,7 @@
 Uses the existing Kaggle CLI OAuth under %%LOCALAPPDATA%%/ASTRA-Kaggle.
 Zero GPU, kernels, submissions, dataset uploads, or external data exports.
 The caller must have access to the competition dataset. Strict manifest checks
-prevent a surprise multi-GB download.
+prevent a surprise multi-GB download. Request exact listed file paths.
 """
 from __future__ import annotations
 
@@ -145,9 +145,9 @@ def download_small_files(dest: Path) -> list[dict]:
         subdir = dest / 'files' / filename.removesuffix('.csv')
         subdir.mkdir(parents=True, exist_ok=False)
         code, output, err = invoke(['competitions', 'download', COMPETITION,
-                                    '-f', filename, '-p', str(subdir)], timeout=150)
+                                    '-f', COMPETITION + '/' + filename, '-p', str(subdir)], timeout=150)
         if code:
-            raise RuntimeError('Download failed for ' + filename + ': ' + (err or safe_error(output)))
+            raise RuntimeError('Download failed for listed path ' + COMPETITION + '/' + filename + ': ' + (err or safe_error(output)) + '; possible rights/rules restriction or Kaggle API path issue; no bulk fallback')
         result = inspect_csv(_resolve_csv(subdir, filename), filename)
         results.append(result)
         print('ASTRA_NFL_OFFICIAL_FILE_PASS ' + filename + ' rows=' + str(result['rows'])
