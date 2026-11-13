@@ -6,8 +6,10 @@ No GitHub Actions, passwords, secrets, cron, paid services or competition submit
 Each remote task produces a real Kaggle output receipt, else explicit failure.
 """
 from __future__ import annotations
+import csv
 import datetime as dt
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -70,35 +72,58 @@ def remote_file(name):
     return blob
 
 
-def find_owned_kernel(job):
-    """Resolve ONE exact existing private notebook from Kaggle authenticated list.
+def _owned_refs(search_term=None):
+    """Read Kaggle CSV pages completely; fail closed on truncated discovery."""
+    found = set()
+    page_size = 100
+    max_pages = 20
+    for page in range(1, max_pages + 1):
+        args = ("kernels", "list", "--mine", "-v", "--page", str(page),
+                "--page-size", str(page_size), "--sort-by", "dateRun")
+        if search_term:
+            args += ("--search", search_term)
+        code, output = invoke(args, timeout=100)
+        if code:
+            raise RuntimeError("Owned notebook listing failed (page " + str(page)
+                               + "): " + output[-400:])
+        count = 0
+        for row in csv.reader(io.StringIO(output)):
+            if not row:
+                continue
+            ref = row[0].strip().lower()
+            if re.fullmatch(r"drstarck/[a-z0-9][a-z0-9_-]*", ref):
+                found.add(ref)
+                count += 1
+        if count < page_size:
+            return found
+    raise RuntimeError("Owned Kaggle notebook listing exceeded 20 full pages; "
+                       "cannot prove uniqueness or absence")
 
-    Ambiguous or absent slugs do not authorize another remote push.
-    """
-    refs = set()
-    snapshots = []
-    for page in (1, 2, 3, 4):
-        code, out = invoke(("kernels", "list", "--mine", "-v", "--page", str(page),
-                            "--page-size", "50"), timeout=100)
-        if code != 0:
-            raise RuntimeError("Cannot list owned Kaggle notebooks: " + out[-500:])
-        snapshots.append(out[-400:])
-        refs.update(re.findall(r"(?i)drstarck/[a-z0-9][a-z0-9_-]+", out))
-        if len(out.splitlines()) < 3:
-            break
+
+def find_owned_kernel(job):
+    """Find a readable owned notebook, without creating another on uncertainty."""
     wanted = job["slug"].lower()
-    if wanted in {r.lower() for r in refs}:
+    code, direct = invoke(("kernels", "status", wanted), timeout=90)
+    if code == 0:
         return wanted
     stem = "astra-nfl-2027" if job["name"] == "nfl" else "astra-bio-mimic-x"
-    candidates = sorted(r.lower() for r in refs if r.lower().startswith("drstarck/" + stem))
-    if len(candidates) > 1:
-        raise RuntimeError("Ambiguous existing private notebooks: " + repr(candidates))
-    if candidates:
-        return candidates[0]
-    raise RuntimeError("No owned Kaggle notebook found for "
-                       + job["name"] + "; refusing duplicate push. "
-                       + "Last listing: " + repr(snapshots[-1])[:200])
-
+    candidates = {ref for ref in _owned_refs(stem)
+                  if ref == wanted or ref.startswith("drstarck/" + stem)}
+    if not candidates:
+        candidates = {ref for ref in _owned_refs()
+                      if ref == wanted or ref.startswith("drstarck/" + stem)}
+    if len(candidates) != 1:
+        raise RuntimeError("Owned notebook discovery returned " + str(len(candidates))
+                           + " candidates for " + job["name"] + ": "
+                           + repr(sorted(candidates))[:300]
+                           + "; exact status originally failed: " + direct[-250:]
+                           + "; no duplicate push")
+    actual = next(iter(candidates))
+    code, output = invoke(("kernels", "status", actual), timeout=90)
+    if code:
+        raise RuntimeError("Owned notebook " + actual + " remains unreadable: "
+                           + output[-400:] + "; no duplicate push")
+    return actual
 
 def slug_from_push_output(output):
     matches = re.findall(
