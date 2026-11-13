@@ -14,6 +14,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
 import time
 from urllib.request import urlopen
 
@@ -106,6 +107,46 @@ def validated_receipt(job, script_hash):
     except (ValueError, OSError) as exc:
         return None, "invalid receipt: " + str(exc)
 
+
+def local_selftest(job, blob, digest):
+    """Two reproducible local fixtures before any remote Kaggle write."""
+    compile(blob, job["filename"], "exec")
+    with tempfile.TemporaryDirectory(prefix="astra-kaggle-qc-", dir=str(HOME)) as temp:
+        base = Path(temp)
+        source = base / job["filename"]
+        source.write_bytes(blob)
+        data = base / "input"
+        data.mkdir()
+        output = base / "receipt.json"
+        if job["name"] == "nfl":
+            (data / "combine.csv").write_text("player_id,s\np1,2.0\np2,3.0\n", encoding="utf-8")
+            (data / "game_tracking.csv").write_text("player_id,s\np1,2.5\np3,3.5\n", encoding="utf-8")
+        else:
+            (data / "human_liver.tsv").write_text(
+                "gene_id\tsample_1\tsample_2\nGENE1\t1\t0\nGENE2\t2\t3\n",
+                encoding="utf-8")
+        env = os.environ.copy()
+        env["ASTRA_INPUT"] = str(data)
+        env["ASTRA_OUTPUT"] = str(output)
+        p = subprocess.run([sys.executable, str(source)], capture_output=True,
+                           text=True, env=env, timeout=40)
+        if p.returncode != 0 or not output.is_file():
+            raise RuntimeError("Positive fixture did not execute: " + (p.stderr or p.stdout)[-500:])
+        receipt = json.loads(output.read_text(encoding="utf-8"))
+        if (receipt.get("status") != "PARTIAL" or
+            receipt.get("project") != job["project"] or
+            receipt.get("script_sha256") != digest):
+            raise RuntimeError("Positive fixture receipt mismatch")
+        bad = base / "empty"
+        bad.mkdir()
+        env["ASTRA_INPUT"] = str(bad)
+        p = subprocess.run([sys.executable, str(source)], capture_output=True,
+                           text=True, env=env, timeout=40)
+        failed = json.loads(output.read_text(encoding="utf-8"))
+        if p.returncode == 0 or failed.get("status") != "FAIL":
+            raise RuntimeError("Negative fixture accepted a missing dataset")
+    print("ASTRA_LOCAL_SELFTEST_PASS: " + job["name"] + " positive + negative", flush=True)
+
 def prepare_job(job, blob):
     folder = HOME / "research" / job["name"] / "kernel"
     folder.mkdir(parents=True, exist_ok=True)
@@ -130,6 +171,10 @@ def run_job(job):
     except Exception as exc:
         return {"status": "FAIL", "stage":"source_download", "reason":str(exc)}
     digest = hashlib.sha256(blob).hexdigest()
+    try:
+        local_selftest(job, blob, digest)
+    except Exception as exc:
+        return {"status":"FAIL", "stage":"local_selftest", "reason":str(exc)}
     state, msg = kernel_status(job["slug"])
     if state == "COMPLETE":
         receipt, location = validated_receipt(job, digest)
