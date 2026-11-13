@@ -1,0 +1,131 @@
+{
+  "kind": "ASTRA_NFL_OPEN_COMBINE_DESCRIPTIVE_QC",
+  "source_url": "https://github.com/array-carpenter/nfl-draft-data/blob/master/data/combine_official.csv",
+  "source_git_blob_sha1": "dcc6532ba88038cad3d9f974ea7654b2a6e5988a",
+  "data_source": "public independent GitHub repository, official NFL Combine measurements derived from NFL API",
+  "analysis_date_utc": "2026-11-13",
+  "status": "PARTIAL",
+  "data_qc": "PASS",
+  "row_count": 6568,
+  "column_count": 24,
+  "malformed_rows": 0,
+  "duplicates_player_year": 0,
+  "unclassified_position": 2,
+  "valid_40": 5078,
+  "valid_vertical": 4992,
+  "valid_both": 4699,
+  "year_counts": {
+    "2006": 330,
+    "2007": 326,
+    "2008": 333,
+    "2009": 328,
+    "2010": 327,
+    "2011": 329,
+    "2012": 324,
+    "2013": 331,
+    "2014": 334,
+    "2015": 320,
+    "2016": 330,
+    "2017": 330,
+    "2018": 336,
+    "2019": 337,
+    "2020": 337,
+    "2022": 324,
+    "2023": 319,
+    "2024": 321,
+    "2025": 329,
+    "2026": 323
+  },
+  "position_groups": [
+    {
+      "group": "DB",
+      "rows": 1177,
+      "forty_n": 967,
+      "forty_median_seconds": 4.52,
+      "vertical_n": 922,
+      "vertical_median_inches": 35.5
+    },
+    {
+      "group": "DL",
+      "rows": 1147,
+      "forty_n": 883,
+      "forty_median_seconds": 4.91,
+      "vertical_n": 879,
+      "vertical_median_inches": 31.5
+    },
+    {
+      "group": "OL",
+      "rows": 1068,
+      "forty_n": 836,
+      "forty_median_seconds": 5.24,
+      "vertical_n": 820,
+      "vertical_median_inches": 28
+    },
+    {
+      "group": "WR",
+      "rows": 927,
+      "forty_n": 784,
+      "forty_median_seconds": 4.51,
+      "vertical_n": 767,
+      "vertical_median_inches": 35.5
+    },
+    {
+      "group": "LB",
+      "rows": 658,
+      "forty_n": 507,
+      "forty_median_seconds": 4.7,
+      "vertical_n": 501,
+      "vertical_median_inches": 34
+    },
+    {
+      "group": "RB",
+      "rows": 638,
+      "forty_n": 518,
+      "forty_median_seconds": 4.57,
+      "vertical_n": 527,
+      "vertical_median_inches": 34.5
+    },
+    {
+      "group": "TE",
+      "rows": 385,
+      "forty_n": 282,
+      "forty_median_seconds": 4.74,
+      "vertical_n": 288,
+      "vertical_median_inches": 33.5
+    },
+    {
+      "group": "QB",
+      "rows": 350,
+      "forty_n": 258,
+      "forty_median_seconds": 4.8149999999999995,
+      "vertical_n": 265,
+      "vertical_median_inches": 31
+    },
+    {
+      "group": "SPEC",
+      "rows": 216,
+      "forty_n": 42,
+      "forty_median_seconds": 4.9,
+      "vertical_n": 22,
+      "vertical_median_inches": 30
+    },
+    {
+      "group": "UNCLASSIFIED",
+      "rows": 2,
+      "forty_n": 1,
+      "forty_median_seconds": 4.65,
+      "vertical_n": 1,
+      "vertical_median_inches": 31
+    }
+  ],
+  "limitations": [
+    "SOURCE README reports 6883 records, observed CSV blob has 6568; discrepancy unresolved",
+    "2021 absent from source years; cannot infer a contiguous 2006-2026 population",
+    "descriptive summaries by position only; no player-to-match outcome join, no prediction, no causal inference",
+    "source repository does not provide verified authorization for redistributing raw records; aggregated metrics only"
+  ],
+  "competition": "NOT_USED",
+  "kaggle_private_data": "NOT_USED",
+  "scientific_validation": "UNVERIFIED",
+  "tests": "11/11 PASS, offline Python fixtures; real data aggregated independently via connected GitHub read"
+}
