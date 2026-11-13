@@ -13,11 +13,18 @@
 
 ## Contrôles négatifs et limites obligatoires
 
-- Le README du dépôt source annonce **6 883 lignes** tandis que le CSV exactement identifié ci-dessus en contient **6 568**. Discordance non résolue ; ne pas publier de décompte exhaustif indépendant de ce fichier versionné.
-- Aucune saison 2021 dans cette source. Deux positions non classées.
+- **Discordance documentaire isolée** : le fichier CSV contient **6 568** lignes. L’équivalent `combine_official.parquet` contient également **6 568** lignes selon `FileMetaData.num_rows` (métadonnées binaires Parquet / Thrift compact décodées et limite de pied de fichier vérifiée). Blob Git Parquet : `5093bc4b2751b77f80d2f3eedba5848501793292`. Le README et le schéma du dépôt source annoncent **6 883** : écart de **315** dans la documentation ; raison éditoriale exacte inconnue. Aucun jeu de 315 lignes manquantes n’est démontré.
+- **Année 2021** : absence des mesures du Combine traditionnel cohérente avec le communiqué de la NFL du 18/01/2021 : les exercices ont été transférés vers les pro days à cause du Covid. Source : https://www.nfl.com/news/nfl-memo-details-different-format-for-combine-individual-workouts-will-be-held-o . Deux joueurs sans poste classé dans le fichier.
 - Les métriques sont descriptives et n'établissent **aucun** lien causal ou prédictif entre Combine, recrutement, performances en match, carrière ou résultats sportifs.
 - La provenance NFL API est documentée par le dépôt tiers. Les droits précis de redistribution du jeu brut n'ont pas été vérifiés : ne redistribuer aucun enregistrement brut, seulement les agrégats et les liens avec attribution.
 - Les études scientifiques indépendantes ont déjà documenté les différences par position et les limites prédictives des tests Combine (p. ex. PMID 37639664 et PMID 42641168). Ne pas revendiquer la nouveauté de ces constats.
+
+## Résultat exploratoire supplémentaire : note de draft et sprint
+
+- Sur **4 986** joueurs avec poste connu, temps de 40 yards et `draft_grade` renseignés, la corrélation de Pearson après centrage par groupe `(année, position_group)` est **r = −0,461307** (162 cellules position-année au total).
+- **Contrôle négatif** : 300 permutations de la note à l'intérieur de chaque cellule poste-année ; **0/300** atteint une corrélation d'amplitude au moins égale. p-valeur de randomisation Monte-Carlo corrigée `(0+1)/(300+1) ≈ 0,00332`, résolution limitée à 300 permutations. Cette p-valeur n'implique ni causalité ni validation d'une prédiction.
+- Attention : `draft_grade` est une **note de scouting**, susceptible d'intégrer les performances au Combine ; elle n'est donc **pas indépendante** du sprint et ne mesure pas la réussite en NFL.
+- Méthode reproductible : [analyze_grade_association.py](analyze_grade_association.py), jeux de tests [test_analyze_grade_association.py](test_analyze_grade_association.py), **10/10 tests PASS** sur fixtures synthétiques dans l'environnement isolé ; le script Python n'a pas été exécuté sur le CSV réel, les calculs observés proviennent du traitement JS des données connectées. Les anciens tests `analyze_combine.py` sont toujours **11/11 PASS** — **21/21 PASS** au total.
 
 ## Réexécution reproductible
 
