@@ -119,13 +119,41 @@
     }
   ],
   "limitations": [
-    "SOURCE README reports 6883 records, observed CSV blob has 6568; discrepancy unresolved",
+    "Both CSV and Parquet metadata contain 6568 records; third-party README declares 6883, i.e. an inconsistent documentation count; reason unknown",
     "2021 absent from source years; cannot infer a contiguous 2006-2026 population",
     "descriptive summaries by position only; no player-to-match outcome join, no prediction, no causal inference",
-    "source repository does not provide verified authorization for redistributing raw records; aggregated metrics only"
+    "source repository does not provide verified authorization for redistributing raw records; aggregated metrics only",
+    "2021 in-person Combine workouts were canceled due to COVID; NFL official report confirms pro days instead; no 2021 Combine measurements imputed",
+    "draft_grade is a scouting grade that may itself incorporate athletic tests; association cannot be interpreted as an independent prediction of career performance"
   ],
   "competition": "NOT_USED",
   "kaggle_private_data": "NOT_USED",
   "scientific_validation": "UNVERIFIED",
-  "tests": "11/11 PASS, offline Python fixtures; real data aggregated independently via connected GitHub read"
+  "tests": "11/11 PASS, offline Python fixtures; real data aggregated independently via connected GitHub read",
+  "source_cross_format_reconciliation": {
+    "csv_data_rows": 6568,
+    "csv_git_blob_sha1": "dcc6532ba88038cad3d9f974ea7654b2a6e5988a",
+    "parquet_metadata_num_rows": 6568,
+    "parquet_git_blob_sha1": "5093bc4b2751b77f80d2f3eedba5848501793292",
+    "parquet_metadata_method": "Decode GitHub Base64 Parquet raw bytes, verify PAR1 magic, footer length, parse Thrift compact FileMetaData field 3 num_rows; confirmed footer terminates exactly at expected metadata boundary",
+    "readme_declared_rows": 6883,
+    "readme_vs_verified_data_difference": 315,
+    "status": "PASS_CSV_PARQUET_CONCORDANT_DOCUMENTATION_DISAGREES",
+    "cause_of_documentation_discrepancy": "UNVERIFIED"
+  },
+  "pilot_draft_grade_association": {
+    "rows_with_grade_and_40yd_and_classified_group": 4986,
+    "outcome": "draft_grade, scouting draft grade recorded in same data source, not an independent NFL match outcome",
+    "exposure": "forty_yard_dash in seconds",
+    "method": "Pearson correlation after subtracting means within (year,position_group) strata",
+    "within_strata_pearson_r": -0.46130699580173007,
+    "strata_count": 162,
+    "negative_control": "300 deterministic within-stratum permutations of draft_grade, 0 reaching absolute observed r",
+    "permutations": 300,
+    "exceedances": 0,
+    "randomization_p_two_sided_upper_bound": 0.0033222591362126247,
+    "predictive_validity": "UNVERIFIED",
+    "causal_validity": "UNVERIFIED",
+    "status": "EXPLORATORY_JS_ON_REAL_SOURCE"
+  }
 }
