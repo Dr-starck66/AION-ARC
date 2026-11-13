@@ -327,6 +327,12 @@ def run_job(job):
     if existing is not None:
         print("ASTRA_BIO_LOCAL_RECEIPT_VERIFIED (no new Kaggle job)", flush=True)
         return existing
+    # Recovery v4 is evidence-only. Do not launch a fresh remote job or
+    # trigger OAuth prompts merely because an older private notebook is denied.
+    if job["name"] == "bio":
+        return {"status": "UNVERIFIED", "stage": "local_bio_receipt_not_found",
+                "reason": "No local BIO receipt matches the pinned script and source; "
+                          "no remote job, authentication attempt, or data upload made"}
     try:
         local_selftest(job, blob, digest)
     except Exception as exc:
