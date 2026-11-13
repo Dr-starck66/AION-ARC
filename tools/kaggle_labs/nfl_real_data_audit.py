@@ -106,6 +106,7 @@ def run():
         report.update({"status": "FAIL", "gate": "INPUT_UNAVAILABLE_OR_INVALID",
                        "error_type": type(exc).__name__, "error": str(exc)})
         print("ASTRA_NFL_DATA_GATE_FAIL", type(exc).__name__, str(exc), flush=True)
+    report["script_sha256"] = sha256_file(Path(__file__))
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return report
