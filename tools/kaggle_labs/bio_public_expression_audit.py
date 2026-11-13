@@ -103,6 +103,8 @@ def run():
              "source": SOURCE, "error_type": type(exc).__name__, "error": str(exc)}
         print("ASTRA_BIO_DATA_GATE_FAIL", type(exc).__name__, str(exc), flush=True)
     r["project"] = PROJECT
+    r["dataset_slug"] = SLUG
+    r["script_sha256"] = sha256_file(Path(__file__))
     r["timestamp_utc"] = datetime.now(timezone.utc).isoformat()
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(r, indent=2, sort_keys=True) + "\n", encoding="utf-8")
